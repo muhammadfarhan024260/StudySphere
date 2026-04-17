@@ -1,56 +1,74 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
+import Login from './components/Login'
+import Signup from './components/Signup'
 import './App.css'
-import api from './services/api'
 
 function App() {
-  const [data, setData] = useState(null)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
+  const [currentView, setCurrentView] = useState('login') // 'login' or 'signup'
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [userInfo, setUserInfo] = useState(null)
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true)
-        // Test API connection - replace this with your actual endpoint
-        const response = await api.get('/test')
-        setData(response.data)
-      } catch (err) {
-        setError(err.message)
-      } finally {
-        setLoading(false)
-      }
-    }
+  const handleLoginSuccess = (data) => {
+    setIsAuthenticated(true)
+    setUserInfo(data)
+    setCurrentView('dashboard')
+  }
 
-    // Uncomment when your backend API is ready
-    // fetchData()
-  }, [])
+  const handleSignupSuccess = (data) => {
+    // After signup, show login form
+    setCurrentView('login')
+  }
+
+  const handleLogout = () => {
+    setIsAuthenticated(false)
+    setUserInfo(null)
+    localStorage.removeItem('token')
+    localStorage.removeItem('userId')
+    localStorage.removeItem('userType')
+    setCurrentView('login')
+  }
 
   return (
-    <div className="container">
-      <header className="header">
-        <h1>StudySphere - Module 1</h1>
-        <p>Database Management System Course Project</p>
-      </header>
+    <div className="app">
+      {!isAuthenticated ? (
+        <div>
+          {currentView === 'login' && (
+            <Login 
+              onLoginSuccess={handleLoginSuccess}
+              onSwitchToSignup={() => setCurrentView('signup')}
+            />
+          )}
 
-      <main className="main-content">
-        <section className="welcome">
-          <h2>Welcome to StudySphere!</h2>
-          <p>Frontend: React ✅</p>
-          <p>Backend: ASP.NET Core ✅</p>
-          <p>Database: PostgreSQL (Neon) ✅</p>
-        </section>
-
-        {loading && <p className="loading">Loading...</p>}
-        {error && <p className="error">Error: {error}</p>}
-        {data && <p className="success">Connected to backend! {JSON.stringify(data)}</p>}
-
-        <section className="components">
-          <h2>Module 1 Components</h2>
-          <div className="placeholder">
-            <p>Your components will go here...</p>
-          </div>
-        </section>
-      </main>
+          {currentView === 'signup' && (
+            <Signup 
+              onSignupSuccess={handleSignupSuccess}
+              onSwitchToLogin={() => setCurrentView('login')}
+            />
+          )}
+        </div>
+      ) : (
+        <div style={{ padding: '40px', textAlign: 'center', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', minHeight: '100vh', color: 'white' }}>
+          <h1>Welcome, {userInfo?.name || 'User'}!</h1>
+          <p>You are logged in successfully</p>
+          <p>User ID: {userInfo?.userId}</p>
+          <p>User Type: {userInfo?.userType}</p>
+          <button 
+            onClick={handleLogout}
+            style={{
+              padding: '10px 20px',
+              background: 'white',
+              color: '#667eea',
+              border: 'none',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontWeight: 'bold',
+              marginTop: '20px'
+            }}
+          >
+            Logout
+          </button>
+        </div>
+      )}
     </div>
   )
 }

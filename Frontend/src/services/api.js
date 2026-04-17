@@ -9,10 +9,29 @@ const api = axios.create({
   }
 })
 
-// You can add interceptors here for authentication, error handling, etc.
+// Add auth token to requests
+api.interceptors.request.use(
+  config => {
+    const token = localStorage.getItem('token')
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`
+    }
+    return config
+  },
+  error => Promise.reject(error)
+)
+
+// Handle errors
 api.interceptors.response.use(
   response => response,
   error => {
+    if (error.response?.status === 401) {
+      // Unauthorized - clear token and redirect to login
+      localStorage.removeItem('token')
+      localStorage.removeItem('userId')
+      localStorage.removeItem('userType')
+      window.location.href = '/'
+    }
     console.error('API Error:', error)
     return Promise.reject(error)
   }
