@@ -4,7 +4,8 @@ import Signup from './components/Signup'
 import './App.css'
 
 function App() {
-  const [currentView, setCurrentView] = useState('login') // 'login' or 'signup'
+  const [currentView, setCurrentView] = useState('login') // 'login', 'signup', or 'dashboard'
+  const [role, setRole] = useState('student') // 'student' or 'admin'
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [userInfo, setUserInfo] = useState(null)
 
@@ -33,16 +34,20 @@ function App() {
       {!isAuthenticated ? (
         <div>
           {currentView === 'login' && (
-            <Login 
+            <Login
               onLoginSuccess={handleLoginSuccess}
               onSwitchToSignup={() => setCurrentView('signup')}
+              role={role}
+              setRole={setRole}
             />
           )}
 
           {currentView === 'signup' && (
-            <Signup 
+            <Signup
               onSignupSuccess={handleSignupSuccess}
               onSwitchToLogin={() => setCurrentView('login')}
+              role={role}
+              setRole={setRole}
             />
           )}
         </div>
@@ -52,7 +57,7 @@ function App() {
           <p>You are logged in successfully</p>
           <p>User ID: {userInfo?.userId}</p>
           <p>User Type: {userInfo?.userType}</p>
-          <button 
+          <button
             onClick={handleLogout}
             style={{
               padding: '10px 20px',

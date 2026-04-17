@@ -1,5 +1,9 @@
 using DotNetEnv;
 using StudySphere.Data;
+using StudySphere.Repositories;
+using StudySphere.Services;
+using StudySphere.Facades;
+using Microsoft.EntityFrameworkCore;
 
 // Load environment variables from .env file
 Env.Load(".env");
@@ -16,6 +20,17 @@ builder.Services.AddDbContext<StudySphereDbContext>(options =>
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// Data Access Layer
+builder.Services.AddScoped<IStudyLogRepository, StudyLogRepository>();
+builder.Services.AddScoped<IGoalRepository, GoalRepository>();
+
+// Business Layer
+builder.Services.AddScoped<IStudyLogService, StudyLogService>();
+builder.Services.AddScoped<IGoalService, GoalService>();
+
+// Façade Pattern
+builder.Services.AddScoped<StudyPlannerFacade>();
 
 // Add CORS if needed for frontend
 builder.Services.AddCors(options =>

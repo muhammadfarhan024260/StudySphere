@@ -2,7 +2,7 @@ import { useState } from 'react'
 import api from '../services/api'
 import './Auth.css'
 
-export default function Login({ onLoginSuccess, onSwitchToSignup }) {
+export default function Login({ onLoginSuccess, onSwitchToSignup, role, setRole }) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
@@ -14,14 +14,8 @@ export default function Login({ onLoginSuccess, onSwitchToSignup }) {
     setError('')
     setSuccess('')
 
-    // Validation
     if (!email || !password) {
       setError('Email and password are required')
-      return
-    }
-
-    if (!email.includes('@')) {
-      setError('Please enter a valid email')
       return
     }
 
@@ -30,10 +24,11 @@ export default function Login({ onLoginSuccess, onSwitchToSignup }) {
       const response = await api.post('/auth/login', {
         email,
         password,
+        userType: role
       })
 
       if (response.data.success) {
-        setSuccess('Login successful! Redirecting...')
+        setSuccess(`Welcome back, ${role}! Redirecting...`)
         localStorage.setItem('token', response.data.token)
         localStorage.setItem('userId', response.data.userId)
         localStorage.setItem('userType', response.data.userType)
@@ -45,8 +40,7 @@ export default function Login({ onLoginSuccess, onSwitchToSignup }) {
         setError(response.data.message || 'Login failed')
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Login failed. Please try again.')
-      console.error('Login error:', err)
+      setError(err.response?.data?.message || 'Invalid credentials. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -55,35 +49,58 @@ export default function Login({ onLoginSuccess, onSwitchToSignup }) {
   return (
     <div className="auth-container">
       <div className="auth-box">
-        <h2>Student Login</h2>
-        <p className="auth-subtitle">Sign in to your StudySphere account</p>
+        <div className="auth-header">
+          <h2>StudySphere AI</h2>
+          <p className="auth-subtitle">Get access to your academic universe</p>
+        </div>
 
-        {error && <div className="alert alert-error">{error}</div>}
-        {success && <div className="alert alert-success">{success}</div>}
+        <div className="role-toggle">
+          <button 
+            type="button" 
+            className={`role-btn ${role === 'student' ? 'active' : ''}`}
+            onClick={() => setRole('student')}
+          >
+            Student
+          </button>
+          <button 
+            type="button" 
+            className={`role-btn ${role === 'admin' ? 'active' : ''}`}
+            onClick={() => setRole('admin')}
+          >
+            Administrator
+          </button>
+        </div>
+
+        {error && <div className="alert alert-error"><span>⚠️</span> {error}</div>}
+        {success && <div className="alert alert-success"><span>✓</span> {success}</div>}
 
         <form onSubmit={handleSubmit} className="auth-form">
           <div className="form-group">
             <label htmlFor="email">Email Address</label>
-            <input
-              id="email"
-              type="email"
-              placeholder="you@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
+            <div className="input-wrapper">
+              <input
+                id="email"
+                type="email"
+                placeholder="name@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
           </div>
 
           <div className="form-group">
             <label htmlFor="password">Password</label>
-            <input
-              id="password"
-              type="password"
-              placeholder="Enter your password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
+            <div className="input-wrapper">
+              <input
+                id="password"
+                type="password"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
           </div>
 
           <button 
@@ -91,24 +108,24 @@ export default function Login({ onLoginSuccess, onSwitchToSignup }) {
             disabled={loading}
             className="auth-button"
           >
-            {loading ? 'Signing in...' : 'Sign In'}
+            {loading ? 'Authenticating...' : `Sign In as ${role.charAt(0).toUpperCase() + role.slice(1)}`}
           </button>
         </form>
 
         <div className="auth-footer">
-          <a href="#forgot">Forgot password?</a>
+          <a href="#forgot">Recover password</a>
         </div>
 
         <div className="auth-divider">
-          <span>Don't have an account?</span>
+          <span>{role === 'student' ? "New to the sphere?" : "Admin onboarding?"}</span>
         </div>
 
         <button 
           type="button"
           onClick={onSwitchToSignup}
-          className="signup-button"
+          className="switch-auth-btn"
         >
-          Create New Account
+          {role === 'student' ? "Create Student Account" : "Create Admin Account"}
         </button>
       </div>
     </div>
