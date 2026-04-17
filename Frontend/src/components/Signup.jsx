@@ -1,8 +1,9 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import api from '../services/api'
 import './Auth.css'
 
-export default function Signup({ onSignupSuccess, onSwitchToLogin, role, setRole }) {
+export default function Signup({ initialRole = 'student', onSignupSuccess, onSwitchToLogin }) {
+  const [role, setRole] = useState(initialRole)
   const [formData, setFormData] = useState({
     name: '',
     enrollmentNumber: '',
@@ -13,6 +14,10 @@ export default function Signup({ onSignupSuccess, onSwitchToLogin, role, setRole
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+
+  useEffect(() => {
+    setRole(initialRole)
+  }, [initialRole])
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -27,10 +32,18 @@ export default function Signup({ onSignupSuccess, onSwitchToLogin, role, setRole
     setError('')
     setSuccess('')
 
-    // Validate based on role
-    const isStudent = role === 'student';
-    if (!formData.name || (isStudent && !formData.enrollmentNumber) || !formData.email || !formData.password) {
-      setError('Enter all details')
+    if (!formData.name || !formData.email || !formData.password) {
+      setError('All required fields must be completed')
+      return
+    }
+
+    if (role === 'student' && !formData.enrollmentNumber) {
+      setError('Enrollment number is required for students')
+      return
+    }
+
+    if (formData.password.length < 6) {
+      setError('Password must be at least 6 characters')
       return
     }
 
@@ -41,24 +54,29 @@ export default function Signup({ onSignupSuccess, onSwitchToLogin, role, setRole
 
     try {
       setLoading(true)
-      const response = await api.post('/auth/signup', {
+      const signupData = {
         name: formData.name,
-        enrollmentNumber: isStudent ? formData.enrollmentNumber : null,
         email: formData.email,
         password: formData.password,
         userType: role
-      })
+      }
+
+      if (role === 'student') {
+        signupData.enrollmentNumber = formData.enrollmentNumber
+      }
+
+      const response = await api.post('/auth/signup', signupData)
 
       if (response.data.success) {
-        setSuccess(`${role.charAt(0).toUpperCase() + role.slice(1)} account created! Preparing login...`)
+        setSuccess('Account created successfully!')
         setTimeout(() => {
           onSignupSuccess && onSignupSuccess(response.data)
-        }, 2000)
+        }, 1500)
       } else {
         setError(response.data.message || 'Signup failed')
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Try again later.')
+      setError(err.response?.data?.message || 'Registration failed. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -68,8 +86,8 @@ export default function Signup({ onSignupSuccess, onSwitchToLogin, role, setRole
     <div className="auth-container">
       <div className="auth-box">
         <div className="auth-header">
-          <h2>{role === 'student' ? "Student Registration" : "Admin Registration"}</h2>
-          <p className="auth-subtitle">Initialize your profile in our academic ecosystem</p>
+          <h2>Create {role === 'student' ? 'Student' : 'Admin'} Account</h2>
+          <p className="auth-subtitle">Join the StudySphere management platform</p>
         </div>
 
         <div className="role-toggle">
@@ -89,7 +107,7 @@ export default function Signup({ onSignupSuccess, onSwitchToLogin, role, setRole
           </button>
         </div>
 
-        {error && <div className="alert alert-error"><span>⚠️</span> {error}</div>}
+        {error && <div className="alert alert-error"><span>!</span> {error}</div>}
         {success && <div className="alert alert-success"><span>✓</span> {success}</div>}
 
         <form onSubmit={handleSubmit} className="auth-form">
@@ -100,7 +118,7 @@ export default function Signup({ onSignupSuccess, onSwitchToLogin, role, setRole
                 id="name"
                 type="text"
                 name="name"
-                placeholder="Your Name"
+                placeholder="Full Name"
                 value={formData.name}
                 onChange={handleChange}
                 required
@@ -110,13 +128,13 @@ export default function Signup({ onSignupSuccess, onSwitchToLogin, role, setRole
 
           {role === 'student' && (
             <div className="form-group">
-              <label htmlFor="enrollmentNumber">Enrollment ID</label>
+              <label htmlFor="enrollmentNumber">Enrollment Number</label>
               <div className="input-wrapper">
                 <input
                   id="enrollmentNumber"
                   type="text"
                   name="enrollmentNumber"
-                  placeholder="BU-XX-XXX"
+                  placeholder="e.g. BU-21-001"
                   value={formData.enrollmentNumber}
                   onChange={handleChange}
                   required
@@ -132,7 +150,7 @@ export default function Signup({ onSignupSuccess, onSwitchToLogin, role, setRole
                 id="email"
                 type="email"
                 name="email"
-                placeholder="name@university.edu"
+                placeholder="registered@email.com"
                 value={formData.email}
                 onChange={handleChange}
                 required
@@ -141,13 +159,13 @@ export default function Signup({ onSignupSuccess, onSwitchToLogin, role, setRole
           </div>
 
           <div className="form-group">
-            <label htmlFor="password">Access Password</label>
+            <label htmlFor="password">Password</label>
             <div className="input-wrapper">
               <input
                 id="password"
                 type="password"
                 name="password"
-                placeholder="Create secure password"
+                placeholder="At least 6 characters"
                 value={formData.password}
                 onChange={handleChange}
                 required
@@ -156,13 +174,13 @@ export default function Signup({ onSignupSuccess, onSwitchToLogin, role, setRole
           </div>
 
           <div className="form-group">
-            <label htmlFor="confirmPassword">Verify Password</label>
+            <label htmlFor="confirmPassword">Confirm Password</label>
             <div className="input-wrapper">
               <input
                 id="confirmPassword"
                 type="password"
                 name="confirmPassword"
-                placeholder="Confirm password"
+                placeholder="Repeat password"
                 value={formData.confirmPassword}
                 onChange={handleChange}
                 required
@@ -175,12 +193,12 @@ export default function Signup({ onSignupSuccess, onSwitchToLogin, role, setRole
             disabled={loading}
             className="auth-button"
           >
-            {loading ? 'Initializing...' : `Create ${role.charAt(0).toUpperCase() + role.slice(1)} Account`}
+            {loading ? 'Creating...' : 'Register Account'}
           </button>
         </form>
 
         <div className="auth-divider">
-          <span>Already have an account?</span>
+          <span>Already registered?</span>
         </div>
 
         <button 
@@ -188,7 +206,7 @@ export default function Signup({ onSignupSuccess, onSwitchToLogin, role, setRole
           onClick={onSwitchToLogin}
           className="switch-auth-btn"
         >
-          Sign In
+          Back to Login
         </button>
       </div>
     </div>

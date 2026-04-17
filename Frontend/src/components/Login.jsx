@@ -2,9 +2,10 @@ import { useState } from 'react'
 import api from '../services/api'
 import './Auth.css'
 
-export default function Login({ onLoginSuccess, onSwitchToSignup, role, setRole }) {
+export default function Login({ onLoginSuccess, onSwitchToSignup }) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [role, setRole] = useState('student') // 'student' or 'admin'
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
@@ -28,7 +29,7 @@ export default function Login({ onLoginSuccess, onSwitchToSignup, role, setRole 
       })
 
       if (response.data.success) {
-        setSuccess(`Welcome back, ${role}! Redirecting...`)
+        setSuccess(`Login successful. Redirecting...`)
         localStorage.setItem('token', response.data.token)
         localStorage.setItem('userId', response.data.userId)
         localStorage.setItem('userType', response.data.userType)
@@ -37,7 +38,7 @@ export default function Login({ onLoginSuccess, onSwitchToSignup, role, setRole 
           onLoginSuccess && onLoginSuccess(response.data)
         }, 1500)
       } else {
-        setError(response.data.message || 'Login failed')
+        setError(response.data.message || 'Verification failed')
       }
     } catch (err) {
       setError(err.response?.data?.message || 'Invalid credentials. Please try again.')
@@ -50,8 +51,8 @@ export default function Login({ onLoginSuccess, onSwitchToSignup, role, setRole 
     <div className="auth-container">
       <div className="auth-box">
         <div className="auth-header">
-          <h2>StudySphere AI</h2>
-          <p className="auth-subtitle">Get access to your academic universe</p>
+          <h2>StudySphere</h2>
+          <p className="auth-subtitle">Welcome to your academic management portal</p>
         </div>
 
         <div className="role-toggle">
@@ -71,7 +72,7 @@ export default function Login({ onLoginSuccess, onSwitchToSignup, role, setRole 
           </button>
         </div>
 
-        {error && <div className="alert alert-error"><span>⚠️</span> {error}</div>}
+        {error && <div className="alert alert-error"><span>!</span> {error}</div>}
         {success && <div className="alert alert-success"><span>✓</span> {success}</div>}
 
         <form onSubmit={handleSubmit} className="auth-form">
@@ -81,7 +82,7 @@ export default function Login({ onLoginSuccess, onSwitchToSignup, role, setRole 
               <input
                 id="email"
                 type="email"
-                placeholder="name@example.com"
+                placeholder="registered@email.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -95,7 +96,7 @@ export default function Login({ onLoginSuccess, onSwitchToSignup, role, setRole 
               <input
                 id="password"
                 type="password"
-                placeholder="••••••••"
+                placeholder="Enter password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
@@ -108,24 +109,24 @@ export default function Login({ onLoginSuccess, onSwitchToSignup, role, setRole 
             disabled={loading}
             className="auth-button"
           >
-            {loading ? 'Authenticating...' : `Sign In as ${role.charAt(0).toUpperCase() + role.slice(1)}`}
+            {loading ? 'Processing...' : `Sign In as ${role.charAt(0).toUpperCase() + role.slice(1)}`}
           </button>
         </form>
 
         <div className="auth-footer">
-          <a href="#forgot">Recover password</a>
+          <a href="#forgot">Forgot password?</a>
         </div>
 
         <div className="auth-divider">
-          <span>{role === 'student' ? "New to the sphere?" : "Admin onboarding?"}</span>
+          <span>New account?</span>
         </div>
 
         <button 
           type="button"
-          onClick={onSwitchToSignup}
+          onClick={() => onSwitchToSignup(role)}
           className="switch-auth-btn"
         >
-          {role === 'student' ? "Create Student Account" : "Create Admin Account"}
+          Create {role === 'student' ? 'Student' : 'Admin'} Account
         </button>
       </div>
     </div>
