@@ -98,13 +98,6 @@ export default function Signup({ initialRole = 'student', onSignupSuccess, onSwi
           >
             Student
           </button>
-          <button 
-            type="button" 
-            className={`role-btn ${role === 'admin' ? 'active' : ''}`}
-            onClick={() => setRole('admin')}
-          >
-            Administrator
-          </button>
         </div>
 
         {error && <div className="alert alert-error"><span>!</span> {error}</div>}

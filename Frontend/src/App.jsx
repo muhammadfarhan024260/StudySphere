@@ -1,6 +1,9 @@
 import { useState } from 'react'
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import Login from './components/Login'
 import Signup from './components/Signup'
+import StudentDashboard from './components/StudentDashboard'
+import AdminDashboard from './components/AdminDashboard'
 import './App.css'
 
 function App() {
@@ -30,52 +33,44 @@ function App() {
   }
 
   return (
-    <div className="app">
-      {!isAuthenticated ? (
-        <div>
-          {currentView === 'login' && (
-            <Login 
-              onLoginSuccess={handleLoginSuccess}
-              onSwitchToSignup={(role) => {
-                setSignupRole(role)
-                setCurrentView('signup')
-              }}
-            />
-          )}
+    <Router>
+      <Routes>
+        {/* Public Routes - Auth Pages */}
+        <Route 
+          path="/" 
+          element={
+            <div className="app">
+              {currentView === 'login' && (
+                <Login 
+                  onLoginSuccess={handleLoginSuccess}
+                  onSwitchToSignup={(role) => {
+                    setSignupRole(role)
+                    setCurrentView('signup')
+                  }}
+                />
+              )}
 
-          {currentView === 'signup' && (
-            <Signup 
-              initialRole={signupRole}
-              onSignupSuccess={handleSignupSuccess}
-              onSwitchToLogin={() => setCurrentView('login')}
-            />
-          )}
-        </div>
-      ) : (
-        <div style={{ padding: '40px', textAlign: 'center', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', minHeight: '100vh', color: 'white' }}>
-          <h1>Welcome, {userInfo?.name || 'User'}!</h1>
-          <p>You are logged in successfully</p>
-          <p>User ID: {userInfo?.userId}</p>
-          <p>User Type: {userInfo?.userType}</p>
-          <button 
-            onClick={handleLogout}
-            style={{
-              padding: '10px 20px',
-              background: 'white',
-              color: '#667eea',
-              border: 'none',
-              borderRadius: '6px',
-              cursor: 'pointer',
-              fontWeight: 'bold',
-              marginTop: '20px'
-            }}
-          >
-            Logout
-          </button>
-        </div>
-      )}
-    </div>
+              {currentView === 'signup' && (
+                <Signup 
+                  initialRole={signupRole}
+                  onSignupSuccess={handleSignupSuccess}
+                  onSwitchToLogin={() => setCurrentView('login')}
+                />
+              )}
+            </div>
+          }
+        />
+
+        {/* Dashboard Routes - Accessible without authentication for now */}
+        <Route path="/dashboard" element={<StudentDashboard />} />
+        <Route path="/admin" element={<AdminDashboard />} />
+
+        {/* Catch all - Redirect to home */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </Router>
   )
 }
 
 export default App
+
