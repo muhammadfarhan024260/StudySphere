@@ -15,6 +15,7 @@ This folder contains the complete database schema for **Module 1: Authentication
 4. **04_seed_data.sql** - Insert sample test data
 5. **05_test_queries.sql** - Sample queries for testing
 6. **06_drop_all.sql** - Reset everything (use with caution!)
+7. **07_authentication_fixes.sql** - Repair OTP signup constraints for existing databases
 
 ## How to Run in Neon Console
 
@@ -22,6 +23,8 @@ This folder contains the complete database schema for **Module 1: Authentication
 2. Open **SQL Editor**
 3. Copy content from each `.sql` file (in order above)
 4. Paste into the editor and click **Execute**
+
+If your database already exists, run **07_authentication_fixes.sql** after the main schema files so the OTP signup flow matches the application logic.
 
 ## Tables Created
 

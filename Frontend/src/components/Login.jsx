@@ -29,7 +29,7 @@ export default function Login({ onLoginSuccess, onSwitchToSignup }) {
       })
 
       if (response.data.success) {
-        setSuccess(`Login successful. Redirecting...`)
+        setSuccess(`${role === 'student' ? 'Student' : 'Admin'} login successful. Redirecting to dashboard...`)
         localStorage.setItem('token', response.data.token)
         localStorage.setItem('userId', response.data.userId)
         localStorage.setItem('userType', response.data.userType)
@@ -38,13 +38,20 @@ export default function Login({ onLoginSuccess, onSwitchToSignup }) {
           onLoginSuccess && onLoginSuccess(response.data)
         }, 1500)
       } else {
-        setError(response.data.message || 'Verification failed')
+        setError(response.data.message || 'Login failed. Please check your credentials.')
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Invalid credentials. Please try again.')
+      const errorMsg = err.response?.data?.message || 'Invalid credentials. Please try again.'
+      setError(errorMsg)
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleRoleChange = (newRole) => {
+    setRole(newRole)
+    setError('')
+    setSuccess('')
   }
 
   return (
@@ -59,18 +66,24 @@ export default function Login({ onLoginSuccess, onSwitchToSignup }) {
           <button 
             type="button" 
             className={`role-btn ${role === 'student' ? 'active' : ''}`}
-            onClick={() => setRole('student')}
+            onClick={() => handleRoleChange('student')}
+            title="Login as a student"
           >
             Student
           </button>
           <button 
             type="button" 
             className={`role-btn ${role === 'admin' ? 'active' : ''}`}
-            onClick={() => setRole('admin')}
+            onClick={() => handleRoleChange('admin')}
+            title="Login as an administrator"
           >
             Administrator
           </button>
         </div>
+
+        <p style={{textAlign: 'center', fontSize: '12px', color: '#666', marginBottom: '16px'}}>
+          Logging in as <strong>{role.charAt(0).toUpperCase() + role.slice(1)}</strong>
+        </p>
 
         {error && <div className="alert alert-error"><span>!</span> {error}</div>}
         {success && <div className="alert alert-success"><span>✓</span> {success}</div>}
@@ -86,6 +99,7 @@ export default function Login({ onLoginSuccess, onSwitchToSignup }) {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                autoComplete="email"
               />
             </div>
           </div>
@@ -100,6 +114,7 @@ export default function Login({ onLoginSuccess, onSwitchToSignup }) {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                autoComplete="current-password"
               />
             </div>
           </div>
@@ -132,3 +147,4 @@ export default function Login({ onLoginSuccess, onSwitchToSignup }) {
     </div>
   )
 }
+

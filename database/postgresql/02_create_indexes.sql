@@ -18,6 +18,11 @@ CREATE INDEX IF NOT EXISTS idx_admin_email ON admin(email);
 -- Index on Admin active status
 CREATE INDEX IF NOT EXISTS idx_admin_active ON admin(is_active);
 
+-- Indexes on OTP verification for signup flow
+CREATE INDEX IF NOT EXISTS idx_otp_email_user_type ON otp_verification(email, user_type);
+CREATE INDEX IF NOT EXISTS idx_otp_status ON otp_verification(is_verified, is_used);
+CREATE INDEX IF NOT EXISTS idx_otp_expiry ON otp_verification(expiry_time);
+
 -- Index on Password Reset Token for token validation
 CREATE INDEX IF NOT EXISTS idx_reset_token ON password_reset_token(token);
 
