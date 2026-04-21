@@ -8,6 +8,10 @@ using StudySphere.Facades;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 
+// Npgsql 6+ rejects DateTime with Kind=Utc for "timestamp without time zone" columns.
+// This switch restores the legacy behaviour so DateTime.UtcNow writes work unchanged.
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+
 // Load environment variables from .env file
 Env.Load(".env");
 
