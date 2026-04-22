@@ -1,0 +1,159 @@
+.intel-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 8px;
+}
+
+.intel-section {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.intel-section h3 {
+  margin: 0 0 16px;
+  font-size: 1.05rem;
+  color: #111827;
+}
+
+.intel-empty {
+  color: #6b7280;
+  font-style: italic;
+  margin: 0;
+}
+
+.intel-error {
+  color: #b91c1c;
+}
+
+.intel-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.intel-table th,
+.intel-table td {
+  text-align: left;
+  padding: 10px 12px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.intel-table th {
+  background: #f9fafb;
+  color: #374151;
+  font-weight: 600;
+}
+
+.intel-row-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.btn-danger {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.intel-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.intel-form label {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.85rem;
+  color: #374151;
+  gap: 4px;
+}
+
+.intel-form input,
+.intel-form textarea {
+  padding: 8px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-family: inherit;
+}
+
+.intel-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.intel-form-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.intel-reco-list,
+.intel-notif-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.intel-reco {
+  padding: 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  background: #fafafa;
+}
+
+.intel-reco-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.intel-tag {
+  background: #eef2ff;
+  color: #3730a3;
+  font-size: 0.75rem;
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+.intel-notif {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+}
+
+.intel-notif.unread {
+  background: #fffbeb;
+  border-color: #fcd34d;
+}
+
+.intel-notif.read {
+  background: #ffffff;
+  opacity: 0.75;
+}
+
+.intel-notif-type {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #6b7280;
+  margin-right: 10px;
+}
+
+.intel-notif-meta {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  font-size: 0.8rem;
+  color: #6b7280;
+}

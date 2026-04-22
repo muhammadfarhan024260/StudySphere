@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import DashboardLayout from './DashboardLayout'
+import AdminRecommendations from './AdminRecommendations'
 import './AdminDashboard.css'
 
 export default function AdminDashboard() {
@@ -457,6 +458,7 @@ export default function AdminDashboard() {
       case 'students': return renderStudents()
       case 'analytics': return renderAnalytics()
       case 'performance': return renderPerformance()
+      case 'recommendations': return <AdminRecommendations />
       case 'reports': return renderReports()
       case 'settings': return renderSettings()
       default: return renderOverview()

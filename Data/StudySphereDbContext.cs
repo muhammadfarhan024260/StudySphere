@@ -64,6 +64,11 @@ public class StudySphereDbContext : DbContext
     public DbSet<Goal> Goals { get; set; } = null!;
     public DbSet<Subject> Subjects { get; set; } = null!;
 
+    // DbSets for intelligence & notifications (Module 4)
+    public DbSet<WeakArea> WeakAreas { get; set; } = null!;
+    public DbSet<Notification> Notifications { get; set; } = null!;
+    public DbSet<Recommendation> Recommendations { get; set; } = null!;
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -262,5 +267,51 @@ public class StudySphereDbContext : DbContext
         modelBuilder.Entity<Subject>()
             .Property(s => s.SubjectId)
             .HasColumnName("subject_id");
+
+        // Configure WeakArea table (Module 4)
+        modelBuilder.Entity<WeakArea>()
+            .ToTable("weak_area")
+            .HasKey(w => w.WeakAreaId)
+            .HasName("PK_weak_area");
+        modelBuilder.Entity<WeakArea>().Property(w => w.WeakAreaId).HasColumnName("weak_area_id");
+        modelBuilder.Entity<WeakArea>().Property(w => w.StudentId).HasColumnName("student_id");
+        modelBuilder.Entity<WeakArea>().Property(w => w.SubjectId).HasColumnName("subject_id");
+        modelBuilder.Entity<WeakArea>().Property(w => w.AvgScore).HasColumnName("avg_score");
+        modelBuilder.Entity<WeakArea>().Property(w => w.DetectedDate)
+            .HasColumnName("detected_date")
+            .HasColumnType("timestamp without time zone");
+        modelBuilder.Entity<WeakArea>().Ignore(w => w.SubjectName);
+
+        // Configure Notification table (Module 4)
+        modelBuilder.Entity<Notification>()
+            .ToTable("notification")
+            .HasKey(n => n.NotificationId)
+            .HasName("PK_notification");
+        modelBuilder.Entity<Notification>().Property(n => n.NotificationId).HasColumnName("notification_id");
+        modelBuilder.Entity<Notification>().Property(n => n.StudentId).HasColumnName("student_id");
+        modelBuilder.Entity<Notification>().Property(n => n.RelatedSubjectId).HasColumnName("related_subject_id");
+        modelBuilder.Entity<Notification>().Property(n => n.Type).HasColumnName("type");
+        modelBuilder.Entity<Notification>().Property(n => n.Message).HasColumnName("message");
+        modelBuilder.Entity<Notification>().Property(n => n.IsRead).HasColumnName("is_read");
+        modelBuilder.Entity<Notification>().Property(n => n.CreatedDate)
+            .HasColumnName("created_date")
+            .HasColumnType("timestamp without time zone");
+
+        // Configure Recommendation table (Module 4)
+        modelBuilder.Entity<Recommendation>()
+            .ToTable("recommendation")
+            .HasKey(r => r.RecommendationId)
+            .HasName("PK_recommendation");
+        modelBuilder.Entity<Recommendation>().Property(r => r.RecommendationId).HasColumnName("recommendation_id");
+        modelBuilder.Entity<Recommendation>().Property(r => r.SubjectId).HasColumnName("subject_id");
+        modelBuilder.Entity<Recommendation>().Property(r => r.AdminId).HasColumnName("admin_id");
+        modelBuilder.Entity<Recommendation>().Property(r => r.Title).HasColumnName("title");
+        modelBuilder.Entity<Recommendation>().Property(r => r.Content).HasColumnName("content");
+        modelBuilder.Entity<Recommendation>().Property(r => r.MinScoreThreshold).HasColumnName("min_score_threshold");
+        modelBuilder.Entity<Recommendation>().Property(r => r.CreatedDate)
+            .HasColumnName("created_date")
+            .HasColumnType("timestamp without time zone");
+        modelBuilder.Entity<Recommendation>().Ignore(r => r.SubjectName);
+        modelBuilder.Entity<Recommendation>().Ignore(r => r.AuthoredBy);
     }
 }

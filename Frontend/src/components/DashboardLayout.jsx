@@ -20,6 +20,7 @@ export default function DashboardLayout({ children, userType = 'student' }) {
     { id: 'goals', label: 'Goals', icon: '◆' },
     { id: 'analytics', label: 'Analytics', icon: '▲' },
     { id: 'subjects', label: 'Subjects', icon: '≡' },
+    { id: 'notifications', label: 'Notifications', icon: '◔' },
     { id: 'settings', label: 'Settings', icon: '⚙' },
   ]
 
@@ -28,6 +29,7 @@ export default function DashboardLayout({ children, userType = 'student' }) {
     { id: 'students', label: 'Students', icon: '◎' },
     { id: 'analytics', label: 'Analytics', icon: '▲' },
     { id: 'performance', label: 'Performance', icon: '★' },
+    { id: 'recommendations', label: 'Recommendations', icon: '✎' },
     { id: 'reports', label: 'Reports', icon: '▬' },
     { id: 'settings', label: 'Settings', icon: '⚙' },
   ]

@@ -98,6 +98,9 @@ builder.Services.AddScoped<IGoalRepository, GoalRepository>();
 builder.Services.AddScoped<IStudentRepository, StudentRepository>();
 builder.Services.AddScoped<IAdminRepository, AdminRepository>();
 builder.Services.AddScoped<IOtpRepository, OtpRepository>();
+builder.Services.AddScoped<IWeakAreaRepository, WeakAreaRepository>();
+builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
+builder.Services.AddScoped<IRecommendationRepository, RecommendationRepository>();
 
 // Business Layer - Services
 builder.Services.AddScoped<IStudyLogService, StudyLogService>();
@@ -105,6 +108,7 @@ builder.Services.AddScoped<IGoalService, GoalService>();
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 builder.Services.AddScoped<IOtpService, OtpService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<IIntelligenceService, IntelligenceService>();
 
 // Façade Pattern
 builder.Services.AddScoped<StudyPlannerFacade>();
