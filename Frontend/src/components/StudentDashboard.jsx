@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import DashboardLayout from './DashboardLayout'
+import StudentNotifications from './StudentNotifications'
 import './StudentDashboard.css'
 
 export default function StudentDashboard() {
@@ -466,6 +467,7 @@ export default function StudentDashboard() {
       case 'goals': return renderGoals()
       case 'analytics': return renderAnalytics()
       case 'subjects': return renderSubjects()
+      case 'notifications': return <StudentNotifications />
       case 'settings': return renderSettings()
       default: return renderOverview()
     }
