@@ -2,12 +2,14 @@ import { useState } from 'react'
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import Login from './components/Login'
 import Signup from './components/Signup'
+import ForgotPassword from './components/ForgotPassword'
 import StudentDashboard from './components/StudentDashboard'
 import AdminDashboard from './components/AdminDashboard'
+import HomePage from './components/HomePage'
 import './App.css'
 
 function App() {
-  const [currentView, setCurrentView] = useState('login') 
+  const [currentView, setCurrentView] = useState('home')
   const [signupRole, setSignupRole] = useState('student')
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [userInfo, setUserInfo] = useState(null)
@@ -19,8 +21,9 @@ function App() {
   }
 
   const handleSignupSuccess = (data) => {
-    // After signup, show login form
-    setCurrentView('login')
+    setIsAuthenticated(true)
+    setUserInfo(data)
+    setCurrentView('dashboard')
   }
 
   const handleLogout = () => {
@@ -36,26 +39,53 @@ function App() {
     <Router>
       <Routes>
         {/* Public Routes - Auth Pages */}
-        <Route 
-          path="/" 
+        <Route
+          path="/"
           element={
             <div className="app">
-              {currentView === 'login' && (
-                <Login 
-                  onLoginSuccess={handleLoginSuccess}
-                  onSwitchToSignup={(role) => {
+              {currentView === 'home' && (
+                <HomePage
+                  onGoToLogin={() => setCurrentView('login')}
+                  onGoToSignup={(role = 'student') => {
                     setSignupRole(role)
                     setCurrentView('signup')
                   }}
                 />
               )}
 
+              {currentView === 'login' && (
+                <Login
+                  onLoginSuccess={handleLoginSuccess}
+                  onSwitchToSignup={(role) => {
+                    setSignupRole(role)
+                    setCurrentView('signup')
+                  }}
+                  onGoToHome={() => setCurrentView('home')}
+                  onForgotPassword={(role) => {
+                    setSignupRole(role)
+                    setCurrentView('forgot-password')
+                  }}
+                />
+              )}
+
+              {currentView === 'forgot-password' && (
+                <ForgotPassword
+                  initialRole={signupRole}
+                  onBack={() => setCurrentView('login')}
+                />
+              )}
+
               {currentView === 'signup' && (
-                <Signup 
+                <Signup
                   initialRole={signupRole}
                   onSignupSuccess={handleSignupSuccess}
                   onSwitchToLogin={() => setCurrentView('login')}
+                  onGoToHome={() => setCurrentView('home')}
                 />
+              )}
+
+              {currentView === 'dashboard' && userInfo && (
+                <Navigate to={userInfo.userType === 'admin' ? '/admin' : '/dashboard'} replace />
               )}
             </div>
           }

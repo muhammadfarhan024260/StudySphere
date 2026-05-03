@@ -39,8 +39,21 @@ public class GoalRepository : IGoalRepository
 
     public async Task<IEnumerable<Goal>> GetByStudentIdAsync(int studentId)
     {
-        return await _context.Goals
+        var goals = await _context.Goals
             .Where(g => g.StudentId == studentId)
             .ToListAsync();
+
+        if (!goals.Any()) return goals;
+
+        var subjectIds = goals.Select(g => g.SubjectId).Distinct().ToList();
+        var subjects = await _context.Subjects
+            .Where(s => subjectIds.Contains(s.SubjectId))
+            .ToDictionaryAsync(s => s.SubjectId, s => s.Name);
+
+        foreach (var goal in goals)
+            if (subjects.TryGetValue(goal.SubjectId, out var name))
+                goal.SubjectName = name;
+
+        return goals;
     }
 }

@@ -29,7 +29,11 @@ public class StudyLogService : IStudyLogService
 
     public async Task<IEnumerable<StudyLog>> GetStudentLogsAsync(int studentId)
     {
-        // Using the JOIN query as requested in requirements
         return await _repository.GetAllWithSubjectNamesAsync(studentId);
+    }
+
+    public async Task<IEnumerable<WeeklyReportEntry>> GetWeeklyReportAsync(int studentId)
+    {
+        return await _repository.GetWeeklyReportAsync(studentId);
     }
 }

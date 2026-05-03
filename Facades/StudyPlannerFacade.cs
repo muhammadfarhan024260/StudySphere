@@ -10,16 +10,21 @@ public class StudyPlannerFacade
 {
     private readonly IStudyLogService _studyLogService;
     private readonly IGoalService _goalService;
+    private readonly IIntelligenceService _intelligenceService;
 
-    public StudyPlannerFacade(IStudyLogService studyLogService, IGoalService goalService)
+    public StudyPlannerFacade(IStudyLogService studyLogService, IGoalService goalService, IIntelligenceService intelligenceService)
     {
         _studyLogService = studyLogService;
         _goalService = goalService;
+        _intelligenceService = intelligenceService;
     }
 
     public async Task<int> LogSession(StudyLog log)
     {
-        return await _studyLogService.LogSessionAsync(log);
+        int logId = await _studyLogService.LogSessionAsync(log);
+        // Fire and forget, or await. Let's await to ensure consistency for now.
+        await _intelligenceService.AnalyzeSessionAsync(log.StudentId, log.SubjectId);
+        return logId;
     }
 
     public async Task<int> SetGoal(Goal goal)
@@ -35,5 +40,11 @@ public class StudyPlannerFacade
     public async Task<IEnumerable<Goal>> GetStudentGoals(int studentId)
     {
         return await _goalService.GetStudentGoalsAsync(studentId);
+    }
+
+    // Lab 9
+    public async Task<IEnumerable<WeeklyReportEntry>> GetWeeklyReport(int studentId)
+    {
+        return await _studyLogService.GetWeeklyReportAsync(studentId);
     }
 }

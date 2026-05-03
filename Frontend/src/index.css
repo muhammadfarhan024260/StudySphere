@@ -1,23 +1,71 @@
-* {
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700&display=swap');
+
+*, *::before, *::after {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
-body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto',
-    'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  background:
-    radial-gradient(circle at top left, rgba(99, 102, 241, 0.08), transparent 28%),
-    radial-gradient(circle at bottom right, rgba(236, 72, 153, 0.08), transparent 24%),
-    #eef2ff;
-  color: #1e293b;
+:root {
+  /* Backgrounds */
+  --bg:        #09090E;
+  --surface:   #111118;
+  --surface-2: #17171F;
+  --surface-3: #1E1E28;
+
+  /* Borders */
+  --border:       #1F1F2E;
+  --border-mid:   #2A2A3E;
+  --border-strong:#38385A;
+
+  /* Text */
+  --text-1: #F0F0F8;
+  --text-2: #8A8BA8;
+  --text-3: #4A4B66;
+
+  /* Orange — Primary Accent */
+  --orange:       #FF5C28;
+  --orange-mid:   #FF7A4A;
+  --orange-dim:   #CC4820;
+  --orange-glow:  rgba(255, 92, 40, 0.18);
+  --orange-light: rgba(255, 92, 40, 0.08);
+
+  /* Violet — Secondary */
+  --violet:       #7C3AED;
+  --violet-mid:   #9461FB;
+  --violet-glow:  rgba(124, 58, 237, 0.2);
+  --violet-light: rgba(124, 58, 237, 0.08);
+
+  /* State colors */
+  --green:     #10B981;
+  --green-glow: rgba(16, 185, 129, 0.15);
+  --green-light: rgba(16, 185, 129, 0.1);
+  --red:       #EF4444;
+  --red-light:  rgba(239, 68, 68, 0.1);
+  --gold:      #F59E0B;
+  --gold-light: rgba(245, 158, 11, 0.1);
+
+  /* Fonts */
+  --font-display: 'Barlow Semi Condensed', system-ui, sans-serif;
+  --font-ui:      'Outfit', system-ui, sans-serif;
+
+  /* Layout */
+  --sidebar-w:       240px;
+  --sidebar-w-closed: 60px;
+  --header-h:        64px;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+html { font-size: 16px; }
+
+body {
+  font-family: var(--font-ui);
+  background: var(--bg);
+  color: var(--text-1);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
+
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-mid); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: var(--border-strong); }

@@ -244,9 +244,14 @@ public class StudySphereDbContext : DbContext
             .HasKey(sl => sl.LogId)
             .HasName("PK_study_log");
 
-        modelBuilder.Entity<StudyLog>()
-            .Property(sl => sl.LogId)
-            .HasColumnName("log_id");
+        modelBuilder.Entity<StudyLog>().Property(sl => sl.LogId).HasColumnName("log_id");
+        modelBuilder.Entity<StudyLog>().Property(sl => sl.StudentId).HasColumnName("student_id");
+        modelBuilder.Entity<StudyLog>().Property(sl => sl.SubjectId).HasColumnName("subject_id");
+        modelBuilder.Entity<StudyLog>().Property(sl => sl.HoursStudied).HasColumnName("hours_studied");
+        modelBuilder.Entity<StudyLog>().Property(sl => sl.ProductivityScore).HasColumnName("productivity_score");
+        modelBuilder.Entity<StudyLog>().Property(sl => sl.DateLogged).HasColumnName("date_logged");
+        modelBuilder.Entity<StudyLog>().Property(sl => sl.Notes).HasColumnName("notes");
+        modelBuilder.Entity<StudyLog>().Ignore(sl => sl.SubjectName);
 
         // Configure Goal table
         modelBuilder.Entity<Goal>()
@@ -254,9 +259,16 @@ public class StudySphereDbContext : DbContext
             .HasKey(g => g.GoalId)
             .HasName("PK_goal");
 
-        modelBuilder.Entity<Goal>()
-            .Property(g => g.GoalId)
-            .HasColumnName("goal_id");
+        modelBuilder.Entity<Goal>().Property(g => g.GoalId).HasColumnName("goal_id");
+        modelBuilder.Entity<Goal>().Property(g => g.StudentId).HasColumnName("student_id");
+        modelBuilder.Entity<Goal>().Property(g => g.SubjectId).HasColumnName("subject_id");
+        modelBuilder.Entity<Goal>().Property(g => g.GoalType).HasColumnName("goal_type");
+        modelBuilder.Entity<Goal>().Property(g => g.TargetHours).HasColumnName("target_hours");
+        modelBuilder.Entity<Goal>().Property(g => g.Deadline).HasColumnName("deadline");
+        modelBuilder.Entity<Goal>().Property(g => g.IsCompleted).HasColumnName("is_completed");
+        modelBuilder.Entity<Goal>().Ignore(g => g.SubjectName);
+        modelBuilder.Entity<Goal>().Ignore(g => g.Title);
+        modelBuilder.Entity<Goal>().Ignore(g => g.Status);
 
         // Configure Subject table
         modelBuilder.Entity<Subject>()
@@ -264,9 +276,10 @@ public class StudySphereDbContext : DbContext
             .HasKey(s => s.SubjectId)
             .HasName("PK_subject");
 
-        modelBuilder.Entity<Subject>()
-            .Property(s => s.SubjectId)
-            .HasColumnName("subject_id");
+        modelBuilder.Entity<Subject>().Property(s => s.SubjectId).HasColumnName("subject_id");
+        modelBuilder.Entity<Subject>().Property(s => s.Name).HasColumnName("name");
+        modelBuilder.Entity<Subject>().Property(s => s.Category).HasColumnName("category");
+        modelBuilder.Entity<Subject>().Property(s => s.TargetHours).HasColumnName("target_hours");
 
         // Configure WeakArea table (Module 4)
         modelBuilder.Entity<WeakArea>()

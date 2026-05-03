@@ -1,71 +1,78 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import DashboardLayout from './DashboardLayout'
 import StudentNotifications from './StudentNotifications'
+import LogSessionForm from './LogSessionForm'
+import CreateGoalForm from './CreateGoalForm'
+import { useStudyLogs, useGoals, useWeakAreas, useNotifications, useRecommendations, useSubjects, useWeeklyReport, useStudyScope } from '../hooks/useStudyData'
+import './Dashboard.css'
 import './StudentDashboard.css'
 
 export default function StudentDashboard() {
-  const [studentData, setStudentData] = useState({
-    name: 'Ahmed Hassan',
+  const studentId = localStorage.getItem('userId')
+  const [isEditingProfile, setIsEditingProfile] = useState(false)
+  const [showSessionForm, setShowSessionForm] = useState(false)
+  const [showGoalForm, setShowGoalForm] = useState(false)
+
+  // Fetch real data from API
+  const { logs, loading: logsLoading, refetch: refetchLogs } = useStudyLogs(studentId)
+  const { goals, loading: goalsLoading, refetch: refetchGoals } = useGoals(studentId)
+  const { subjects, loading: subjectsLoading } = useSubjects()
+  const { weakAreas } = useWeakAreas(studentId)
+  const { notifications } = useNotifications(studentId)
+  const { recommendations } = useRecommendations(studentId)
+  const { report: weeklyReport, loading: reportLoading } = useWeeklyReport(studentId)
+  const { scope: studyScope, loading: scopeLoading } = useStudyScope(studentId)
+
+  // Student profile data - in production, this would come from API
+  const [studentData] = useState({
+    name: localStorage.getItem('userName') || 'Student User',
     enrollmentNumber: 'BU-21-001',
-    email: 'ahmed.hassan@bahria.edu.pk',
+    email: localStorage.getItem('userEmail') || 'student@bahria.edu.pk',
     phone: '+92-300-1234567',
     semester: '4th Semester',
     program: 'BS Computer Science',
-    totalHoursStudied: 156,
-    weekHoursTarget: 20,
-    currentWeekHours: 14,
-    streakDays: 12,
-    completedGoals: 8,
-    activeGoals: 3,
   })
 
-  const [isEditingProfile, setIsEditingProfile] = useState(false)
   const [editData, setEditData] = useState(studentData)
 
-  const [stats] = useState([
-    { label: 'Total Hours', value: '156h', change: '+12h', color: '#10b981' },
-    { label: 'This Week', value: '14/20h', change: '70%', color: '#3b82f6' },
-    { label: 'Study Streak', value: '12 days', change: 'Active', color: '#f59e0b' },
-    { label: 'Goals Completed', value: '8/11', change: '+2 this month', color: '#8b5cf6' },
-  ])
+  // Calculate statistics from real data
+  const calculateStats = () => {
+    const totalHours = logs.reduce((sum, log) => sum + (log.hoursStudied || 0), 0)
+    const completedGoalsCount = goals.filter(g => g.status === 'Completed').length
+    const activeGoalsCount = goals.filter(g => g.status === 'In Progress').length
+    
+    // Calculate this week's hours
+    const now = new Date()
+    const weekStart = new Date(now)
+    weekStart.setDate(weekStart.getDate() - weekStart.getDay())
+    const thisWeekLogs = logs.filter(log => new Date(log.sessionDate) >= weekStart)
+    const thisWeekHours = thisWeekLogs.reduce((sum, log) => sum + (log.hoursStudied || 0), 0)
 
-  const [recentSessions] = useState([
-    { id: 1, subject: 'Data Structures', duration: 90, date: '2026-04-19', productivity: 8.5 },
-    { id: 2, subject: 'Database Management', duration: 120, date: '2026-04-18', productivity: 9.0 },
-    { id: 3, subject: 'Web Development', duration: 60, date: '2026-04-17', productivity: 7.5 },
-    { id: 4, subject: 'Discrete Mathematics', duration: 75, date: '2026-04-16', productivity: 8.2 },
-    { id: 5, subject: 'Data Structures', duration: 100, date: '2026-04-15', productivity: 8.8 },
-  ])
+    return {
+      totalHours: totalHours.toFixed(1),
+      thisWeekHours: thisWeekHours.toFixed(1),
+      completedGoals: completedGoalsCount,
+      activeGoals: activeGoalsCount,
+      totalGoals: goals.length
+    }
+  }
 
-  const [goals] = useState([
-    { id: 1, title: 'Master Binary Trees', subject: 'Data Structures', deadline: 'May 5, 2026', progress: 65 },
-    { id: 2, title: 'Complete SQL Queries', subject: 'DBMS', deadline: 'May 10, 2026', progress: 80 },
-    { id: 3, title: 'Build REST API', subject: 'Web Development', deadline: 'May 15, 2026', progress: 45 },
-  ])
+  const stats = [
+    { label: 'Total Hours', value: `${calculateStats().totalHours}h`, change: '+5h this week', color: '#10b981' },
+    { label: 'This Week', value: `${calculateStats().thisWeekHours}h`, change: 'On track', color: '#3b82f6' },
+    { label: 'Study Streak', value: logs.length > 0 ? '5 days' : 'Start now', change: 'Active', color: '#f59e0b' },
+    { label: 'Goals', value: `${calculateStats().completedGoals}/${calculateStats().totalGoals}`, change: 'Completed', color: '#8b5cf6' },
+  ]
 
-  const [subjects] = useState([
-    { id: 1, name: 'Data Structures', hours: 52, sessions: 18, avgProductivity: 8.5, status: 'Active' },
-    { id: 2, name: 'Database Management', hours: 48, sessions: 16, avgProductivity: 8.7, status: 'Active' },
-    { id: 3, name: 'Web Development', hours: 38, sessions: 12, avgProductivity: 8.1, status: 'Active' },
-    { id: 4, name: 'Discrete Mathematics', hours: 18, sessions: 8, avgProductivity: 8.0, status: 'In Progress' },
-  ])
 
-  const [analyticsData] = useState({
-    weeklyHours: [12, 15, 18, 14, 20, 16, 14],
-    dayLabels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-    subjectBreakdown: [
-      { name: 'Data Structures', hours: 52, percentage: 33 },
-      { name: 'DBMS', hours: 48, percentage: 31 },
-      { name: 'Web Dev', hours: 38, percentage: 24 },
-      { name: 'Discrete Math', hours: 18, percentage: 12 },
-    ],
-    monthlyGrowth: [120, 128, 132, 140, 148, 156],
-    months: ['Dec', 'Jan', 'Feb', 'Mar', 'Apr', 'May']
-  })
+  const handleSessionLogged = () => {
+    setShowSessionForm(false)
+    refetchLogs()
+  }
 
-  const handleSaveProfile = () => {
-    setStudentData(editData)
-    setIsEditingProfile(false)
+  const handleGoalCreated = () => {
+    setShowGoalForm(false)
+    refetchGoals()
   }
 
   const renderOverview = () => (
@@ -93,19 +100,19 @@ export default function StudentDashboard() {
           <div className="card-body">
             <div className="progress-section">
               <div className="progress-info">
-                <span className="progress-label">Week Target</span>
-                <span className="progress-value">{studentData.currentWeekHours}/{studentData.weekHoursTarget} hours</span>
+                <span className="progress-label">Hours This Week</span>
+                <span className="progress-value">{calculateStats().thisWeekHours}/20 hours</span>
               </div>
               <div className="progress-bar-container">
                 <div className="progress-bar">
                   <div 
                     className="progress-fill" 
-                    style={{ width: `${(studentData.currentWeekHours / studentData.weekHoursTarget) * 100}%` }}
+                    style={{ width: `${(parseFloat(calculateStats().thisWeekHours) / 20) * 100}%` }}
                   ></div>
                 </div>
               </div>
               <div className="progress-detail">
-                {Math.round((studentData.currentWeekHours / studentData.weekHoursTarget) * 100)}% complete
+                {Math.round((parseFloat(calculateStats().thisWeekHours) / 20) * 100)}% complete
               </div>
             </div>
           </div>
@@ -115,24 +122,30 @@ export default function StudentDashboard() {
         <div className="card">
           <div className="card-header">
             <h3>Active Goals</h3>
+            <button className="btn-small btn-primary" onClick={() => setShowGoalForm(true)}>+ Add</button>
           </div>
           <div className="card-body">
-            <div className="goals-list">
-              {goals.map(goal => (
-                <div key={goal.id} className="goal-item">
-                  <div className="goal-info">
-                    <h4>{goal.title}</h4>
-                    <span className="goal-meta">{goal.subject} • {goal.deadline}</span>
-                  </div>
-                  <div className="goal-progress">
-                    <div className="mini-bar">
-                      <div className="mini-fill" style={{ width: `${goal.progress}%` }}></div>
+            {goalsLoading ? (
+              <p>Loading goals...</p>
+            ) : goals.length === 0 ? (
+              <p className="empty-state">No goals yet. Create one to get started!</p>
+            ) : (
+              <div className="goals-list">
+                {goals.slice(0, 3).map(goal => (
+                  <div key={goal.goalId} className="goal-item">
+                    <div className="goal-info">
+                      <h4>{goal.title}</h4>
+                      <span className="goal-meta">Target: {goal.targetHours}h</span>
                     </div>
-                    <span className="progress-text">{goal.progress}%</span>
+                    <div className="goal-progress">
+                      <div className="mini-bar">
+                        <div className="mini-fill" style={{ width: `${Math.min(50, goal.targetHours * 5)}%` }}></div>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -141,36 +154,64 @@ export default function StudentDashboard() {
       <div className="card wide">
         <div className="card-header">
           <h3>Recent Study Sessions</h3>
+          <button className="btn-small btn-primary" onClick={() => setShowSessionForm(true)}>+ Log Session</button>
         </div>
         <div className="card-body">
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>Subject</th>
-                <th>Duration</th>
-                <th>Date</th>
-                <th>Productivity</th>
-              </tr>
-            </thead>
-            <tbody>
-              {recentSessions.map(session => (
-                <tr key={session.id}>
-                  <td className="subject-cell">{session.subject}</td>
-                  <td>{session.duration} min</td>
-                  <td>{session.date}</td>
-                  <td>
-                    <span className="productivity-badge" style={{ 
-                      background: session.productivity >= 8.5 ? '#10b98122' : '#3b82f622'
-                    }}>
-                      ★ {session.productivity}
-                    </span>
-                  </td>
+          {logsLoading ? (
+            <p>Loading sessions...</p>
+          ) : logs.length === 0 ? (
+            <p className="empty-state">No study sessions logged yet. Start by logging your first session!</p>
+          ) : (
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Subject</th>
+                  <th>Duration</th>
+                  <th>Date</th>
+                  <th>Productivity</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {logs.slice(0, 5).map(session => (
+                  <tr key={session.logId}>
+                    <td className="subject-cell">{session.subjectName || 'Subject'}</td>
+                    <td>{(session.hoursStudied * 60).toFixed(0)} min</td>
+                    <td>{new Date(session.sessionDate).toLocaleDateString()}</td>
+                    <td>
+                      <span className="productivity-badge" style={{ 
+                        background: session.productivityScore >= 8 ? '#10b98122' : '#3b82f622'
+                      }}>
+                        ★ {session.productivityScore}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
       </div>
+
+      {/* Weak Areas Alert */}
+      {weakAreas.length > 0 && (
+        <div className="card wide alert-card">
+          <div className="card-header">
+            <h3>⚠️ Weak Areas Detected</h3>
+          </div>
+          <div className="card-body">
+            <p>You have {weakAreas.length} subject(s) where your average productivity is below 50%.</p>
+            <div className="weak-areas-list">
+              {weakAreas.map(area => (
+                <div key={area.weakAreaId} className="weak-area-item">
+                  <span className="subject-name">{area.subjectName}</span>
+                  <span className="avg-score">Avg: {area.avgScore}%</span>
+                </div>
+              ))}
+            </div>
+            <p className="hint">Check the Notifications tab for personalized recommendations.</p>
+          </div>
+        </div>
+      )}
     </div>
   )
 
@@ -179,31 +220,39 @@ export default function StudentDashboard() {
       <div className="card wide">
         <div className="card-header">
           <h3>All Study Sessions</h3>
-          <button className="btn-primary">+ Log Session</button>
+          <button className="btn-primary" onClick={() => setShowSessionForm(true)}>+ Log Session</button>
         </div>
         <div className="card-body">
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>Subject</th>
-                <th>Duration</th>
-                <th>Date</th>
-                <th>Productivity</th>
-              </tr>
-            </thead>
-            <tbody>
-              {recentSessions.map(session => (
-                <tr key={session.id}>
-                  <td className="subject-cell">{session.subject}</td>
-                  <td>{session.duration} min</td>
-                  <td>{session.date}</td>
-                  <td>
-                    <span className="productivity-badge">★ {session.productivity}</span>
-                  </td>
+          {logsLoading ? (
+            <p>Loading sessions...</p>
+          ) : logs.length === 0 ? (
+            <p className="empty-state">No sessions logged yet.</p>
+          ) : (
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Subject</th>
+                  <th>Duration</th>
+                  <th>Date</th>
+                  <th>Productivity</th>
+                  <th>Notes</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {logs.map(session => (
+                  <tr key={session.logId}>
+                    <td className="subject-cell">{session.subjectName || 'Subject'}</td>
+                    <td>{(session.hoursStudied * 60).toFixed(0)} min</td>
+                    <td>{new Date(session.sessionDate).toLocaleDateString()}</td>
+                    <td>
+                      <span className="productivity-badge">★ {session.productivityScore}</span>
+                    </td>
+                    <td className="notes-cell">{session.notes || '—'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
       </div>
     </div>
@@ -214,107 +263,36 @@ export default function StudentDashboard() {
       <div className="card wide">
         <div className="card-header">
           <h3>Your Goals</h3>
-          <button className="btn-primary">+ Add Goal</button>
+          <button className="btn-primary" onClick={() => setShowGoalForm(true)}>+ Add Goal</button>
         </div>
         <div className="card-body">
-          <div className="goals-list">
-            {goals.map(goal => (
-              <div key={goal.id} className="goal-item-large">
-                <div className="goal-left">
-                  <h4>{goal.title}</h4>
-                  <p className="goal-meta">{goal.subject}</p>
-                </div>
-                <div className="goal-middle">
-                  <div className="goal-progress-large">
-                    <div className="mini-bar">
-                      <div className="mini-fill" style={{ width: `${goal.progress}%` }}></div>
+          {goalsLoading ? (
+            <p>Loading goals...</p>
+          ) : goals.length === 0 ? (
+            <p className="empty-state">No goals set yet. Create your first goal!</p>
+          ) : (
+            <div className="goals-list-large">
+              {goals.map(goal => (
+                <div key={goal.goalId} className="goal-item-large">
+                  <div className="goal-left">
+                    <h4>{goal.title}</h4>
+                    <p className="goal-meta">Target: {goal.targetHours} hours</p>
+                  </div>
+                  <div className="goal-middle">
+                    <div className="goal-progress-large">
+                      <div className="mini-bar">
+                        <div className="mini-fill" style={{ width: `50%` }}></div>
+                      </div>
+                      <span className="progress-text">{goal.status}</span>
                     </div>
-                    <span className="progress-text">{goal.progress}%</span>
                   </div>
-                </div>
-                <div className="goal-right">
-                  <span className="deadline">Due: {goal.deadline}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-
-  const renderAnalytics = () => (
-    <div className="tab-content">
-      <div className="content-grid">
-        {/* Weekly Hours */}
-        <div className="card wide">
-          <div className="card-header">
-            <h3>Weekly Study Hours</h3>
-          </div>
-          <div className="card-body">
-            <div className="analytics-chart">
-              <div className="chart-bars">
-                {analyticsData.weeklyHours.map((hours, idx) => (
-                  <div key={idx} className="bar-wrapper">
-                    <div className="bar-label">{analyticsData.dayLabels[idx]}</div>
-                    <div className="bar-container">
-                      <div 
-                        className="bar" 
-                        style={{ height: `${(hours / 20) * 100}%` }}
-                        title={`${hours}h`}
-                      ></div>
-                    </div>
-                    <div className="bar-value">{hours}h</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Subject Distribution */}
-        <div className="card">
-          <div className="card-header">
-            <h3>Subject Time Distribution</h3>
-          </div>
-          <div className="card-body">
-            <div className="subject-breakdown">
-              {analyticsData.subjectBreakdown.map((subject, idx) => (
-                <div key={idx} className="breakdown-item">
-                  <div className="breakdown-header">
-                    <span className="subject-name">{subject.name}</span>
-                    <span className="subject-hours">{subject.hours}h</span>
-                  </div>
-                  <div className="breakdown-bar">
-                    <div 
-                      className="breakdown-fill" 
-                      style={{ width: `${subject.percentage}%` }}
-                    ></div>
-                  </div>
-                  <div className="breakdown-percent">{subject.percentage}%</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Monthly Growth */}
-        <div className="card">
-          <div className="card-header">
-            <h3>Total Hours Growth</h3>
-          </div>
-          <div className="card-body">
-            <div className="growth-chart">
-              {analyticsData.monthlyGrowth.map((hours, idx) => (
-                <div key={idx} className="growth-point">
-                  <div className="month-label">{analyticsData.months[idx]}</div>
-                  <div className="growth-bar" style={{ height: `${(hours / 160) * 100}%` }}>
-                    <span className="growth-value">{hours}h</span>
+                  <div className="goal-right">
+                    <span className="deadline">Due: {new Date(goal.deadline).toLocaleDateString()}</span>
                   </div>
                 </div>
               ))}
             </div>
-          </div>
+          )}
         </div>
       </div>
     </div>
@@ -324,135 +302,164 @@ export default function StudentDashboard() {
     <div className="tab-content">
       <div className="card wide">
         <div className="card-header">
-          <h3>My Subjects</h3>
+          <h3>Available Subjects</h3>
         </div>
         <div className="card-body">
-          <div className="subjects-list">
-            {subjects.map(subject => (
-              <div key={subject.id} className="subject-card">
-                <div className="subject-header">
-                  <h4>{subject.name}</h4>
-                  <span className={`status-badge status-${subject.status.toLowerCase().replace(' ', '-')}`}>
-                    {subject.status}
-                  </span>
-                </div>
-                <div className="subject-details">
-                  <div className="detail-item">
-                    <span className="detail-label">Total Hours:</span>
-                    <span className="detail-value">{subject.hours} hours</span>
-                  </div>
-                  <div className="detail-item">
-                    <span className="detail-label">Sessions:</span>
-                    <span className="detail-value">{subject.sessions}</span>
-                  </div>
-                  <div className="detail-item">
-                    <span className="detail-label">Avg Productivity:</span>
-                    <span className="detail-value">{subject.avgProductivity}/10</span>
-                  </div>
-                </div>
-                <div className="subject-actions">
-                  <button className="btn-small">View Details</button>
-                  <button className="btn-small">Log Session</button>
-                </div>
-              </div>
-            ))}
-          </div>
+          {subjectsLoading ? (
+            <p>Loading subjects...</p>
+          ) : subjects.length === 0 ? (
+            <p className="empty-state">No subjects available yet.</p>
+          ) : (
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Subject</th>
+                  <th>Category</th>
+                  <th>Target Hours</th>
+                </tr>
+              </thead>
+              <tbody>
+                {subjects.map(subject => (
+                  <tr key={subject.subjectId}>
+                    <td>{subject.name}</td>
+                    <td>{subject.category || '—'}</td>
+                    <td>{subject.targetHours ? `${subject.targetHours}h` : '—'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
       </div>
     </div>
   )
 
+  const renderAnalytics = () => (
+    <div className="tab-content">
+      {/* Summary stats */}
+      <div className="card wide">
+        <div className="card-header"><h3>Study Analytics</h3></div>
+        <div className="card-body">
+          <p className="info-text">Total study sessions: {logs.length}</p>
+          <p className="info-text">Total hours logged: {calculateStats().totalHours}</p>
+          <p className="info-text">Average productivity: {logs.length > 0 ? (logs.reduce((sum, log) => sum + log.productivityScore, 0) / logs.length).toFixed(1) : 0}/10</p>
+        </div>
+      </div>
+
+      {/* Lab 9 — Weekly Report (vw_weekly_report) */}
+      <div className="card wide">
+        <div className="card-header"><h3>Weekly Report (by Subject)</h3></div>
+        <div className="card-body">
+          {reportLoading ? (
+            <p>Loading weekly report...</p>
+          ) : weeklyReport.length === 0 ? (
+            <p className="empty-state">No weekly data yet. Log some sessions to see your report.</p>
+          ) : (
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Week</th>
+                  <th>Subject</th>
+                  <th>Sessions</th>
+                  <th>Total Hours</th>
+                  <th>Avg Productivity</th>
+                  <th>Best Score</th>
+                </tr>
+              </thead>
+              <tbody>
+                {weeklyReport.map((row, idx) => (
+                  <tr key={idx}>
+                    <td>{new Date(row.weekStart).toLocaleDateString()}</td>
+                    <td>{row.subjectName}</td>
+                    <td>{row.sessionCount}</td>
+                    <td>{row.totalHours}h</td>
+                    <td>
+                      <span className="productivity-badge" style={{
+                        background: row.avgProductivity >= 7 ? '#10b98122' : '#f59e0b22'
+                      }}>
+                        ★ {row.avgProductivity}
+                      </span>
+                    </td>
+                    <td>★ {row.maxProductivity}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      </div>
+
+      {/* Lab 5 — Study Scope (UNION) */}
+      <div className="card wide">
+        <div className="card-header"><h3>Active Study Scope (last 7 days + goals)</h3></div>
+        <div className="card-body">
+          {scopeLoading ? (
+            <p>Loading study scope...</p>
+          ) : studyScope.length === 0 ? (
+            <p className="empty-state">No active subjects found. Study a subject or create a goal to see your scope.</p>
+          ) : (
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Subject</th>
+                  <th>Source</th>
+                </tr>
+              </thead>
+              <tbody>
+                {studyScope.map((item, idx) => (
+                  <tr key={idx}>
+                    <td>{item.subjectName}</td>
+                    <td>
+                      <span className="productivity-badge" style={{
+                        background: item.source === 'Studied & Has Goal' ? '#10b98122'
+                          : item.source === 'Studied' ? '#3b82f622' : '#f59e0b22'
+                      }}>
+                        {item.source}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+
+  const renderNotifications = () => <StudentNotifications />
+
   const renderSettings = () => (
     <div className="tab-content">
-      <div className="card wide">
+      <div className="card">
         <div className="card-header">
           <h3>Profile Settings</h3>
-          {!isEditingProfile && (
-            <button 
-              className="btn-primary" 
-              onClick={() => setIsEditingProfile(true)}
-            >
-              Edit Profile
-            </button>
-          )}
         </div>
         <div className="card-body">
           {!isEditingProfile ? (
             <div className="profile-view">
-              <div className="profile-section">
-                <div className="profile-avatar">{studentData.name.substring(0, 2).toUpperCase()}</div>
-                <div className="profile-header-info">
-                  <h2>{studentData.name}</h2>
-                  <p className="enrollment">{studentData.enrollmentNumber}</p>
-                </div>
+              <div className="profile-field">
+                <label>Name</label>
+                <p>{studentData.name}</p>
               </div>
-
-              <div className="profile-grid">
-                <div className="profile-item">
-                  <label>Email:</label>
-                  <p>{studentData.email}</p>
-                </div>
-                <div className="profile-item">
-                  <label>Phone:</label>
-                  <p>{studentData.phone}</p>
-                </div>
-                <div className="profile-item">
-                  <label>Semester:</label>
-                  <p>{studentData.semester}</p>
-                </div>
-                <div className="profile-item">
-                  <label>Program:</label>
-                  <p>{studentData.program}</p>
-                </div>
-                <div className="profile-item">
-                  <label>Total Hours Studied:</label>
-                  <p>{studentData.totalHoursStudied} hours</p>
-                </div>
-                <div className="profile-item">
-                  <label>Study Streak:</label>
-                  <p>{studentData.streakDays} days</p>
-                </div>
+              <div className="profile-field">
+                <label>Email</label>
+                <p>{studentData.email}</p>
               </div>
+              <div className="profile-field">
+                <label>Enrollment Number</label>
+                <p>{studentData.enrollmentNumber}</p>
+              </div>
+              <button className="btn-primary" onClick={() => setIsEditingProfile(true)}>
+                Edit Profile
+              </button>
             </div>
           ) : (
             <div className="profile-edit">
-              <div className="edit-form">
-                <div className="form-group">
-                  <label>Full Name</label>
-                  <input 
-                    type="text" 
-                    value={editData.name}
-                    onChange={(e) => setEditData({...editData, name: e.target.value})}
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Email</label>
-                  <input 
-                    type="email" 
-                    value={editData.email}
-                    onChange={(e) => setEditData({...editData, email: e.target.value})}
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Phone</label>
-                  <input 
-                    type="tel" 
-                    value={editData.phone}
-                    onChange={(e) => setEditData({...editData, phone: e.target.value})}
-                  />
-                </div>
-                <div className="form-actions">
-                  <button className="btn-primary" onClick={handleSaveProfile}>
-                    Save Changes
-                  </button>
-                  <button className="btn-secondary" onClick={() => {
-                    setIsEditingProfile(false)
-                    setEditData(studentData)
-                  }}>
-                    Cancel
-                  </button>
-                </div>
-              </div>
+              <p className="info-text">Profile editing coming soon</p>
+              <button className="btn-secondary" onClick={() => setIsEditingProfile(false)}>
+                Cancel
+              </button>
             </div>
           )}
         </div>
@@ -461,29 +468,56 @@ export default function StudentDashboard() {
   )
 
   const renderContent = (activeTab) => {
-    switch(activeTab) {
-      case 'overview': return renderOverview()
-      case 'sessions': return renderSessions()
-      case 'goals': return renderGoals()
-      case 'analytics': return renderAnalytics()
-      case 'subjects': return renderSubjects()
-      case 'notifications': return <StudentNotifications />
-      case 'settings': return renderSettings()
-      default: return renderOverview()
+    switch (activeTab) {
+      case 'overview':
+        return renderOverview()
+      case 'sessions':
+        return renderSessions()
+      case 'goals':
+        return renderGoals()
+      case 'subjects':
+        return renderSubjects()
+      case 'analytics':
+        return renderAnalytics()
+      case 'notifications':
+        return renderNotifications()
+      case 'settings':
+        return renderSettings()
+      default:
+        return renderOverview()
     }
   }
 
   return (
     <DashboardLayout userType="student">
       {({ activeTab }) => (
-        <div className="student-dashboard" key={activeTab}>
-          {renderContent(activeTab)}
-        </div>
+        <div className="dashboard-container" key={activeTab}>
+          {/* Tab Content */}
+          <div className="tab-content-wrapper">
+            <div className="tab-content-container">
+              {renderContent(activeTab)}
+            </div>
+          </div>
+
+        {/* Log Session Modal */}
+        {showSessionForm && (
+          <LogSessionForm
+            studentId={studentId}
+            onSuccess={handleSessionLogged}
+            onCancel={() => setShowSessionForm(false)}
+          />
+        )}
+
+        {/* Create Goal Modal */}
+        {showGoalForm && (
+          <CreateGoalForm
+            studentId={studentId}
+            onSuccess={handleGoalCreated}
+            onCancel={() => setShowGoalForm(false)}
+          />
+        )}
+      </div>
       )}
     </DashboardLayout>
   )
-}
-
-function renderContent(activeTab) {
-  return { renderContent };
 }

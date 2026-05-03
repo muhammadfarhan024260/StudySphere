@@ -1,18 +1,24 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using StudySphere.Data;
 using StudySphere.Models;
 using StudySphere.Facades;
 
 namespace StudySphere.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class StudyLogController : ControllerBase
 {
     private readonly StudyPlannerFacade _facade;
+    private readonly StudySphereDbContext _studyScopeContext;
 
-    public StudyLogController(StudyPlannerFacade facade)
+    public StudyLogController(StudyPlannerFacade facade, StudySphereDbContext context)
     {
         _facade = facade;
+        _studyScopeContext = context;
     }
 
     [HttpPost("session")]
@@ -55,5 +61,48 @@ public class StudyLogController : ControllerBase
     {
         var goals = await _facade.GetStudentGoals(studentId);
         return Ok(goals);
+    }
+
+    // Lab 9: vw_weekly_report
+    [HttpGet("student/{studentId}/weekly-report")]
+    public async Task<IActionResult> GetWeeklyReport(int studentId)
+    {
+        var report = await _facade.GetWeeklyReport(studentId);
+        return Ok(report);
+    }
+
+    // Lab 5 UNION: subjects studied in last 7 days OR has an active goal
+    [HttpGet("student/{studentId}/study-scope")]
+    public async Task<IActionResult> GetStudyScope(int studentId)
+    {
+        var weekAgo = DateTime.Today.AddDays(-7);
+
+        var studiedIds = await _studyScopeContext.StudyLogs
+            .Where(sl => sl.StudentId == studentId && sl.DateLogged >= weekAgo)
+            .Select(sl => sl.SubjectId)
+            .Distinct()
+            .ToListAsync();
+
+        var goalIds = await _studyScopeContext.Goals
+            .Where(g => g.StudentId == studentId && !g.IsCompleted)
+            .Select(g => g.SubjectId)
+            .Distinct()
+            .ToListAsync();
+
+        var allIds = studiedIds.Union(goalIds).ToList();
+        var subjects = await _studyScopeContext.Subjects
+            .Where(s => allIds.Contains(s.SubjectId))
+            .ToListAsync();
+
+        var result = subjects.Select(s => new
+        {
+            subjectId   = s.SubjectId,
+            subjectName = s.Name,
+            source      = studiedIds.Contains(s.SubjectId) && goalIds.Contains(s.SubjectId)
+                              ? "Studied & Has Goal"
+                              : studiedIds.Contains(s.SubjectId) ? "Studied" : "Has Goal"
+        });
+
+        return Ok(result);
     }
 }

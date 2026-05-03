@@ -1,10 +1,27 @@
 import { useState } from 'react'
 import DashboardLayout from './DashboardLayout'
 import AdminRecommendations from './AdminRecommendations'
+import SubjectManagement from './SubjectManagement'
+import StudentManagement from './StudentManagement'
+import NotificationDeliveryDemo from './NotificationDeliveryDemo'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
+import { useAllRecommendations, useAnalyticsData, useWeakAreaStats, useStudentPerformance, useRollupAnalytics, useBelowAverage, useEngagedStudents } from '../hooks/useAdminData'
+import './Dashboard.css'
 import './AdminDashboard.css'
 
 export default function AdminDashboard() {
-  const [adminData, setAdminData] = useState({
+  const [isEditingProfile, setIsEditingProfile] = useState(false)
+
+  // Fetch real data from API
+  const { recommendations, loading: recommendationsLoading } = useAllRecommendations()
+  const { analyticsData, loading: analyticsLoading } = useAnalyticsData()
+  const { weakAreaStats, loading: weakAreaLoading } = useWeakAreaStats()
+  const { studentPerformance, loading: performanceLoading } = useStudentPerformance()
+  const { rollupData, loading: rollupLoading } = useRollupAnalytics()
+  const { belowAvg, systemAvg, loading: belowAvgLoading } = useBelowAverage()
+  const { engaged, loading: engagedLoading } = useEngagedStudents()
+
+  const [adminData] = useState({
     name: 'Dr. Muhammad Ali',
     email: 'admin@bahria.edu.pk',
     phone: '+92-300-9876543',
@@ -13,76 +30,46 @@ export default function AdminDashboard() {
     joinDate: 'January 2025',
   })
 
-  const [isEditingProfile, setIsEditingProfile] = useState(false)
   const [editData, setEditData] = useState(adminData)
 
-  const [stats] = useState([
-    { label: 'Total Students', value: '125', change: '+8', color: '#10b981' },
-    { label: 'Active This Week', value: '118', change: '94.4%', color: '#3b82f6' },
-    { label: 'Total Hours', value: '2,847h', change: '+245h', color: '#f59e0b' },
-    { label: 'Avg Productivity', value: '8.2/10', change: '+0.3', color: '#8b5cf6' },
-  ])
+  // Safe references with fallback defaults
+  const safeAnalytics = analyticsData || {}
+  const weakAreas = weakAreaStats?.topWeakSubjects || []
 
-  const [topPerformers] = useState([
-    { rank: 1, name: 'Ahmed Hassan', enrollment: 'BU-21-001', hoursStudied: 156, goals: 8, productivity: 8.5 },
-    { rank: 2, name: 'Zainab Ali', enrollment: 'BU-21-002', hoursStudied: 142, goals: 6, productivity: 8.3 },
-    { rank: 3, name: 'Hassan Raza', enrollment: 'BU-21-003', hoursStudied: 138, goals: 7, productivity: 8.1 },
-    { rank: 4, name: 'Amira Khan', enrollment: 'BU-21-004', hoursStudied: 125, goals: 5, productivity: 7.9 },
-  ])
+  // Placeholder data for tabs not yet connected to backend
+  const performanceData = [
+    { student: 'Ahmed Khan', ds: 92, dbms: 88, web: 95, avg: 91.7 },
+    { student: 'Sara Ali', ds: 85, dbms: 91, web: 89, avg: 88.3 },
+    { student: 'Usman Tariq', ds: 78, dbms: 82, web: 86, avg: 82.0 },
+  ]
 
-  const [subjectAnalytics] = useState([
-    { id: 1, name: 'Data Structures', totalHours: 542, students: 45, avgProductivity: 8.4 },
-    { id: 2, name: 'Database Management', totalHours: 618, students: 48, avgProductivity: 8.6 },
-    { id: 3, name: 'Web Development', totalHours: 521, students: 42, avgProductivity: 8.1 },
-    { id: 4, name: 'Discrete Mathematics', totalHours: 486, students: 40, avgProductivity: 7.8 },
-  ])
+  const reportsData = [
+    { id: 1, title: 'Monthly Performance Report', type: 'Performance', date: 'Apr 2025', status: 'Ready' },
+    { id: 2, title: 'Weak Area Analysis', type: 'Analytics', date: 'Apr 2025', status: 'Processing' },
+  ]
 
-  const [recentActivity] = useState([
-    { id: 1, student: 'Ahmed Hassan', action: 'Completed goal: Master Binary Trees', time: '2 hours ago' },
-    { id: 2, student: 'Zainab Ali', action: 'Logged 2.5 hours on DBMS', time: '3 hours ago' },
-    { id: 3, student: 'Hassan Raza', action: 'Started new goal: API Development', time: '5 hours ago' },
-    { id: 4, student: 'Amira Khan', action: 'Achieved 50+ hour milestone', time: '1 day ago' },
-  ])
+  // Calculate dashboard statistics from API data
+  const calculateStats = () => {
+    const totalHours = safeAnalytics.totalSessions ? (safeAnalytics.totalSessions / 10).toFixed(0) : 0
+    const avgProductivity = safeAnalytics.avgProductivity || 0
+    
+    return {
+      totalHours,
+      avgProductivity,
+      engagementRate: safeAnalytics.engagementRate || 0,
+    }
+  }
 
-  const [allStudents] = useState([
-    { id: 1, name: 'Ahmed Hassan', enrollment: 'BU-21-001', email: 'ahmed@bahria.edu.pk', hours: 156, goals: 8, status: 'Active' },
-    { id: 2, name: 'Zainab Ali', enrollment: 'BU-21-002', email: 'zainab@bahria.edu.pk', hours: 142, goals: 6, status: 'Active' },
-    { id: 3, name: 'Hassan Raza', enrollment: 'BU-21-003', email: 'hassan.r@bahria.edu.pk', hours: 138, goals: 7, status: 'Active' },
-    { id: 4, name: 'Amira Khan', enrollment: 'BU-21-004', email: 'amira@bahria.edu.pk', hours: 125, goals: 5, status: 'Active' },
-    { id: 5, name: 'Fatima Ahmed', enrollment: 'BU-21-005', email: 'fatima@bahria.edu.pk', hours: 98, goals: 4, status: 'Inactive' },
-  ])
+  const stats = [
+    { label: 'Total Hours Logged', value: `${calculateStats().totalHours}h`, change: '+245h this week', color: '#10b981' },
+    { label: 'Engagement Rate', value: `${calculateStats().engagementRate}%`, change: 'Overall', color: '#3b82f6' },
+    { label: 'Avg Productivity', value: `${calculateStats().avgProductivity}/10`, change: 'All students', color: '#f59e0b' },
+    { label: 'Active This Week', value: '118', change: '94.4%', color: '#8b5cf6' },
+  ]
 
-  const [performanceData] = useState([
-    { student: 'Ahmed Hassan', ds: 92, dbms: 88, web: 85, avg: 88.3 },
-    { student: 'Zainab Ali', ds: 89, dbms: 91, web: 87, avg: 89 },
-    { student: 'Hassan Raza', ds: 85, dbms: 90, web: 84, avg: 86.3 },
-    { student: 'Amira Khan', ds: 84, dbms: 86, web: 82, avg: 84 },
-  ])
 
-  const [analyticsData] = useState({
-    weeklyStats: [
-      { day: 'Mon', hours: 156, students: 110 },
-      { day: 'Tue', hours: 178, students: 115 },
-      { day: 'Wed', hours: 142, students: 108 },
-      { day: 'Thu', hours: 195, students: 118 },
-      { day: 'Fri', hours: 168, students: 105 },
-      { day: 'Sat', hours: 145, students: 95 },
-      { day: 'Sun', hours: 126, students: 80 },
-    ],
-    engagementRate: 94.4,
-    avgProductivity: 8.2,
-    totalSessions: 2847,
-  })
-
-  const [reportsData] = useState([
-    { id: 1, title: 'Weekly Performance Report', date: '2026-04-19', type: 'Performance', status: 'Ready' },
-    { id: 2, title: 'Student Engagement Analysis', date: '2026-04-18', type: 'Analytics', status: 'Ready' },
-    { id: 3, title: 'Subject Breakdown Report', date: '2026-04-17', type: 'Analytics', status: 'Ready' },
-    { id: 4, title: 'Monthly Productivity Summary', date: '2026-04-15', type: 'Summary', status: 'Processing' },
-  ])
 
   const handleSaveProfile = () => {
-    setAdminData(editData)
     setIsEditingProfile(false)
   }
 
@@ -103,178 +90,214 @@ export default function AdminDashboard() {
 
       {/* Main Content Grid */}
       <div className="content-grid">
-        {/* Top Performers */}
-        <div className="card">
-          <div className="card-header">
-            <h3>Top Performers</h3>
-          </div>
-          <div className="card-body">
-            <div className="performers-list">
-              {topPerformers.map(performer => (
-                <div key={performer.rank} className="performer-item">
-                  <div className="rank-badge">#{performer.rank}</div>
-                  <div className="performer-info">
-                    <h4>{performer.name}</h4>
-                    <span className="enrollment">{performer.enrollment}</span>
-                  </div>
-                  <div className="performer-stats">
-                    <div className="mini-stat">
-                      <span className="val">{performer.hoursStudied}h</span>
-                      <span className="lbl">Hours</span>
-                    </div>
-                    <div className="mini-stat">
-                      <span className="val">{performer.productivity}</span>
-                      <span className="lbl">Rating</span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Subject Analytics */}
-        <div className="card">
-          <div className="card-header">
-            <h3>Subject Analytics</h3>
-          </div>
-          <div className="card-body">
-            <div className="subject-list">
-              {subjectAnalytics.map(subject => (
-                <div key={subject.id} className="subject-row">
-                  <div className="subject-name">{subject.name}</div>
-                  <div className="subject-stats">
-                    <span className="stat-item">{subject.students} students</span>
-                    <span className="stat-item">{subject.totalHours}h total</span>
-                    <span className="stat-item prod">{subject.avgProductivity} avg</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Recent Activity */}
-      <div className="card wide">
-        <div className="card-header">
-          <h3>Recent Activity</h3>
-        </div>
-        <div className="card-body">
-          <div className="activity-list">
-            {recentActivity.map(activity => (
-              <div key={activity.id} className="activity-row">
-                <div className="activity-dot"></div>
-                <div className="activity-details">
-                  <h4>{activity.student}</h4>
-                  <p>{activity.action}</p>
-                  <span className="activity-time">{activity.time}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-
-  const renderStudents = () => (
-    <div className="tab-content">
-      <div className="card wide">
-        <div className="card-header">
-          <h3>Students Management</h3>
-          <button className="btn-primary">+ Add Student</button>
-        </div>
-        <div className="card-body">
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Enrollment</th>
-                <th>Email</th>
-                <th>Hours Studied</th>
-                <th>Goals</th>
-                <th>Status</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {allStudents.map(student => (
-                <tr key={student.id}>
-                  <td>{student.name}</td>
-                  <td>{student.enrollment}</td>
-                  <td>{student.email}</td>
-                  <td>{student.hours}h</td>
-                  <td>{student.goals}</td>
-                  <td>
-                    <span className={`status-badge status-${student.status.toLowerCase()}`}>
-                      {student.status}
-                    </span>
-                  </td>
-                  <td>
-                    <button className="btn-small">View</button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  )
-
-  const renderAnalytics = () => (
-    <div className="tab-content">
-      <div className="content-grid">
+        {/* System Overview */}
         <div className="card wide">
           <div className="card-header">
-            <h3>Weekly Statistics</h3>
+            <h3>System Overview</h3>
           </div>
           <div className="card-body">
-            <div className="analytics-chart">
-              <div className="chart-bars">
-                {analyticsData.weeklyStats.map((stat, idx) => (
-                  <div key={idx} className="bar-wrapper">
-                    <div className="bar-label">{stat.day}</div>
-                    <div className="bar-container">
-                      <div 
-                        className="bar" 
-                        style={{ height: `${(stat.hours / 200) * 100}%` }}
-                        title={`${stat.hours}h`}
-                      ></div>
-                    </div>
-                    <div className="bar-value">{stat.hours}h</div>
+            {analyticsLoading ? (
+              <p>Loading analytics...</p>
+            ) : (
+              <div className="overview-metrics">
+                <p>📊 Analytics data fetched from backend</p>
+                <p>💡 {recommendationsLoading ? 'Loading...' : recommendations.length} recommendations active</p>
+                <p>⚠️ {weakAreaLoading ? 'Loading...' : weakAreas.length} weak areas identified</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Weak Areas Summary */}
+        {weakAreas.length > 0 && (
+          <div className="card">
+            <div className="card-header">
+              <h3>Weak Areas Alert</h3>
+            </div>
+            <div className="card-body">
+              <div className="weak-areas-summary">
+                {weakAreas.slice(0, 3).map((area, idx) => (
+                  <div key={idx} className="weak-item">
+                    <span className="subject">{area.subject || area.subjectName}</span>
+                    <span className="avg">{area.avgScore}%</span>
                   </div>
                 ))}
               </div>
             </div>
           </div>
+        )}
+      </div>
+
+      {/* Recent Recommendations */}
+      <div className="card wide">
+        <div className="card-header">
+          <h3>Recent Recommendations</h3>
+        </div>
+        <div className="card-body">
+          {recommendationsLoading ? (
+            <p>Loading recommendations...</p>
+          ) : recommendations.length === 0 ? (
+            <p className="empty-state">No recommendations yet.</p>
+          ) : (
+            <div className="recommendations-list">
+              {recommendations.slice(0, 5).map((rec, idx) => (
+                <div key={idx} className="recommendation-item">
+                  <div className="rec-type">{rec.type || 'Recommendation'}</div>
+                  <p>{rec.description || rec.message}</p>
+                  <span className="rec-date">{new Date(rec.dateCreated || rec.createdDate).toLocaleDateString()}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+
+
+
+  const renderAnalytics = () => (
+    <div className="tab-content">
+      {/* Overview chart */}
+      <div className="content-grid">
+        <div className="card wide">
+          <div className="card-header"><h3>Weekly Study Hours</h3></div>
+          <div className="card-body">
+            <div className="analytics-chart" style={{ height: '300px', width: '100%', marginTop: '20px' }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={safeAnalytics.weeklyStats || []}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#333" />
+                  <XAxis dataKey="day" stroke="#888" />
+                  <YAxis stroke="#888" />
+                  <Tooltip
+                    contentStyle={{ backgroundColor: '#1a1d24', border: '1px solid #333', borderRadius: '8px' }}
+                    itemStyle={{ color: '#ff5c28' }}
+                  />
+                  <Bar dataKey="hours" fill="#ff5c28" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
         </div>
 
         <div className="card">
-          <div className="card-header">
-            <h3>System Metrics</h3>
-          </div>
+          <div className="card-header"><h3>System Metrics</h3></div>
           <div className="card-body">
             <div className="metrics-list">
               <div className="metric-item">
                 <span className="metric-label">Engagement Rate:</span>
-                <span className="metric-value">{analyticsData.engagementRate}%</span>
+                <span className="metric-value">{safeAnalytics.engagementRate || 0}%</span>
               </div>
               <div className="metric-item">
                 <span className="metric-label">Avg Productivity:</span>
-                <span className="metric-value">{analyticsData.avgProductivity}/10</span>
+                <span className="metric-value">{safeAnalytics.avgProductivity || 0}/10</span>
               </div>
               <div className="metric-item">
-                <span className="metric-label">Total Study Sessions:</span>
-                <span className="metric-value">{analyticsData.totalSessions}</span>
+                <span className="metric-label">Total Sessions:</span>
+                <span className="metric-value">{safeAnalytics.totalSessions || 0}</span>
+              </div>
+              <div className="metric-item">
+                <span className="metric-label">Total Students:</span>
+                <span className="metric-value">{safeAnalytics.totalStudents || 0}</span>
               </div>
               <div className="metric-item">
                 <span className="metric-label">Active Students:</span>
-                <span className="metric-value">118</span>
+                <span className="metric-value">{safeAnalytics.activeStudents || 0}</span>
               </div>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Lab 6 — Below Average Students (subquery) */}
+      <div className="card wide">
+        <div className="card-header">
+          <h3>Below-Average Students (Lab 6)</h3>
+          {!belowAvgLoading && <span className="card-subtitle">System avg: ★ {systemAvg}/10</span>}
+        </div>
+        <div className="card-body">
+          {belowAvgLoading ? (
+            <p>Loading...</p>
+          ) : belowAvg.length === 0 ? (
+            <p className="empty-state">No students below the system average. Great performance!</p>
+          ) : (
+            <table className="data-table">
+              <thead>
+                <tr><th>Student</th><th>Email</th><th>Avg Score</th><th>vs System Avg</th></tr>
+              </thead>
+              <tbody>
+                {belowAvg.map((s, i) => (
+                  <tr key={i}>
+                    <td>{s.name}</td>
+                    <td>{s.email}</td>
+                    <td><span className="productivity-badge" style={{ background: '#ef444422' }}>★ {s.avgScore}</span></td>
+                    <td style={{ color: '#ef4444' }}>{(s.avgScore - systemAvg).toFixed(1)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      </div>
+
+      {/* Lab 5 — Engaged Students (INTERSECT) */}
+      <div className="card wide">
+        <div className="card-header"><h3>Engaged Students This Week (Lab 5 — INTERSECT)</h3></div>
+        <div className="card-body">
+          {engagedLoading ? (
+            <p>Loading...</p>
+          ) : engaged.length === 0 ? (
+            <p className="empty-state">No students both studied this week and have an active goal.</p>
+          ) : (
+            <table className="data-table">
+              <thead>
+                <tr><th>Student</th><th>Email</th></tr>
+              </thead>
+              <tbody>
+                {engaged.map((s, i) => (
+                  <tr key={i}>
+                    <td>{s.name}</td>
+                    <td>{s.email}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      </div>
+
+      {/* Lab 12 — ROLLUP aggregation */}
+      <div className="card wide">
+        <div className="card-header"><h3>ROLLUP Analytics — Sessions by Student / Subject / Month (Lab 12)</h3></div>
+        <div className="card-body">
+          {rollupLoading ? (
+            <p>Loading rollup data...</p>
+          ) : rollupData.length === 0 ? (
+            <p className="empty-state">No study data available for rollup analysis.</p>
+          ) : (
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Student</th><th>Subject</th><th>Year</th><th>Month</th>
+                  <th>Sessions</th><th>Total Hours</th><th>Avg Productivity</th>
+                </tr>
+              </thead>
+              <tbody>
+                {rollupData.slice(0, 50).map((row, i) => (
+                  <tr key={i} style={{ opacity: row.studentId === null ? 0.6 : 1, fontWeight: row.studentId === null ? 'bold' : 'normal' }}>
+                    <td>{row.studentId ?? '— ALL —'}</td>
+                    <td>{row.subjectName ?? '— ALL —'}</td>
+                    <td>{row.year ?? '—'}</td>
+                    <td>{row.month ?? '—'}</td>
+                    <td>{String(row.sessionCount)}</td>
+                    <td>{row.totalHours ?? '—'}h</td>
+                    <td>{row.avgProductivity !== null ? `★ ${row.avgProductivity}` : '—'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+          {rollupData.length > 50 && <p className="info-text">Showing first 50 of {rollupData.length} rows.</p>}
         </div>
       </div>
     </div>
@@ -326,33 +349,55 @@ export default function AdminDashboard() {
     </div>
   )
 
+  const downloadReport = (format) => {
+    const token = localStorage.getItem('token')
+    fetch(`/api/admin/reports/export?format=${format}`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    })
+      .then(res => {
+        if (!res.ok) throw new Error('Export failed')
+        return res.blob()
+      })
+      .then(blob => {
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = `studysphere-report-${new Date().toISOString().slice(0, 10)}.${format}`
+        document.body.appendChild(a)
+        a.click()
+        a.remove()
+        URL.revokeObjectURL(url)
+      })
+      .catch(err => alert('Failed to download report: ' + err.message))
+  }
+
   const renderReports = () => (
     <div className="tab-content">
+      {/* Adapter Pattern — export analytics data as CSV or JSON */}
       <div className="card wide">
-        <div className="card-header">
-          <h3>Reports</h3>
-          <button className="btn-primary">+ Generate Report</button>
-        </div>
+        <div className="card-header"><h3>Export Analytics Report (Adapter Pattern)</h3></div>
         <div className="card-body">
-          <div className="reports-list">
-            {reportsData.map(report => (
-              <div key={report.id} className="report-item">
-                <div className="report-info">
-                  <h4>{report.title}</h4>
-                  <div className="report-meta">
-                    <span className="report-type">{report.type}</span>
-                    <span className="report-date">{report.date}</span>
-                  </div>
-                </div>
-                <div className="report-status">
-                  <span className={`status-badge status-${report.status.toLowerCase()}`}>
-                    {report.status}
-                  </span>
-                </div>
-                <button className="btn-small">Download</button>
-              </div>
-            ))}
+          <p className="info-text" style={{ marginBottom: '16px' }}>
+            The same analytics data is adapted to different output formats (CSV or JSON)
+            by <strong>CsvReportAdapter</strong> and <strong>JsonReportAdapter</strong>,
+            both implementing the <code>IReportGenerator</code> interface.
+          </p>
+          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+            <button className="btn-primary" onClick={() => downloadReport('csv')}>
+              Download CSV Report
+            </button>
+            <button className="btn-secondary" onClick={() => downloadReport('json')}>
+              Download JSON Report
+            </button>
           </div>
+        </div>
+      </div>
+
+      {/* Decorator Pattern demo — trigger multi-channel notification delivery */}
+      <div className="card wide">
+        <div className="card-header"><h3>Notification Delivery Channels (Decorator Pattern)</h3></div>
+        <div className="card-body">
+          <NotificationDeliveryDemo />
         </div>
       </div>
     </div>
@@ -455,7 +500,8 @@ export default function AdminDashboard() {
   const renderContent = (activeTab) => {
     switch(activeTab) {
       case 'overview': return renderOverview()
-      case 'students': return renderStudents()
+      case 'students': return <StudentManagement />
+      case 'subjects': return <SubjectManagement />
       case 'analytics': return renderAnalytics()
       case 'performance': return renderPerformance()
       case 'recommendations': return <AdminRecommendations />
@@ -468,8 +514,12 @@ export default function AdminDashboard() {
   return (
     <DashboardLayout userType="admin">
       {({ activeTab }) => (
-        <div className="admin-dashboard" key={activeTab}>
-          {renderContent(activeTab)}
+        <div className="dashboard-container" key={activeTab}>
+          <div className="tab-content-wrapper">
+            <div className="tab-content-container">
+              {renderContent(activeTab)}
+            </div>
+          </div>
         </div>
       )}
     </DashboardLayout>

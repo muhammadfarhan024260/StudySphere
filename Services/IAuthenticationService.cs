@@ -15,6 +15,9 @@ public interface IAuthenticationService
         string email, string password, string userType);
     Task<(bool Success, string Message)> SendOtpAsync(string email, string name, string userType);
     Task<(bool Success, string Message)> VerifyOtpAsync(string email, string otp, string userType);
+    // Lab 8 DML — password reset flow
+    Task<(bool Success, string Message)> ForgotPasswordAsync(string email, string userType);
+    Task<(bool Success, string Message)> ResetPasswordAsync(string email, string userType, string otp, string newPassword);
     string GenerateToken(int userId, string userType, string email);
     bool VerifyPassword(string password, string hash);
     string HashPassword(string password);
@@ -309,6 +312,8 @@ public class AuthenticationService : IAuthenticationService
             new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
             new Claim(ClaimTypes.Email, email),
             new Claim("userType", userType),
+            // Role claim: capitalize first letter so [Authorize(Roles="Admin")] / [Authorize(Roles="Student")] works
+            new Claim(ClaimTypes.Role, char.ToUpper(userType[0]) + userType.Substring(1)),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
 
@@ -321,6 +326,93 @@ public class AuthenticationService : IAuthenticationService
         );
 
         return new JwtSecurityTokenHandler().WriteToken(token);
+    }
+
+    // Lab 8 DML — sends password-reset OTP
+    public async Task<(bool Success, string Message)> ForgotPasswordAsync(string email, string userType)
+    {
+        try
+        {
+            userType = userType.ToLower();
+            string? name = null;
+
+            if (userType == "student")
+            {
+                var student = await _studentRepository.GetByEmailAsync(email);
+                if (student == null) return (false, "No account found with that email address");
+                name = student.Name;
+            }
+            else if (userType == "admin")
+            {
+                var admin = await _adminRepository.GetByEmailAsync(email);
+                if (admin == null) return (false, "No account found with that email address");
+                name = admin.Name;
+            }
+            else
+            {
+                return (false, "Invalid user type");
+            }
+
+            // Use a distinct userType tag so reset OTPs don't interfere with signup OTPs
+            await _otpService.GenerateAndSendOtpAsync(email, $"{userType}_reset", name);
+            return (true, "A password reset code has been sent to your email");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error sending password reset OTP for {Email}", email);
+            return (false, $"Failed to send reset code: {ex.Message}");
+        }
+    }
+
+    // Lab 8 DML — verifies OTP and updates password hash
+    public async Task<(bool Success, string Message)> ResetPasswordAsync(string email, string userType, string otp, string newPassword)
+    {
+        try
+        {
+            userType = userType.ToLower();
+
+            if (string.IsNullOrWhiteSpace(newPassword) || newPassword.Length < 6)
+                return (false, "New password must be at least 6 characters");
+
+            var verified = await _otpService.VerifyOtpAsync(email, otp, $"{userType}_reset");
+            if (!verified) return (false, "Invalid or expired reset code");
+
+            if (userType == "student")
+            {
+                var student = await _studentRepository.GetByEmailAsync(email);
+                if (student == null) return (false, "User not found");
+                student.PasswordHash = HashPassword(newPassword);
+                await _studentRepository.UpdateAsync(student);
+            }
+            else if (userType == "admin")
+            {
+                var admin = await _adminRepository.GetByEmailAsync(email);
+                if (admin == null) return (false, "User not found");
+                admin.PasswordHash = HashPassword(newPassword);
+                await _adminRepository.UpdateAsync(admin);
+            }
+            else
+            {
+                return (false, "Invalid user type");
+            }
+
+            // Mark the OTP as used
+            var usedOtp = await _otpService.GetVerifiedOtpAsync(email, $"{userType}_reset");
+            if (usedOtp != null)
+            {
+                usedOtp.IsUsed = true;
+                _context.OtpVerifications.Update(usedOtp);
+                await _context.SaveChangesAsync();
+            }
+
+            _logger.LogInformation("Password reset successfully for {Email}", email);
+            return (true, "Password reset successfully. You can now log in with your new password.");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error resetting password for {Email}", email);
+            return (false, $"Password reset failed: {ex.Message}");
+        }
     }
 
     public bool VerifyPassword(string password, string hash)

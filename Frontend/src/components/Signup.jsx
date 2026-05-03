@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import api from '../services/api'
 import './Auth.css'
 
-export default function Signup({ initialRole = 'student', onSignupSuccess, onSwitchToLogin }) {
+export default function Signup({ initialRole = 'student', onSignupSuccess, onSwitchToLogin, onGoToHome }) {
   const [role, setRole] = useState(initialRole)
   const [step, setStep] = useState('email') // 'email', 'otp', 'password'
   const [formData, setFormData] = useState({
@@ -185,10 +185,23 @@ export default function Signup({ initialRole = 'student', onSignupSuccess, onSwi
   }
 
   return (
-    <div className="auth-container">
+    <div className="auth-split">
+      <div className="auth-brand">
+        <div className="brand-inner">
+          <div className="brand-mark">◈</div>
+          <h1 className="brand-name">Study<br/><span>Sphere</span></h1>
+          <div className="brand-rule"></div>
+          <p className="brand-tagline">Begin your academic journey<br/><em>with intelligence.</em></p>
+        </div>
+        <div className="brand-institution">Bahria University · Academic Management</div>
+        {onGoToHome && (
+          <button className="brand-back-btn" onClick={onGoToHome}>← Back to home</button>
+        )}
+      </div>
+      <div className="auth-panel">
       <div className="auth-box">
         <div className="auth-header">
-          <h2>Create {role === 'student' ? 'Student' : 'Admin'} Account</h2>
+          <h2>Create account</h2>
           <p className="auth-subtitle">Join the StudySphere management platform</p>
         </div>
 
@@ -419,13 +432,14 @@ export default function Signup({ initialRole = 'student', onSignupSuccess, onSwi
           <span>Already registered?</span>
         </div>
 
-        <button 
+        <button
           type="button"
           onClick={onSwitchToLogin}
           className="switch-auth-btn"
         >
           Back to Login
         </button>
+      </div>
       </div>
     </div>
   )

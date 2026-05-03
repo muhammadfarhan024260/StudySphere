@@ -5,6 +5,8 @@ using StudySphere.Data;
 using StudySphere.Repositories;
 using StudySphere.Services;
 using StudySphere.Facades;
+using StudySphere.Patterns.Singleton;
+using StudySphere.Patterns.Decorator;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 
@@ -38,7 +40,12 @@ if (!isValidFormat)
         $"Got: {connectionString.Substring(0, Math.Min(50, connectionString.Length))}...");
 }
 
-var jwtSecret = Env.GetString("JWT__Secret") ?? "your-super-secret-jwt-key-minimum-32-characters-long-change-this";
+// Singleton Pattern — one shared DB connection factory for the lifetime of the app
+var dbSingleton = DatabaseConnectionSingleton.GetInstance(connectionString);
+
+// Read JWT config via IConfiguration so it works regardless of whether the .env file
+// uses colon (JWT:Secret) or double-underscore (JWT__Secret) format.
+var jwtSecret = builder.Configuration["JWT:Secret"] ?? "your-super-secret-jwt-key-minimum-32-characters-long-change-this";
 
 // Add services to the container
 builder.Services.AddDbContext<StudySphereDbContext>(options =>
@@ -81,9 +88,9 @@ builder.Services.AddAuthentication(options =>
         ValidateIssuerSigningKey = true,
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(jwtSecret)),
         ValidateIssuer = true,
-        ValidIssuer = Env.GetString("JWT__Issuer") ?? "StudySphere",
+        ValidIssuer = builder.Configuration["JWT:Issuer"] ?? "StudySphere",
         ValidateAudience = true,
-        ValidAudience = Env.GetString("JWT__Audience") ?? "StudySphereUsers",
+        ValidAudience = builder.Configuration["JWT:Audience"] ?? "StudySphereUsers",
         ValidateLifetime = true,
         ClockSkew = TimeSpan.FromMinutes(5)
     };
@@ -101,6 +108,7 @@ builder.Services.AddScoped<IOtpRepository, OtpRepository>();
 builder.Services.AddScoped<IWeakAreaRepository, WeakAreaRepository>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<IRecommendationRepository, RecommendationRepository>();
+builder.Services.AddScoped<ISubjectRepository, SubjectRepository>();
 
 // Business Layer - Services
 builder.Services.AddScoped<IStudyLogService, StudyLogService>();
@@ -112,6 +120,12 @@ builder.Services.AddScoped<IIntelligenceService, IntelligenceService>();
 
 // Façade Pattern
 builder.Services.AddScoped<StudyPlannerFacade>();
+
+// Singleton Pattern — register the already-created instance
+builder.Services.AddSingleton(dbSingleton);
+
+// Decorator Pattern — scoped because it holds scoped dependencies (IEmailService, IStudentRepository)
+builder.Services.AddScoped<NotificationDeliveryService>();
 
 // Add CORS policy for frontend
 builder.Services.AddCors(options =>

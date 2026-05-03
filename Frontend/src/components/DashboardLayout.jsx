@@ -1,37 +1,42 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import './DashboardLayout.css'
 
 export default function DashboardLayout({ children, userType = 'student' }) {
-  const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState('overview')
   const [sidebarOpen, setSidebarOpen] = useState(true)
+
+  const userName = localStorage.getItem('userName') || (userType === 'admin' ? 'Admin' : 'Student')
+  const userInitials = userName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
 
   const handleLogout = () => {
     localStorage.removeItem('token')
     localStorage.removeItem('userId')
     localStorage.removeItem('userType')
-    navigate('/')
+    localStorage.removeItem('userName')
+    localStorage.removeItem('userEmail')
+    // Full page reload resets App.jsx state so the user sees the home/login screen
+    window.location.href = '/'
   }
 
   const studentTabs = [
-    { id: 'overview', label: 'Overview', icon: '▦' },
-    { id: 'sessions', label: 'Study Sessions', icon: '⊞' },
-    { id: 'goals', label: 'Goals', icon: '◆' },
-    { id: 'analytics', label: 'Analytics', icon: '▲' },
-    { id: 'subjects', label: 'Subjects', icon: '≡' },
-    { id: 'notifications', label: 'Notifications', icon: '◔' },
-    { id: 'settings', label: 'Settings', icon: '⚙' },
+    { id: 'overview', label: 'Overview' },
+    { id: 'sessions', label: 'Study Sessions' },
+    { id: 'goals', label: 'Goals' },
+    { id: 'analytics', label: 'Analytics' },
+    { id: 'subjects', label: 'Subjects' },
+    { id: 'notifications', label: 'Notifications' },
+    { id: 'settings', label: 'Settings' },
   ]
 
   const adminTabs = [
-    { id: 'overview', label: 'Overview', icon: '▦' },
-    { id: 'students', label: 'Students', icon: '◎' },
-    { id: 'analytics', label: 'Analytics', icon: '▲' },
-    { id: 'performance', label: 'Performance', icon: '★' },
-    { id: 'recommendations', label: 'Recommendations', icon: '✎' },
-    { id: 'reports', label: 'Reports', icon: '▬' },
-    { id: 'settings', label: 'Settings', icon: '⚙' },
+    { id: 'overview', label: 'Overview' },
+    { id: 'students', label: 'Students' },
+    { id: 'subjects', label: 'Subjects' },
+    { id: 'analytics', label: 'Analytics' },
+    { id: 'performance', label: 'Performance' },
+    { id: 'recommendations', label: 'Recommendations' },
+    { id: 'reports', label: 'Reports' },
+    { id: 'settings', label: 'Settings' },
   ]
 
   const tabs = userType === 'admin' ? adminTabs : studentTabs
@@ -42,7 +47,6 @@ export default function DashboardLayout({ children, userType = 'student' }) {
       <aside className={`sidebar ${sidebarOpen ? 'open' : 'closed'}`}>
         <div className="sidebar-header">
           <div className="logo">
-            <span className="logo-icon">▨</span>
             {sidebarOpen && <span className="logo-text">StudySphere</span>}
           </div>
           <button 
@@ -61,7 +65,6 @@ export default function DashboardLayout({ children, userType = 'student' }) {
               onClick={() => setActiveTab(tab.id)}
               title={tab.label}
             >
-              <span className="nav-icon">{tab.icon}</span>
               {sidebarOpen && <span className="nav-label">{tab.label}</span>}
             </button>
           ))}
@@ -73,7 +76,6 @@ export default function DashboardLayout({ children, userType = 'student' }) {
             onClick={handleLogout}
             title="Logout"
           >
-            <span className="logout-icon">⇨</span>
             {sidebarOpen && <span className="logout-label">Logout</span>}
           </button>
         </div>
@@ -88,10 +90,10 @@ export default function DashboardLayout({ children, userType = 'student' }) {
           </div>
           <div className="header-right">
             <div className="user-section">
-              <div className="user-avatar">AH</div>
+              <div className="user-avatar">{userInitials}</div>
               <div className="user-dropdown">
                 <button className="dropdown-toggle">
-                  Ahmed Hassan
+                  {userName}
                   <span className="dropdown-arrow">▼</span>
                 </button>
               </div>

@@ -37,4 +37,10 @@ public class NotificationRepository : INotificationRepository
         await _context.SaveChangesAsync();
         return notification.NotificationId;
     }
+
+    public async Task<bool> HasNotificationForSubjectAsync(int studentId, int subjectId, string type)
+    {
+        return await _context.Notifications
+            .AnyAsync(n => n.StudentId == studentId && n.RelatedSubjectId == (int?)subjectId && n.Type == type);
+    }
 }

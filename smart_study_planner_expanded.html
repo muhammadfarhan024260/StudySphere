@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Study Planner — Expanded Project Breakdown</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f5f5f3;
+      color: #1a1a1a;
+      padding: 2rem 1rem;
+      line-height: 1.6;
+    }
+    .container { max-width: 960px; margin: 0 auto; }
+
+    /* Hero */
+    .hero {
+      background: #ffffff;
+      border: 1px solid #e0e0db;
+      border-radius: 14px;
+      padding: 1.5rem 1.75rem;
+      margin-bottom: 1.5rem;
+    }
+    .hero-title { font-size: 22px; font-weight: 600; margin-bottom: 4px; }
+    .hero-sub { font-size: 14px; color: #666; margin-bottom: 12px; }
+    .badge { display: inline-block; font-size: 12px; padding: 3px 10px; border-radius: 8px; margin-right: 6px; font-weight: 500; }
+    .bi { background: #dbeafe; color: #1e40af; }
+    .bs { background: #dcfce7; color: #166534; }
+    .bw { background: #fef3c7; color: #92400e; }
+    .bd { background: #fee2e2; color: #991b1b; }
+
+    /* Alert */
+    .alert {
+      background: #dcfce7;
+      border: 1px solid #86efac;
+      border-radius: 10px;
+      padding: .75rem 1rem;
+      font-size: 13px;
+      color: #166534;
+      margin-bottom: 1.5rem;
+    }
+
+    /* Sections */
+    .section { margin-bottom: 2rem; }
+    .sec-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      margin-bottom: 12px;
+    }
+
+    /* Schema cards */
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
+    .card {
+      background: #ffffff;
+      border: 1px solid #e0e0db;
+      border-radius: 12px;
+      padding: 1rem;
+    }
+    .card-head { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .dot-blue { background: #3b82f6; }
+    .dot-purple { background: #8b5cf6; }
+    .dot-teal { background: #14b8a6; }
+    .dot-amber { background: #f59e0b; }
+    .dot-coral { background: #f97316; }
+    .card-name { font-size: 14px; font-weight: 600; }
+    .card-role { font-size: 12px; color: #888; margin-bottom: 8px; }
+    .fields { display: flex; flex-wrap: wrap; gap: 4px; }
+    .field {
+      font-size: 11px; padding: 2px 8px; border-radius: 12px;
+      background: #f5f5f3; border: 1px solid #e0e0db; color: #555;
+    }
+    .field.pk { background: #dbeafe; color: #1e40af; border-color: #93c5fd; }
+    .field.fk { background: #ede9fe; color: #5b21b6; border-color: #c4b5fd; }
+    .field.key { background: #dcfce7; color: #166534; border-color: #86efac; }
+
+    /* DBMS table */
+    .dbms-box {
+      background: #ffffff;
+      border: 1px solid #e0e0db;
+      border-radius: 12px;
+      padding: .5rem 1rem;
+    }
+    .dbms-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 9px 0;
+      border-bottom: 1px solid #f0f0ed;
+      flex-wrap: wrap;
+    }
+    .dbms-row:last-child { border-bottom: none; }
+    .dbms-lab { font-size: 11px; color: #888; width: 130px; flex-shrink: 0; padding-top: 1px; }
+    .dbms-feat { font-size: 13px; font-weight: 500; width: 170px; flex-shrink: 0; }
+    .dbms-example { font-size: 12px; color: #555; flex: 1; min-width: 180px; }
+
+    /* Pattern table */
+    .pattern-box {
+      background: #ffffff;
+      border: 1px solid #e0e0db;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th {
+      text-align: left; padding: 8px 12px;
+      font-size: 11px; font-weight: 600; color: #888;
+      text-transform: uppercase; letter-spacing: .06em;
+      border-bottom: 1px solid #e0e0db;
+      background: #fafaf8;
+    }
+    td { padding: 10px 12px; border-bottom: 1px solid #f0f0ed; vertical-align: top; line-height: 1.5; }
+    tr:last-child td { border-bottom: none; }
+    .tag-sd { font-size: 11px; padding: 2px 8px; border-radius: 12px; background: #ede9fe; color: #5b21b6; border: 1px solid #c4b5fd; display: inline-block; white-space: nowrap; }
+    .tag-db { font-size: 11px; padding: 2px 8px; border-radius: 12px; background: #dbeafe; color: #1e40af; border: 1px solid #93c5fd; display: inline-block; white-space: nowrap; }
+
+    /* Score bars */
+    .score-box {
+      background: #ffffff;
+      border: 1px solid #e0e0db;
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+    }
+    .bar-row { display: flex; gap: 10px; align-items: center; margin-bottom: 8px; }
+    .bar-row:last-child { margin-bottom: 0; }
+    .bar-label { font-size: 12px; color: #555; width: 110px; flex-shrink: 0; }
+    .bar-bg { flex: 1; height: 6px; background: #e8e8e4; border-radius: 4px; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 4px; }
+    .bar-val { font-size: 12px; font-weight: 600; width: 32px; text-align: right; }
+    .bar-note { font-size: 11px; color: #aaa; width: 68px; }
+
+    /* Team cards */
+    .team-card { background: #ffffff; border: 1px solid #e0e0db; border-radius: 12px; padding: 1rem; }
+    .team-name { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+    .team-role { font-size: 12px; color: #666; line-height: 1.5; }
+
+    /* Legend */
+    .legend { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px; }
+    .tag-inline { font-size: 11px; padding: 2px 9px; border-radius: 12px; display: inline-block; }
+
+    /* Footer note */
+    .footer-note {
+      text-align: center;
+      font-size: 12px;
+      color: #aaa;
+      margin-top: 2rem;
+      padding-top: 1rem;
+      border-top: 1px solid #e0e0db;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <div class="hero">
+    <p class="hero-title">Smart Study Planner with Analytics — expanded</p>
+    <p class="hero-sub">Tracks student study sessions, goals, and weak areas. Generates daily/weekly analytics reports. Admin manages subjects and recommendations.</p>
+    <span class="badge bi">Education domain</span>
+    <span class="badge bs">9 tables</span>
+    <span class="badge bw">Admin + Student roles</span>
+  </div>
+
+  <div class="alert">Original had 4 tables and weak pattern fit. This version expands to 9 tables, adds 5 natural DBMS feature hooks, and gives every pattern a genuine use case — not a forced one.</div>
+
+  <!-- Schema -->
+  <div class="section">
+    <p class="sec-title">Database schema — 9 tables</p>
+    <div class="cards">
+
+      <div class="card">
+        <div class="card-head"><div class="dot dot-blue"></div><span class="card-name">Student</span></div>
+        <p class="card-role">Core user entity</p>
+        <div class="fields">
+          <span class="field pk">StudentID PK</span>
+          <span class="field">Name</span>
+          <span class="field">Email</span>
+          <span class="field">PasswordHash</span>
+          <span class="field">CreatedAt</span>
+          <span class="field key">Role = 'student'</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><div class="dot dot-blue"></div><span class="card-name">Admin</span></div>
+        <p class="card-role">Manages subjects & recommendations</p>
+        <div class="fields">
+          <span class="field pk">AdminID PK</span>
+          <span class="field">Name</span>
+          <span class="field">Email</span>
+          <span class="field key">Role = 'admin'</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><div class="dot dot-teal"></div><span class="card-name">Subject</span></div>
+        <p class="card-role">Subjects tracked in the system</p>
+        <div class="fields">
+          <span class="field pk">SubjectID PK</span>
+          <span class="field fk">AdminID FK</span>
+          <span class="field">SubjectName</span>
+          <span class="field">Category</span>
+          <span class="field">TargetHours</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><div class="dot dot-teal"></div><span class="card-name">StudyLog</span></div>
+        <p class="card-role">Core fact table — every session</p>
+        <div class="fields">
+          <span class="field pk">LogID PK</span>
+          <span class="field fk">StudentID FK</span>
+          <span class="field fk">SubjectID FK</span>
+          <span class="field key">HoursStudied</span>
+          <span class="field key">ProductivityScore</span>
+          <span class="field">SessionDate</span>
+          <span class="field">Notes</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><div class="dot dot-amber"></div><span class="card-name">Goal</span></div>
+        <p class="card-role">Weekly/monthly targets per subject</p>
+        <div class="fields">
+          <span class="field pk">GoalID PK</span>
+          <span class="field fk">StudentID FK</span>
+          <span class="field fk">SubjectID FK</span>
+          <span class="field">TargetHours</span>
+          <span class="field">Deadline</span>
+          <span class="field key">Status</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><div class="dot dot-amber"></div><span class="card-name">WeakArea</span></div>
+        <p class="card-role">Auto-flagged by trigger</p>
+        <div class="fields">
+          <span class="field pk">WeakAreaID PK</span>
+          <span class="field fk">StudentID FK</span>
+          <span class="field fk">SubjectID FK</span>
+          <span class="field key">AvgScore</span>
+          <span class="field">FlaggedOn</span>
+          <span class="field">Resolved</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><div class="dot dot-coral"></div><span class="card-name">Notification</span></div>
+        <p class="card-role">Decorated at runtime (Decorator)</p>
+        <div class="fields">
+          <span class="field pk">NotifID PK</span>
+          <span class="field fk">StudentID FK</span>
+          <span class="field key">Type</span>
+          <span class="field">Message</span>
+          <span class="field">SentAt</span>
+          <span class="field">IsRead</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><div class="dot dot-coral"></div><span class="card-name">ReportTemplate</span></div>
+        <p class="card-role">Adapted by Adapter pattern</p>
+        <div class="fields">
+          <span class="field pk">TemplateID PK</span>
+          <span class="field fk">AdminID FK</span>
+          <span class="field key">Format</span>
+          <span class="field">TemplateName</span>
+          <span class="field">CreatedAt</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><div class="dot dot-purple"></div><span class="card-name">Recommendation</span></div>
+        <p class="card-role">Admin-created suggestions for weak areas</p>
+        <div class="fields">
+          <span class="field pk">RecID PK</span>
+          <span class="field fk">AdminID FK</span>
+          <span class="field fk">SubjectID FK</span>
+          <span class="field">ResourceLink</span>
+          <span class="field key">MinScoreThreshold</span>
+        </div>
+      </div>
+
+    </div>
+    <div class="legend">
+      <span class="tag-inline" style="background:#dbeafe;color:#1e40af;border:1px solid #93c5fd;">PK = Primary Key</span>
+      <span class="tag-inline" style="background:#ede9fe;color:#5b21b6;border:1px solid #c4b5fd;">FK = Foreign Key</span>
+      <span class="tag-inline" style="background:#dcfce7;color:#166534;border:1px solid #86efac;">Key analytics column</span>
+    </div>
+  </div>
+
+  <!-- DBMS Coverage -->
+  <div class="section">
+    <p class="sec-title">DBMS lab coverage — all 13 labs mapped</p>
+    <div class="dbms-box">
+      <div class="dbms-row">
+        <span class="dbms-lab">Lab 1 — SELECT</span>
+        <span class="dbms-feat">Basic queries</span>
+        <span class="dbms-example">List all study logs for a student; filter by date range</span>
+      </div>
+      <div class="dbms-row">
+        <span class="dbms-lab">Lab 2 — ORDER/GROUP</span>
+        <span class="dbms-feat">GROUP BY + ORDER BY</span>
+        <span class="dbms-example">Group logs by subject, order by total hours DESC</span>
+      </div>
+      <div class="dbms-row">
+        <span class="dbms-lab">Lab 3 — Aggregates</span>
+        <span class="dbms-feat">SUM, AVG, COUNT, MAX</span>
+        <span class="dbms-example">AVG(ProductivityScore) per subject; SUM(HoursStudied) weekly</span>
+      </div>
+      <div class="dbms-row">
+        <span class="dbms-lab">Lab 4 — Joins</span>
+        <span class="dbms-feat">INNER / LEFT JOINs</span>
+        <span class="dbms-example">StudyLog → Subject → Recommendation → Student (4-table join)</span>
+      </div>
+      <div class="dbms-row">
+        <span class="dbms-lab">Lab 5 — Set ops</span>
+        <span class="dbms-feat">UNION / INTERSECT</span>
+        <span class="dbms-example">Subjects studied this week UNION subjects with active goals</span>
+      </div>
+      <div class="dbms-row">
+        <span class="dbms-lab">Lab 6 — Subqueries</span>
+        <span class="dbms-feat">Nested SELECT</span>
+        <span class="dbms-example">Students whose AVG score is below the overall system average</span>
+      </div>
+      <div class="dbms-row">
+        <span class="dbms-lab">Lab 7 — DDL</span>
+        <span class="dbms-feat">CREATE / ALTER</span>
+        <span class="dbms-example">All 9 tables with PKs, FKs, constraints, NOT NULL</span>
+      </div>
+      <div class="dbms-row">
+        <span class="dbms-lab">Lab 8 — DML</span>
+        <span class="dbms-feat">INSERT / UPDATE / DELETE</span>
+        <span class="dbms-example">Log a new study session; mark goal complete; delete old logs</span>
+      </div>
+      <div class="dbms-row">
+        <span class="dbms-lab">Lab 9 — Views</span>
+        <span class="dbms-feat">CREATE VIEW</span>
+        <span class="dbms-example">vw_WeeklyReport — pre-joined summary view per student</span>
+      </div>
+      <div class="dbms-row">
+        <span class="dbms-lab">Lab 10 — Stored Procs</span>
+        <span class="dbms-feat">CREATE PROCEDURE</span>
+        <span class="dbms-example">sp_GetWeakSubjects(@StudentID) — returns subjects below threshold</span>
+      </div>
+      <div class="dbms-row">
+        <span class="dbms-lab">Lab 11 — Triggers</span>
+        <span class="dbms-feat">AFTER INSERT trigger</span>
+        <span class="dbms-example">After INSERT on StudyLog — if AVG score &lt; 50, auto-insert into WeakArea</span>
+      </div>
+      <div class="dbms-row">
+        <span class="dbms-lab">Lab 12 — ROLLUP</span>
+        <span class="dbms-feat">ROLLUP / CUBE</span>
+        <span class="dbms-example">ROLLUP on (StudentID, SubjectID, Month) for analytics dashboard</span>
+      </div>
+      <div class="dbms-row">
+        <span class="dbms-lab">Lab 13 — Connectivity</span>
+        <span class="dbms-feat">ASP.NET + SQL CRUD</span>
+        <span class="dbms-example">Full C# web app — log sessions, view reports, manage goals</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SDA Patterns -->
+  <div class="section">
+    <p class="sec-title">SDA pattern mapping — natural fits only</p>
+    <div class="pattern-box">
+      <table>
+        <thead>
+          <tr>
+            <th>Pattern</th>
+            <th>Where it lives</th>
+            <th>What it does</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="tag-sd">Singleton</span></td>
+            <td>DatabaseConnection class</td>
+            <td>One shared SQL connection instance across all data access classes — prevents multiple open connections</td>
+          </tr>
+          <tr>
+            <td><span class="tag-sd">Decorator</span></td>
+            <td>Notification system</td>
+            <td>Base notification gets decorated at runtime — EmailDecorator, SMSDecorator, PushDecorator wrap each other to add delivery channels without changing core logic</td>
+          </tr>
+          <tr>
+            <td><span class="tag-sd">Adapter</span></td>
+            <td>Report export engine</td>
+            <td>IReportGenerator interface — PDFReportAdapter and CSVReportAdapter adapt the same analytics data to different output formats. Admin picks format; system adapts.</td>
+          </tr>
+          <tr>
+            <td><span class="tag-sd">MVC</span></td>
+            <td>Overall architecture</td>
+            <td>Model = data classes (Student, StudyLog). View = ASP.NET pages. Controller = business logic (calculate weak areas, generate reports)</td>
+          </tr>
+          <tr>
+            <td><span class="tag-sd">3-Tier / Façade</span></td>
+            <td>System layers</td>
+            <td>Presentation → Business Logic → Data Access. StudyPlannerFacade exposes simple methods (LogSession, GetReport) hiding complex joins and procedures behind one interface</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Scores -->
+  <div class="section">
+    <p class="sec-title">Updated scores vs. original</p>
+    <div class="score-box">
+      <div class="bar-row">
+        <span class="bar-label">DBMS coverage</span>
+        <div class="bar-bg"><div class="bar-fill" style="width:90%;background:#3b82f6;"></div></div>
+        <span class="bar-val">9.0</span>
+        <span class="bar-note">was 4.2</span>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">SDA coverage</span>
+        <div class="bar-bg"><div class="bar-fill" style="width:88%;background:#8b5cf6;"></div></div>
+        <span class="bar-val">8.8</span>
+        <span class="bar-note">was 3.8</span>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">Uniqueness</span>
+        <div class="bar-bg"><div class="bar-fill" style="width:88%;background:#14b8a6;"></div></div>
+        <span class="bar-val">8.8</span>
+        <span class="bar-note">was 8.0</span>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">Team fit (3–4)</span>
+        <div class="bar-bg"><div class="bar-fill" style="width:90%;background:#22c55e;"></div></div>
+        <span class="bar-val">9.0</span>
+        <span class="bar-note">was 5.5</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Team split -->
+  <div class="section">
+    <p class="sec-title">Team module split (3–4 members)</p>
+    <div class="cards">
+      <div class="team-card">
+        <div class="card-head"><div class="dot dot-blue"></div><span class="team-name">Member 1 — DB Lead</span></div>
+        <p class="team-role">Schema design, DDL scripts, stored procedures, triggers, views, ROLLUP queries</p>
+      </div>
+      <div class="team-card">
+        <div class="card-head"><div class="dot dot-purple"></div><span class="team-name">Member 2 — Backend</span></div>
+        <p class="team-role">C# data access layer, Singleton pattern, Façade, business logic, stored proc calls</p>
+      </div>
+      <div class="team-card">
+        <div class="card-head"><div class="dot dot-teal"></div><span class="team-name">Member 3 — Patterns</span></div>
+        <p class="team-role">Decorator (notifications), Adapter (report export), UML class diagram, SDA documentation</p>
+      </div>
+      <div class="team-card">
+        <div class="card-head"><div class="dot dot-amber"></div><span class="team-name">Member 4 — Frontend</span></div>
+        <p class="team-role">ASP.NET pages, MVC controllers, analytics dashboard UI, login/auth, admin panel</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-note">Smart Study Planner with Analytics — Codeveil Studios / Bahria University Karachi · CSL-220 &amp; SEL-457</div>
+
+</div>
+</body>
+</html>

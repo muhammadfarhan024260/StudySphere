@@ -9,4 +9,6 @@ public interface IStudyLogRepository
     Task<bool> DeleteAsync(int id);
     Task<IEnumerable<StudyLog>> GetByStudentIdAsync(int studentId);
     Task<IEnumerable<StudyLog>> GetAllWithSubjectNamesAsync(int studentId);
+    // Lab 9 — queries vw_weekly_report
+    Task<IEnumerable<WeeklyReportEntry>> GetWeeklyReportAsync(int studentId);
 }

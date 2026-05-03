@@ -2,7 +2,7 @@ import { useState } from 'react'
 import api from '../services/api'
 import './Auth.css'
 
-export default function Login({ onLoginSuccess, onSwitchToSignup }) {
+export default function Login({ onLoginSuccess, onSwitchToSignup, onGoToHome, onForgotPassword }) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [role, setRole] = useState('student') // 'student' or 'admin'
@@ -55,11 +55,24 @@ export default function Login({ onLoginSuccess, onSwitchToSignup }) {
   }
 
   return (
-    <div className="auth-container">
+    <div className="auth-split">
+      <div className="auth-brand">
+        <div className="brand-inner">
+          <div className="brand-mark">◈</div>
+          <h1 className="brand-name">Study<br/><span>Sphere</span></h1>
+          <div className="brand-rule"></div>
+          <p className="brand-tagline">Your academic journey,<br/><em>intelligently tracked.</em></p>
+        </div>
+        <div className="brand-institution">Bahria University · Academic Management</div>
+        {onGoToHome && (
+          <button className="brand-back-btn" onClick={onGoToHome}>← Back to home</button>
+        )}
+      </div>
+      <div className="auth-panel">
       <div className="auth-box">
         <div className="auth-header">
-          <h2>StudySphere</h2>
-          <p className="auth-subtitle">Welcome to your academic management portal</p>
+          <h2>Welcome back</h2>
+          <p className="auth-subtitle">Sign in to continue to your portal</p>
         </div>
 
         <div className="role-toggle">
@@ -129,7 +142,9 @@ export default function Login({ onLoginSuccess, onSwitchToSignup }) {
         </form>
 
         <div className="auth-footer">
-          <a href="#forgot">Forgot password?</a>
+          <button type="button" className="link-btn" onClick={() => onForgotPassword && onForgotPassword(role)}>
+            Forgot password?
+          </button>
         </div>
 
         <div className="auth-divider">
@@ -143,6 +158,7 @@ export default function Login({ onLoginSuccess, onSwitchToSignup }) {
         >
           Create {role === 'student' ? 'Student' : 'Admin'} Account
         </button>
+      </div>
       </div>
     </div>
   )

@@ -5,12 +5,14 @@ namespace StudySphere.Repositories;
 
 public interface IStudentRepository
 {
+    Task<IEnumerable<Student>> GetAllAsync();
     Task<Student?> GetByEmailAsync(string email);
     Task<Student?> GetByIdAsync(int studentId);
     Task<Student> CreateAsync(Student student);
     Task<bool> EmailExistsAsync(string email);
     Task<bool> EnrollmentNumberExistsAsync(string enrollmentNumber);
     Task UpdateAsync(Student student);
+    Task DeleteAsync(int studentId);
 }
 
 public class StudentRepository : IStudentRepository
@@ -20,6 +22,11 @@ public class StudentRepository : IStudentRepository
     public StudentRepository(StudySphere.Data.StudySphereDbContext context)
     {
         _context = context;
+    }
+
+    public async Task<IEnumerable<Student>> GetAllAsync()
+    {
+        return await _context.Students.ToListAsync();
     }
 
     public async Task<Student?> GetByEmailAsync(string email)
@@ -53,5 +60,15 @@ public class StudentRepository : IStudentRepository
     {
         _context.Students.Update(student);
         await _context.SaveChangesAsync();
+    }
+
+    public async Task DeleteAsync(int studentId)
+    {
+        var student = await _context.Students.FindAsync(studentId);
+        if (student != null)
+        {
+            _context.Students.Remove(student);
+            await _context.SaveChangesAsync();
+        }
     }
 }

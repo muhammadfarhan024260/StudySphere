@@ -14,4 +14,7 @@ public interface IIntelligenceService
     Task<int> CreateRecommendationAsync(Recommendation recommendation);
     Task<bool> UpdateRecommendationAsync(Recommendation recommendation);
     Task<bool> DeleteRecommendationAsync(int id);
+    
+    // Core Intelligence Engine
+    Task AnalyzeSessionAsync(int studentId, int subjectId);
 }

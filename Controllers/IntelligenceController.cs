@@ -1,18 +1,29 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using StudySphere.Data;
 using StudySphere.Models;
+using StudySphere.Patterns.Decorator;
 using StudySphere.Services;
 
 namespace StudySphere.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class IntelligenceController : ControllerBase
 {
     private readonly IIntelligenceService _service;
+    private readonly NotificationDeliveryService _deliveryService;
+    private readonly StudySphereDbContext _context;
 
-    public IntelligenceController(IIntelligenceService service)
+    public IntelligenceController(
+        IIntelligenceService service,
+        NotificationDeliveryService deliveryService,
+        StudySphereDbContext context)
     {
         _service = service;
+        _deliveryService = deliveryService;
+        _context = context;
     }
 
     // ---------------- Student endpoints ----------------
@@ -38,10 +49,35 @@ public class IntelligenceController : ControllerBase
 
     // ---------------- Admin endpoints ----------------
 
+    // Decorator Pattern — deliver a notification through the selected channel chain
+    [HttpPost("notifications/{notificationId}/deliver")]
+    public async Task<IActionResult> DeliverNotification(
+        int notificationId,
+        [FromQuery] bool email = true,
+        [FromQuery] bool sms   = false,
+        [FromQuery] bool push  = false)
+    {
+        var notification = await _context.Notifications.FindAsync(notificationId);
+        if (notification is null)
+            return NotFound(new { success = false, message = "Notification not found." });
+
+        var chain = _deliveryService.BuildChain(email, sms, push);
+        await chain.DeliverAsync(notification);
+
+        return Ok(new
+        {
+            success  = true,
+            message  = "Notification delivered via selected channels.",
+            channels = new { email, sms, push }
+        });
+    }
+
+    [Authorize(Roles = "Admin")]
     [HttpGet("recommendations")]
     public async Task<IActionResult> GetAllRecommendations()
         => Ok(await _service.GetAllRecommendationsAsync());
 
+    [Authorize(Roles = "Admin")]
     [HttpPost("recommendations")]
     public async Task<IActionResult> CreateRecommendation([FromBody] Recommendation recommendation)
     {
@@ -49,6 +85,7 @@ public class IntelligenceController : ControllerBase
         return Ok(new { RecommendationId = id, Message = "Recommendation created." });
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpPut("recommendations/{id}")]
     public async Task<IActionResult> UpdateRecommendation(int id, [FromBody] Recommendation recommendation)
     {
@@ -57,6 +94,7 @@ public class IntelligenceController : ControllerBase
         return ok ? Ok(new { Message = "Recommendation updated." }) : NotFound();
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpDelete("recommendations/{id}")]
     public async Task<IActionResult> DeleteRecommendation(int id)
     {
