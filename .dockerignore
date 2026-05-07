@@ -1,0 +1,9 @@
+**/.git
+**/.gitignore
+**/bin
+**/obj
+**/.vs
+**/node_modules
+Frontend/
+.env
+*.md

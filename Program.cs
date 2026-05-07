@@ -14,16 +14,18 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 // This switch restores the legacy behaviour so DateTime.UtcNow writes work unchanged.
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
-// Load environment variables from .env file
-Env.Load(".env");
+// Load .env only in local development (Render injects env vars directly)
+if (File.Exists(".env"))
+    Env.Load(".env");
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Get connection string from .env
-var connectionString = Env.GetString("connection_string");
+// Get connection string — from .env locally, from env var on Render
+var connectionString = Environment.GetEnvironmentVariable("connection_string")
+    ?? builder.Configuration["connection_string"];
 if (string.IsNullOrEmpty(connectionString))
 {
-    throw new InvalidOperationException("Connection string 'connection_string' not found in .env file. Make sure .env file exists and contains: connection_string=postgresql://...");
+    throw new InvalidOperationException("Environment variable 'connection_string' not set. Set it in Render dashboard (or .env locally).");
 }
 
 // Validate connection string format
@@ -147,7 +149,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+// Render handles HTTPS at the load balancer — skip redirect to avoid redirect loops
+if (app.Environment.IsDevelopment())
+    app.UseHttpsRedirection();
 
 // Add global exception handler
 app.Use(async (context, next) =>
