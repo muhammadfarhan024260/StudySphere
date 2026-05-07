@@ -161,7 +161,7 @@ export default function StudentDashboard() {
       totalHours:     totalHours.toFixed(1),
       thisWeekHours:  thisWeekHours.toFixed(1),
       lastWeekHours:  lastWeekHours.toFixed(1),
-      completedGoals: goals.filter(g => g.status === 'Completed').length,
+      completedGoals: goals.filter(g => getEffectiveStatus(g, logs) === 'Completed').length,
       totalGoals:     goals.length,
       avgProd,
     }
