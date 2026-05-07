@@ -77,7 +77,7 @@ export default function ForgotPassword({ onBack, initialRole = 'student' }) {
     <div className="auth-split">
       <div className="auth-brand">
         <div className="brand-inner">
-          <div className="brand-mark">◈</div>
+          <img src="/icon.png" alt="StudySphere" className="brand-logo" />
           <h1 className="brand-name">Study<br /><span>Sphere</span></h1>
           <div className="brand-rule"></div>
           <p className="brand-tagline">Reset your password<br /><em>securely via email.</em></p>

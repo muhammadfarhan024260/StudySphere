@@ -32,6 +32,11 @@ public class StudyPlannerFacade
         return await _goalService.CreateGoalAsync(goal);
     }
 
+    public async Task<bool> DeleteGoal(int goalId)
+    {
+        return await _goalService.DeleteGoalAsync(goalId);
+    }
+
     public async Task<IEnumerable<StudyLog>> GetStudentHistory(int studentId)
     {
         return await _studyLogService.GetStudentLogsAsync(studentId);

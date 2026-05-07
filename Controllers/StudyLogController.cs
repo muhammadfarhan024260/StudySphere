@@ -49,6 +49,21 @@ public class StudyLogController : ControllerBase
         }
     }
 
+    [HttpDelete("goal/{id}")]
+    public async Task<IActionResult> DeleteGoal(int id)
+    {
+        try
+        {
+            var result = await _facade.DeleteGoal(id);
+            if (!result) return NotFound(new { Error = "Goal not found." });
+            return Ok(new { Message = "Goal deleted successfully." });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { Error = ex.Message });
+        }
+    }
+
     [HttpGet("student/{studentId}/history")]
     public async Task<IActionResult> GetHistory(int studentId)
     {

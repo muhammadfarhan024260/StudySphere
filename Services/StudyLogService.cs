@@ -14,6 +14,8 @@ public class StudyLogService : IStudyLogService
 
     public async Task<int> LogSessionAsync(StudyLog log)
     {
+        if (log.SessionDate.HasValue)
+            log.DateLogged = log.SessionDate.Value;
         return await _repository.AddAsync(log);
     }
 

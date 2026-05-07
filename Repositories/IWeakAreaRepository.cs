@@ -8,4 +8,5 @@ public interface IWeakAreaRepository
     Task<WeakArea?> GetByStudentAndSubjectAsync(int studentId, int subjectId);
     Task<WeakArea> CreateAsync(WeakArea weakArea);
     Task UpdateAsync(WeakArea weakArea);
+    Task DeleteAsync(int weakAreaId);
 }

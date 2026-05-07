@@ -1,4 +1,7 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using StudySphere.Repositories;
 using StudySphere.Services;
 
 namespace StudySphere.Controllers;
@@ -8,11 +11,13 @@ namespace StudySphere.Controllers;
 public class AuthController : ControllerBase
 {
     private readonly IAuthenticationService _authService;
+    private readonly IStudentRepository _studentRepository;
     private readonly ILogger<AuthController> _logger;
 
-    public AuthController(IAuthenticationService authService, ILogger<AuthController> logger)
+    public AuthController(IAuthenticationService authService, IStudentRepository studentRepository, ILogger<AuthController> logger)
     {
         _authService = authService;
+        _studentRepository = studentRepository;
         _logger = logger;
     }
 
@@ -77,6 +82,9 @@ public class AuthController : ControllerBase
                 token,
                 userId,
                 userType,
+                name = request.Name,
+                email = request.Email,
+                enrollmentNumber = request.EnrollmentNumber,
                 redirectUrl = userType == "student" ? "/dashboard" : "/admin-dashboard"
             });
         }
@@ -100,6 +108,15 @@ public class AuthController : ControllerBase
 
         if (success)
         {
+            string? name = null;
+            string? enrollmentNumber = null;
+            if (userType == "student")
+            {
+                var student = await _studentRepository.GetByEmailAsync(request.Email);
+                name = student?.Name;
+                enrollmentNumber = student?.EnrollmentNumber;
+            }
+
             return Ok(new
             {
                 success = true,
@@ -107,11 +124,39 @@ public class AuthController : ControllerBase
                 token,
                 userId,
                 userType,
+                name,
+                email = request.Email,
+                enrollmentNumber,
                 redirectUrl = userType == "student" ? "/dashboard" : "/admin-dashboard"
             });
         }
 
         return BadRequest(new { success = false, message });
+    }
+
+    [HttpDelete("account")]
+    [Authorize]
+    public async Task<IActionResult> DeleteAccount()
+    {
+        var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (!int.TryParse(userIdClaim, out var userId))
+            return Unauthorized(new { success = false, message = "Invalid token." });
+
+        try
+        {
+            var student = await _studentRepository.GetByIdAsync(userId);
+            if (student == null)
+                return NotFound(new { success = false, message = "Account not found." });
+
+            await _studentRepository.DeleteAsync(userId);
+            _logger.LogInformation("Student {UserId} deleted their account.", userId);
+            return Ok(new { success = true, message = "Account deleted successfully." });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error deleting account for student {UserId}", userId);
+            return StatusCode(500, new { success = false, message = "Failed to delete account." });
+        }
     }
 
     // Lab 8 DML — step 1: send reset OTP

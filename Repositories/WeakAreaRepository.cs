@@ -68,4 +68,14 @@ public class WeakAreaRepository : IWeakAreaRepository
         _context.WeakAreas.Update(weakArea);
         await _context.SaveChangesAsync();
     }
+
+    public async Task DeleteAsync(int weakAreaId)
+    {
+        var entity = await _context.WeakAreas.FindAsync(weakAreaId);
+        if (entity != null)
+        {
+            _context.WeakAreas.Remove(entity);
+            await _context.SaveChangesAsync();
+        }
+    }
 }

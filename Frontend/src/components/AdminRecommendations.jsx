@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import api from '../services/api'
+import CustomSelect from './CustomSelect'
 import './Intelligence.css'
 
 const emptyForm = { subjectId: '', title: '', content: '', minScoreThreshold: 50 }
@@ -7,6 +8,7 @@ const emptyForm = { subjectId: '', title: '', content: '', minScoreThreshold: 50
 export default function AdminRecommendations() {
   const adminId = localStorage.getItem('userId')
   const [items, setItems] = useState([])
+  const [subjects, setSubjects] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [form, setForm] = useState(emptyForm)
@@ -15,8 +17,12 @@ export default function AdminRecommendations() {
   const load = async () => {
     setLoading(true)
     try {
-      const res = await api.get('/intelligence/recommendations')
-      setItems(res.data)
+      const [recRes, subRes] = await Promise.all([
+        api.get('/intelligence/recommendations'),
+        api.get('/subject'),
+      ])
+      setItems(recRes.data)
+      setSubjects(subRes.data?.subjects || subRes.data || [])
       setError('')
     } catch (e) {
       setError(e?.response?.data?.error || e.message)
@@ -71,13 +77,23 @@ export default function AdminRecommendations() {
         <h3>{editingId ? 'Edit recommendation' : 'New recommendation'}</h3>
         <form className="intel-form" onSubmit={submit}>
           <div className="intel-form-row">
-            <label>Subject ID
-              <input type="number" required value={form.subjectId}
-                     onChange={e => setForm({ ...form, subjectId: e.target.value })} />
+            <label>Subject
+              <CustomSelect
+                theme="green"
+                placeholder="— select a subject —"
+                loading={loading}
+                value={form.subjectId}
+                onChange={val => setForm({ ...form, subjectId: val })}
+                options={subjects.map(s => ({
+                  value: s.subjectId ?? s.id,
+                  label: s.subjectName ?? s.name,
+                }))}
+              />
             </label>
-            <label>Threshold (avg below)
-              <input type="number" min="0" max="100" required value={form.minScoreThreshold}
-                     onChange={e => setForm({ ...form, minScoreThreshold: e.target.value })} />
+            <label>Min score threshold (0–10)
+              <input type="number" min="0" max="10" required value={form.minScoreThreshold}
+                     onChange={e => setForm({ ...form, minScoreThreshold: e.target.value })}
+                     placeholder="e.g. 5" />
             </label>
           </div>
           <label>Title

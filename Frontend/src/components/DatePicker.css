@@ -1,0 +1,205 @@
+/* =====================================================
+   DATE PICKER — custom calendar, future-only
+   ===================================================== */
+
+.dp-wrap { position: relative; width: 100%; }
+
+/* ── Trigger button ──────────────────────────────────── */
+.dp-trigger {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 11px 14px;
+  border: 2px solid var(--border-mid);
+  border-radius: 10px;
+  background: var(--surface);
+  font-family: var(--font-ui);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-1);
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  text-align: left;
+}
+
+.dp-trigger.dp-empty { color: var(--text-3); }
+
+.dp-trigger.dp-open,
+.dp-trigger:focus {
+  border-color: var(--orange);
+  box-shadow: 0 0 0 3px var(--orange-light);
+  outline: none;
+}
+
+.dp-cal-ico {
+  width: 18px;
+  height: 18px;
+  color: var(--orange);
+  flex-shrink: 0;
+}
+
+.dp-val { flex: 1; }
+
+.dp-chevron {
+  width: 16px;
+  height: 16px;
+  color: var(--text-3);
+  flex-shrink: 0;
+  transition: transform 0.2s;
+}
+
+.dp-trigger.dp-open .dp-chevron { transform: rotate(180deg); }
+
+/* ── Calendar popup ──────────────────────────────────── */
+.dp-cal {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  min-width: 300px;
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: 16px;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.13), 0 3px 10px rgba(0,0,0,0.06);
+  z-index: 600;
+  overflow: hidden;
+  animation: dpIn 0.16s ease;
+}
+
+@keyframes dpIn {
+  from { opacity: 0; transform: translateY(-6px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0)    scale(1);    }
+}
+
+/* Header */
+.dp-cal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  background: var(--dark-blue);
+  gap: 8px;
+}
+
+.dp-my {
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  flex: 1;
+  text-align: center;
+}
+
+.dp-nav-btn {
+  width: 30px;
+  height: 30px;
+  border: 1px solid rgba(255,255,255,0.2);
+  background: rgba(255,255,255,0.1);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: white;
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+
+.dp-nav-btn:hover { background: rgba(255,255,255,0.22); }
+
+/* Day grid */
+.dp-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  padding: 12px 12px 8px;
+}
+
+.dp-dh {
+  text-align: center;
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  padding: 4px 0 8px;
+}
+
+.dp-day {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 36px;
+  border-radius: 8px;
+  font-family: var(--font-ui);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-1);
+  border: none;
+  background: none;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+}
+
+.dp-day:hover:not(:disabled):not(.dp-selected) {
+  background: var(--orange-light);
+  color: var(--orange);
+  font-weight: 700;
+}
+
+.dp-past {
+  color: var(--border-mid);
+  cursor: not-allowed;
+}
+
+.dp-today {
+  font-weight: 900;
+  color: var(--orange);
+  position: relative;
+}
+
+.dp-today::after {
+  content: '';
+  position: absolute;
+  bottom: 3px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--orange);
+}
+
+.dp-selected {
+  background: var(--orange) !important;
+  color: white !important;
+  font-weight: 800;
+  box-shadow: 0 3px 0 var(--orange-dim);
+}
+
+.dp-selected.dp-today::after { background: white; }
+
+/* Footer hint */
+.dp-footer {
+  padding: 8px 16px 12px;
+  text-align: center;
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--text-3);
+  border-top: 1px solid var(--border);
+}
+
+/* ── Dark theme overrides ────────────────────────────── */
+[data-theme="dark"] .dp-cal-head {
+  background: var(--surface-3);
+}
+[data-theme="dark"] .dp-my { color: var(--text-1); }
+[data-theme="dark"] .dp-nav-btn {
+  border-color: var(--border);
+  background: var(--surface-2);
+  color: var(--text-2);
+}
+[data-theme="dark"] .dp-nav-btn:hover { background: var(--surface-3); }

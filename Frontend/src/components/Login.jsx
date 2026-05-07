@@ -29,14 +29,13 @@ export default function Login({ onLoginSuccess, onSwitchToSignup, onGoToHome, on
       })
 
       if (response.data.success) {
-        setSuccess(`${role === 'student' ? 'Student' : 'Admin'} login successful. Redirecting to dashboard...`)
         localStorage.setItem('token', response.data.token)
         localStorage.setItem('userId', response.data.userId)
         localStorage.setItem('userType', response.data.userType)
-        
-        setTimeout(() => {
-          onLoginSuccess && onLoginSuccess(response.data)
-        }, 1500)
+        if (response.data.name) localStorage.setItem('userName', response.data.name)
+        if (response.data.email) localStorage.setItem('userEmail', response.data.email)
+        if (response.data.enrollmentNumber) localStorage.setItem('userEnrollment', response.data.enrollmentNumber)
+        onLoginSuccess && onLoginSuccess(response.data)
       } else {
         setError(response.data.message || 'Login failed. Please check your credentials.')
       }
@@ -58,7 +57,7 @@ export default function Login({ onLoginSuccess, onSwitchToSignup, onGoToHome, on
     <div className="auth-split">
       <div className="auth-brand">
         <div className="brand-inner">
-          <div className="brand-mark">◈</div>
+          <img src="/icon.png" alt="StudySphere" className="brand-logo" />
           <h1 className="brand-name">Study<br/><span>Sphere</span></h1>
           <div className="brand-rule"></div>
           <p className="brand-tagline">Your academic journey,<br/><em>intelligently tracked.</em></p>

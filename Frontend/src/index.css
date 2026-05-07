@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap');
 
 *, *::before, *::after {
   margin: 0;
@@ -8,51 +8,84 @@
 
 :root {
   /* Backgrounds */
-  --bg:        #09090E;
-  --surface:   #111118;
-  --surface-2: #17171F;
-  --surface-3: #1E1E28;
+  --bg:        #f7f7f7;
+  --surface:   #ffffff;
+  --surface-2: #f0f0f0;
+  --surface-3: #e8e8e8;
 
   /* Borders */
-  --border:       #1F1F2E;
-  --border-mid:   #2A2A3E;
-  --border-strong:#38385A;
+  --border:        #e5e5e5;
+  --border-mid:    #cfcfcf;
+  --border-strong: #afafaf;
 
   /* Text */
-  --text-1: #F0F0F8;
-  --text-2: #8A8BA8;
-  --text-3: #4A4B66;
+  --text-1: #4b4b4b;
+  --text-2: #777777;
+  --text-3: #afafaf;
 
-  /* Orange — Primary Accent */
-  --orange:       #FF5C28;
-  --orange-mid:   #FF7A4A;
-  --orange-dim:   #CC4820;
-  --orange-glow:  rgba(255, 92, 40, 0.18);
-  --orange-light: rgba(255, 92, 40, 0.08);
+  /* Green — Primary (was orange) */
+  --orange:       #58cc02;
+  --orange-mid:   #4bb200;
+  --orange-dim:   #61b800;
+  --orange-glow:  rgba(88, 204, 2, 0.15);
+  --orange-light: rgba(88, 204, 2, 0.08);
 
-  /* Violet — Secondary */
-  --violet:       #7C3AED;
-  --violet-mid:   #9461FB;
-  --violet-glow:  rgba(124, 58, 237, 0.2);
-  --violet-light: rgba(124, 58, 237, 0.08);
+  /* Blue — Secondary (was violet) */
+  --violet:       #1cb0f6;
+  --violet-mid:   #50c4f8;
+  --violet-glow:  rgba(28, 176, 246, 0.15);
+  --violet-light: rgba(28, 176, 246, 0.08);
 
   /* State colors */
-  --green:     #10B981;
-  --green-glow: rgba(16, 185, 129, 0.15);
-  --green-light: rgba(16, 185, 129, 0.1);
-  --red:       #EF4444;
-  --red-light:  rgba(239, 68, 68, 0.1);
-  --gold:      #F59E0B;
-  --gold-light: rgba(245, 158, 11, 0.1);
+  --green:       #58cc02;
+  --green-glow:  rgba(88, 204, 2, 0.15);
+  --green-light: rgba(88, 204, 2, 0.08);
+  --red:         #ff4b4b;
+  --red-light:   rgba(255, 75, 75, 0.1);
+  --gold:        #ffc800;
+  --gold-light:  rgba(255, 200, 0, 0.12);
+
+  /* Dark accent (for sidebar header line, etc.) */
+  --dark-blue: #100f3e;
 
   /* Fonts */
-  --font-display: 'Barlow Semi Condensed', system-ui, sans-serif;
-  --font-ui:      'Outfit', system-ui, sans-serif;
+  --font-display: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-ui:      'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
 
   /* Layout */
-  --sidebar-w:       240px;
+  --sidebar-w:        240px;
   --sidebar-w-closed: 60px;
-  --header-h:        64px;
+  --header-h:         64px;
+}
+
+/* ── Dark theme token overrides ───────────────────── */
+[data-theme="dark"] {
+  --bg:        #18191a;
+  --surface:   #242526;
+  --surface-2: #2d2f31;
+  --surface-3: #3a3b3c;
+
+  --border:        #3e4042;
+  --border-mid:    #4e5052;
+  --border-strong: #6a6c6e;
+
+  --text-1: #e4e6eb;
+  --text-2: #b0b3b8;
+  --text-3: #6a6c6e;
+
+  --dark-blue: #e4e6eb;
+
+  --orange-glow:  rgba(88, 204, 2, 0.25);
+  --orange-light: rgba(88, 204, 2, 0.15);
+
+  --violet-glow:  rgba(28, 176, 246, 0.25);
+  --violet-light: rgba(28, 176, 246, 0.15);
+
+  --green-glow:  rgba(88, 204, 2, 0.25);
+  --green-light: rgba(88, 204, 2, 0.15);
+
+  --red-light:  rgba(255, 75, 75, 0.2);
+  --gold-light: rgba(255, 200, 0, 0.2);
 }
 
 html { font-size: 16px; }
@@ -66,6 +99,25 @@ body {
 }
 
 ::-webkit-scrollbar { width: 4px; height: 4px; }
-::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-track { background: var(--surface-2); }
 ::-webkit-scrollbar-thumb { background: var(--border-mid); border-radius: 10px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--border-strong); }
+
+/* Text selection — green-branded highlight */
+::selection {
+  background: rgba(88, 204, 2, 0.22);
+  color: var(--text-1);
+}
+
+[data-theme="dark"] ::selection {
+  background: rgba(88, 204, 2, 0.35);
+  color: #d4f7a0;
+}
+
+/* Remove number input spinners everywhere */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] { -moz-appearance: textfield; }

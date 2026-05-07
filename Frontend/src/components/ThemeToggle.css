@@ -1,0 +1,75 @@
+/* =====================================================
+   THEME TOGGLE — icon button with animated icon swap
+   ===================================================== */
+
+/* ── Button ───────────────────────────────────────────── */
+.tt-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  border: 2px solid var(--border-mid);
+  background: var(--surface-2);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, border-color 0.2s, transform 0.12s, box-shadow 0.2s;
+  flex-shrink: 0;
+  outline: none;
+}
+
+/* Light-mode idle → green accent on hover */
+.tt-btn:hover {
+  border-color: var(--orange);
+  background: var(--orange-light);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px var(--orange-glow);
+}
+
+.tt-btn:active {
+  transform: translateY(1px);
+  box-shadow: none;
+}
+
+/* Dark-mode idle → blue-tinted */
+.tt-btn.tt-dark {
+  border-color: var(--violet);
+  background: var(--violet-light);
+}
+
+.tt-btn.tt-dark:hover {
+  border-color: var(--violet-mid);
+  background: var(--violet-light);
+  box-shadow: 0 6px 16px var(--violet-glow);
+}
+
+/* ── Icon container (stacks both icons, only one visible) */
+.tt-icon-wrap {
+  position: relative;
+  width: 20px;
+  height: 20px;
+}
+
+.tt-icon {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transform: rotate(40deg) scale(0.6);
+  transition:
+    opacity 0.22s ease,
+    transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+  pointer-events: none;
+}
+
+.tt-icon.tt-active {
+  opacity: 1;
+  transform: rotate(0deg) scale(1);
+}
+
+/* Sun = gold, Moon = cool blue */
+.tt-sun  { color: #ffc800; }
+.tt-moon { color: #93bbf0; }
+

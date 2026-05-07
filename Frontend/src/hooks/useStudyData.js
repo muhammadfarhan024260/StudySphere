@@ -257,6 +257,31 @@ export const useStudyScope = (studentId) => {
 }
 
 /**
+ * Hook to delete a goal
+ */
+export const useDeleteGoal = () => {
+  const [loading, setLoading] = useState(false)
+  const [error,   setError]   = useState(null)
+
+  const deleteGoal = async (goalId) => {
+    try {
+      setLoading(true)
+      setError(null)
+      await api.delete(`/studylog/goal/${goalId}`)
+      return { success: true }
+    } catch (err) {
+      const errorMsg = err.response?.data?.Error || err.response?.data?.error || err.message || 'Failed to delete goal'
+      setError(errorMsg)
+      return { success: false, error: errorMsg }
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return { deleteGoal, loading, error }
+}
+
+/**
  * Hook to create a new study goal
  */
 export const useCreateGoal = () => {

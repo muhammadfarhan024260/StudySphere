@@ -119,6 +119,10 @@ public class AdminController : ControllerBase
                 return new { day = day.DayOfWeek.ToString()[..3], hours = Math.Round(hours, 1) };
             }).ToList();
 
+            var totalHoursLogged = logs.Count > 0
+                ? Math.Round((double)logs.Sum(l => l.HoursStudied), 1)
+                : 0.0;
+
             return Ok(new
             {
                 success = true,
@@ -127,6 +131,7 @@ public class AdminController : ControllerBase
                     engagementRate  = totalStudents > 0 ? (int)((double)activeStudents / totalStudents * 100) : 0,
                     avgProductivity,
                     totalSessions,
+                    totalHoursLogged,
                     totalStudents,
                     activeStudents,
                     weeklyStats
@@ -245,6 +250,75 @@ public class AdminController : ControllerBase
         catch (Exception ex)
         {
             return StatusCode(500, new { success = false, message = "Failed to fetch below-average students.", error = ex.Message });
+        }
+    }
+
+    // Weak area stats — grouped by subject across all students
+    [HttpGet("analytics/weak-areas")]
+    public async Task<IActionResult> GetWeakAreaStats()
+    {
+        try
+        {
+            var weakAreas = await _context.WeakAreas.ToListAsync();
+            if (!weakAreas.Any())
+                return Ok(new { success = true, totalWeakAreas = 0, affectedStudents = 0, topSubjects = Array.Empty<object>() });
+
+            var subjectIds = weakAreas.Select(w => w.SubjectId).Distinct().ToList();
+            var subjectsDict = await _context.Subjects
+                .Where(s => subjectIds.Contains(s.SubjectId))
+                .ToDictionaryAsync(s => s.SubjectId, s => s.Name);
+
+            var topSubjects = weakAreas
+                .GroupBy(w => w.SubjectId)
+                .Select(g => new
+                {
+                    subject  = subjectsDict.TryGetValue(g.Key, out var name) ? name : $"Subject #{g.Key}",
+                    count    = g.Select(w => w.StudentId).Distinct().Count(),
+                    avgScore = Math.Round((double)g.Average(w => w.AvgScore), 1),
+                })
+                .OrderByDescending(x => x.count)
+                .Take(5)
+                .ToList<object>();
+
+            return Ok(new
+            {
+                success          = true,
+                totalWeakAreas   = weakAreas.Count,
+                affectedStudents = weakAreas.Select(w => w.StudentId).Distinct().Count(),
+                topSubjects,
+            });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { success = false, message = "Failed to fetch weak area stats.", error = ex.Message });
+        }
+    }
+
+    // Admin profile — returns name, email, join date for the authenticated admin
+    [HttpGet("profile")]
+    public async Task<IActionResult> GetProfile()
+    {
+        try
+        {
+            var idClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)
+                       ?? User.FindFirst("sub");
+            if (idClaim == null || !int.TryParse(idClaim.Value, out var adminId))
+                return Unauthorized();
+
+            var admin = await _context.Admins.FindAsync(adminId);
+            if (admin == null) return NotFound();
+
+            return Ok(new
+            {
+                success  = true,
+                name     = admin.Name,
+                email    = admin.Email,
+                joinDate = admin.CreatedDate.ToString("MMMM yyyy"),
+            });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { success = false, message = "Failed to fetch profile.", error = ex.Message });
         }
     }
 

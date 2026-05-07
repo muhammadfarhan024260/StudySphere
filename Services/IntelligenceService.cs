@@ -54,9 +54,9 @@ public class IntelligenceService : IIntelligenceService
         if (!subjectLogs.Any()) return;
 
         var avgScore = (decimal)subjectLogs.Average(l => l.ProductivityScore);
-        
-        // Threshold for Weak Area
-        if (avgScore < 6.0m)
+
+        // Scores are on a 0–10 scale. Threshold: below 5 = below 50 %.
+        if (avgScore < 5.0m)
         {
             var weakArea = await _weakAreas.GetByStudentAndSubjectAsync(studentId, subjectId);
             if (weakArea == null)
@@ -76,10 +76,7 @@ public class IntelligenceService : IIntelligenceService
                 await _weakAreas.UpdateAsync(weakArea);
             }
 
-            // Check for Recommendations
-            var allRecs = await _recommendations.GetForStudentAsync(studentId);
-            // Since GetForStudentAsync might already filter, let's just get all and filter by subject
-            // Wait, we can just get all recommendations from the system
+            // Surface matching admin recommendations as notifications
             var systemRecs = await _recommendations.GetAllWithJoinsAsync();
             var matchedRecs = systemRecs.Where(r => r.SubjectId == subjectId && avgScore <= r.MinScoreThreshold);
 
@@ -99,6 +96,13 @@ public class IntelligenceService : IIntelligenceService
                     });
                 }
             }
+        }
+        else
+        {
+            // Subject has recovered — remove the weak area flag if it exists
+            var weakArea = await _weakAreas.GetByStudentAndSubjectAsync(studentId, subjectId);
+            if (weakArea != null)
+                await _weakAreas.DeleteAsync(weakArea.WeakAreaId);
         }
     }
 }

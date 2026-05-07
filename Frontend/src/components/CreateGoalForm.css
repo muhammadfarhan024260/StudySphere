@@ -1,0 +1,455 @@
+/* =====================================================
+   CREATE GOAL FORM — compact single-column popup modal
+   ===================================================== */
+
+.cg-modal {
+  width: 480px;
+  max-width: 96vw;
+  padding: 0;
+  border-radius: 20px;
+  overflow: hidden;
+  max-height: 92vh;
+  overflow-y: auto;
+}
+
+/* ── Header ──────────────────────────────────────────── */
+.cg-head {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 18px 20px 16px;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  background: var(--surface);
+  z-index: 2;
+}
+
+.cg-head-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 11px;
+  background: var(--orange-light);
+  border: 2px solid rgba(88,204,2,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--orange);
+  flex-shrink: 0;
+}
+
+.cg-head-title {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 900;
+  color: var(--dark-blue);
+  line-height: 1.2;
+}
+
+.cg-head-sub {
+  font-size: 0.74rem;
+  color: var(--text-3);
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+.cg-head .form-close { margin-left: auto; }
+
+/* ── Body ────────────────────────────────────────────── */
+.cg-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 18px 20px 22px;
+}
+
+/* ── Row (goal type + hours side by side) ────────────── */
+.cg-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  align-items: start;
+}
+
+/* ── Field wrapper ───────────────────────────────────── */
+.cg-field { display: flex; flex-direction: column; gap: 7px; }
+
+.cg-label {
+  font-size: 0.61rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-2);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.cg-req { color: var(--red); font-size: 0.7rem; line-height: 1; }
+
+.cg-chosen {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: var(--orange);
+  background: var(--orange-light);
+  padding: 2px 8px 2px 6px;
+  border-radius: 999px;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+/* ── Subject select ──────────────────────────────────── */
+.cg-select-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.cg-select-icon {
+  position: absolute;
+  left: 12px;
+  width: 15px; height: 15px;
+  color: var(--orange);
+  pointer-events: none;
+}
+
+.cg-select {
+  width: 100%;
+  padding: 10px 34px 10px 36px;
+  border: 2px solid var(--border-mid);
+  border-radius: 10px;
+  background: var(--surface);
+  font-family: var(--font-ui);
+  font-size: 0.87rem;
+  font-weight: 600;
+  color: var(--text-1);
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.cg-select:focus {
+  border-color: var(--orange);
+  box-shadow: 0 0 0 3px var(--orange-light);
+}
+
+.cg-select:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.cg-select-arrow {
+  position: absolute;
+  right: 11px;
+  width: 14px; height: 14px;
+  color: var(--text-3);
+  pointer-events: none;
+}
+
+/* ── Goal type cards ─────────────────────────────────── */
+.cg-type-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.cg-type-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 10px 8px;
+  border: 2px solid var(--border-mid);
+  border-radius: 10px;
+  background: var(--surface);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+  text-align: center;
+}
+
+.cg-type-card:hover {
+  border-color: var(--orange);
+  background: var(--orange-light);
+}
+
+.cg-type-card.active {
+  border-color: var(--orange);
+  background: var(--orange-light);
+  box-shadow: 0 3px 0 var(--orange-dim);
+}
+
+.cg-type-ico {
+  width: 26px; height: 26px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text-3);
+  transition: color 0.15s;
+}
+
+.cg-type-card.active .cg-type-ico,
+.cg-type-card:hover   .cg-type-ico { color: var(--orange); }
+
+.cg-type-ico svg { width: 17px; height: 17px; }
+
+.cg-type-lbl {
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--dark-blue);
+}
+
+.cg-type-desc {
+  font-size: 0.6rem;
+  font-weight: 600;
+  color: var(--text-3);
+}
+
+.cg-type-check {
+  position: absolute;
+  top: 6px; right: 6px;
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  background: var(--orange);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Hours stepper ───────────────────────────────────── */
+.cg-stepper {
+  display: flex;
+  align-items: stretch;
+  border: 2px solid var(--border-mid);
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--surface);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.cg-stepper:focus-within {
+  border-color: var(--orange);
+  box-shadow: 0 0 0 3px var(--orange-light);
+}
+
+.cg-step-btn {
+  width: 36px;
+  background: var(--surface-2);
+  border: none;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-2);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.cg-step-btn:hover:not(:disabled) {
+  background: var(--orange-light);
+  color: var(--orange);
+}
+
+.cg-step-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.cg-step-mid {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  border-left: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+  padding: 8px 4px;
+}
+
+.cg-step-input {
+  width: 40px;
+  border: none;
+  background: transparent;
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 900;
+  color: var(--dark-blue);
+  text-align: center;
+  outline: none;
+  -moz-appearance: textfield;
+  padding: 0;
+}
+
+.cg-step-input::-webkit-outer-spin-button,
+.cg-step-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+.cg-step-unit {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--text-3);
+  text-transform: uppercase;
+}
+
+.cg-step-hint {
+  font-size: 0.67rem;
+  font-weight: 600;
+  color: var(--text-3);
+  margin-top: 1px;
+}
+
+/* ── Inline calendar ─────────────────────────────────── */
+.cg-cal {
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.cg-cal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: var(--dark-blue);
+}
+
+.cg-cal-my {
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  flex: 1;
+  text-align: center;
+}
+
+.cg-cal-nav {
+  width: 26px; height: 26px;
+  border: 1px solid rgba(255,255,255,0.2);
+  background: rgba(255,255,255,0.1);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: white;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+
+.cg-cal-nav:hover { background: rgba(255,255,255,0.22); }
+
+.cg-cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  padding: 10px 10px 8px;
+  background: var(--surface);
+}
+
+.cg-cal-dh {
+  text-align: center;
+  font-size: 0.54rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  padding: 3px 0 6px;
+}
+
+.cg-cal-day {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 32px;
+  border-radius: 7px;
+  font-family: var(--font-ui);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-1);
+  border: none;
+  background: none;
+  cursor: pointer;
+  transition: background 0.1s, color 0.1s;
+}
+
+.cg-cal-day:hover:not(:disabled):not(.cg-cal-selected) {
+  background: var(--orange-light);
+  color: var(--orange);
+  font-weight: 700;
+}
+
+.cg-cal-past {
+  color: var(--border-mid);
+  cursor: not-allowed;
+}
+
+.cg-cal-today {
+  font-weight: 900;
+  color: var(--orange);
+  position: relative;
+}
+
+.cg-cal-today::after {
+  content: '';
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 3px; height: 3px;
+  border-radius: 50%;
+  background: var(--orange);
+}
+
+.cg-cal-selected {
+  background: var(--orange) !important;
+  color: white !important;
+  font-weight: 800;
+  box-shadow: 0 2px 0 var(--orange-dim);
+}
+
+.cg-cal-selected.cg-cal-today::after { background: white; }
+
+/* ── Calendar footer ─────────────────────────────────── */
+.cg-cal-footer {
+  padding: 7px 12px 9px;
+  text-align: center;
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  color: var(--text-3);
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.cg-cal-footer strong { color: var(--orange); font-weight: 800; }
+
+/* ── Actions ─────────────────────────────────────────── */
+.cg-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.cg-actions .btn-primary  { flex: 1; }
+.cg-actions .btn-secondary { flex: 0 0 auto; }
+
+/* ── Responsive ──────────────────────────────────────── */
+@media (max-width: 520px) {
+  .cg-row { grid-template-columns: 1fr; }
+  .cg-modal { max-width: 98vw; }
+}
+
+/* ── Dark theme overrides ────────────────────────────── */
+[data-theme="dark"] .cg-cal-head {
+  background: var(--surface-3);
+}
+[data-theme="dark"] .cg-cal-my { color: var(--text-1); }
+[data-theme="dark"] .cg-cal-nav {
+  border-color: var(--border);
+  background: var(--surface-2);
+  color: var(--text-2);
+}
+[data-theme="dark"] .cg-cal-nav:hover { background: var(--surface-3); }

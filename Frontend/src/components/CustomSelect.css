@@ -1,0 +1,140 @@
+/* =====================================================
+   CUSTOM SELECT — portal-based dropdown, escapes overflow
+   ===================================================== */
+
+.cs-wrap { position: relative; width: 100%; }
+
+/* ── Trigger button ──────────────────────────────────── */
+.cs-trigger {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 11px 14px;
+  border: 2px solid var(--border-mid);
+  border-radius: 10px;
+  background: var(--surface);
+  font-family: var(--font-ui);
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-1);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.cs-trigger.cs-empty { color: var(--text-3); }
+.cs-trigger:disabled  { opacity: 0.6; cursor: not-allowed; }
+
+/* Green theme focus */
+.cs-green .cs-trigger.cs-open,
+.cs-green .cs-trigger:focus {
+  border-color: var(--orange);
+  box-shadow: 0 0 0 3px var(--orange-light);
+  outline: none;
+}
+
+/* Blue theme focus */
+.cs-blue .cs-trigger.cs-open,
+.cs-blue .cs-trigger:focus {
+  border-color: var(--violet);
+  box-shadow: 0 0 0 3px var(--violet-light);
+  outline: none;
+}
+
+.cs-icon {
+  width: 17px; height: 17px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+.cs-icon svg { width: 16px; height: 16px; }
+
+.cs-green .cs-icon { color: var(--orange); }
+.cs-blue  .cs-icon { color: var(--violet); }
+
+.cs-val { flex: 1; }
+
+.cs-chevron {
+  width: 16px; height: 16px;
+  color: var(--text-3);
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  transition: transform 0.2s;
+}
+
+.cs-chevron svg { width: 16px; height: 16px; }
+.cs-trigger.cs-open .cs-chevron { transform: rotate(180deg); }
+
+/* ── Floating dropdown list ──────────────────────────── */
+.cs-list {
+  position: fixed;
+  z-index: 99999;
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: 14px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.14), 0 2px 8px rgba(0,0,0,0.07);
+  overflow: hidden;
+  overflow-y: auto;
+  max-height: 230px;
+  animation: csIn 0.14s ease;
+  padding: 5px;
+}
+
+@keyframes csIn {
+  from { opacity: 0; transform: translateY(-5px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.cs-list.cs-up { animation: csInUp 0.14s ease; }
+
+@keyframes csInUp {
+  from { opacity: 0; transform: translateY(5px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ── Options ─────────────────────────────────────────── */
+.cs-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 9px 12px;
+  border: none;
+  border-radius: 8px;
+  background: none;
+  font-family: var(--font-ui);
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--text-1);
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.1s, color 0.1s;
+  gap: 8px;
+}
+
+.cs-option:hover { background: var(--surface-2); color: var(--text-1); }
+
+.cs-green .cs-option.cs-selected {
+  color: var(--orange);
+  background: var(--orange-light);
+  font-weight: 700;
+}
+
+.cs-green .cs-option.cs-selected svg { color: var(--orange); }
+
+.cs-blue .cs-option.cs-selected {
+  color: var(--violet);
+  background: var(--violet-light);
+  font-weight: 700;
+}
+
+.cs-blue .cs-option.cs-selected svg { color: var(--violet); }
+
+.cs-empty-msg {
+  padding: 16px;
+  text-align: center;
+  font-size: 0.82rem;
+  color: var(--text-3);
+  font-weight: 500;
+}

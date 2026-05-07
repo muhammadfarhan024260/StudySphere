@@ -12,6 +12,9 @@ export default function Signup({ initialRole = 'student', onSignupSuccess, onSwi
     password: '',
     confirmPassword: '',
     otp: '',
+    phone: '',
+    program: '',
+    semester: '',
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -19,7 +22,7 @@ export default function Signup({ initialRole = 'student', onSignupSuccess, onSwi
   const [otpResendCountdown, setOtpResendCountdown] = useState(0)
 
   useEffect(() => {
-    setRole(initialRole)
+    setRole(typeof initialRole === 'string' ? initialRole : 'student')
     setStep('email')
   }, [initialRole])
 
@@ -49,9 +52,15 @@ export default function Signup({ initialRole = 'student', onSignupSuccess, onSwi
       return
     }
 
-    if (role === 'student' && !formData.enrollmentNumber) {
-      setError('Enrollment number is required for students')
-      return
+    if (role === 'student') {
+      if (!formData.enrollmentNumber) {
+        setError('Enrollment number is required for students')
+        return
+      }
+      if (!/^\d{2}-\d{6}-\d{3}$/.test(formData.enrollmentNumber)) {
+        setError('Enrollment number must be in the format XX-XXXXXX-XXX (e.g. 02-131242-038)')
+        return
+      }
     }
 
     try {
@@ -144,7 +153,13 @@ export default function Signup({ initialRole = 'student', onSignupSuccess, onSwi
         localStorage.setItem('token', response.data.token)
         localStorage.setItem('userId', response.data.userId)
         localStorage.setItem('userType', response.data.userType)
-        
+        if (response.data.name) localStorage.setItem('userName', response.data.name)
+        if (response.data.email) localStorage.setItem('userEmail', response.data.email)
+        if (response.data.enrollmentNumber) localStorage.setItem('userEnrollment', response.data.enrollmentNumber)
+        if (formData.phone)    localStorage.setItem('userPhone',    formData.phone)
+        if (formData.program)  localStorage.setItem('userProgram',  formData.program)
+        if (formData.semester) localStorage.setItem('userSemester', formData.semester)
+
         setTimeout(() => {
           onSignupSuccess && onSignupSuccess(response.data)
         }, 1500)
@@ -188,7 +203,7 @@ export default function Signup({ initialRole = 'student', onSignupSuccess, onSwi
     <div className="auth-split">
       <div className="auth-brand">
         <div className="brand-inner">
-          <div className="brand-mark">◈</div>
+          <img src="/icon.png" alt="StudySphere" className="brand-logo" />
           <h1 className="brand-name">Study<br/><span>Sphere</span></h1>
           <div className="brand-rule"></div>
           <p className="brand-tagline">Begin your academic journey<br/><em>with intelligence.</em></p>
@@ -291,7 +306,7 @@ export default function Signup({ initialRole = 'student', onSignupSuccess, onSwi
                     id="enrollmentNumber"
                     type="text"
                     name="enrollmentNumber"
-                    placeholder="e.g. BU-21-001"
+                    placeholder="e.g. 02-131242-038"
                     value={formData.enrollmentNumber}
                     onChange={handleChange}
                     required
@@ -315,8 +330,55 @@ export default function Signup({ initialRole = 'student', onSignupSuccess, onSwi
               </div>
             </div>
 
-            <button 
-              type="submit" 
+            {role === 'student' && (
+              <>
+                <div className="auth-section-label">Optional — you can fill these in later</div>
+                <div className="auth-form-row">
+                  <div className="form-group">
+                    <label htmlFor="program">Program</label>
+                    <div className="input-wrapper">
+                      <input
+                        id="program"
+                        type="text"
+                        name="program"
+                        placeholder="e.g. BS Computer Science"
+                        value={formData.program}
+                        onChange={handleChange}
+                      />
+                    </div>
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="semester">Semester</label>
+                    <div className="input-wrapper">
+                      <input
+                        id="semester"
+                        type="text"
+                        name="semester"
+                        placeholder="e.g. 4th Semester"
+                        value={formData.semester}
+                        onChange={handleChange}
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div className="form-group">
+                  <label htmlFor="phone">Phone Number</label>
+                  <div className="input-wrapper">
+                    <input
+                      id="phone"
+                      type="tel"
+                      name="phone"
+                      placeholder="+92-300-0000000"
+                      value={formData.phone}
+                      onChange={handleChange}
+                    />
+                  </div>
+                </div>
+              </>
+            )}
+
+            <button
+              type="submit"
               disabled={loading}
               className="auth-button"
             >

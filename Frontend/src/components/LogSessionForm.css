@@ -1,0 +1,416 @@
+/* =====================================================
+   LOG SESSION FORM — mirrors CreateGoalForm pattern
+   ===================================================== */
+
+.ls-modal {
+  width: 480px;
+  max-width: 96vw;
+  padding: 0;
+  border-radius: 20px;
+  overflow: hidden;
+  max-height: 92vh;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+.ls-modal::-webkit-scrollbar { display: none; }
+
+/* ── Header ──────────────────────────────────────────── */
+.ls-head {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 18px 20px 16px;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  background: var(--surface);
+  z-index: 2;
+}
+
+.ls-head-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 11px;
+  background: var(--violet-light);
+  border: 2px solid rgba(28,176,246,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--violet);
+  flex-shrink: 0;
+}
+
+.ls-head-title {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 900;
+  color: var(--dark-blue);
+  line-height: 1.2;
+}
+
+.ls-head-sub {
+  font-size: 0.74rem;
+  color: var(--text-3);
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+.ls-head .form-close { margin-left: auto; }
+
+/* ── Body ────────────────────────────────────────────── */
+.ls-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 18px 20px 22px;
+}
+
+/* ── Row (duration + productivity side by side) ──────── */
+.ls-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  align-items: start;
+}
+
+/* ── Field wrapper ───────────────────────────────────── */
+.ls-field { display: flex; flex-direction: column; gap: 7px; }
+
+.ls-label {
+  font-size: 0.61rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-2);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.ls-req { color: var(--red); font-size: 0.7rem; line-height: 1; }
+.ls-opt { font-size: 0.6rem; font-weight: 600; color: var(--text-3); text-transform: none; letter-spacing: 0; }
+
+/* ── Stepper ─────────────────────────────────────────── */
+.ls-stepper {
+  display: flex;
+  align-items: stretch;
+  border: 2px solid var(--border-mid);
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--surface);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.ls-stepper--blue:focus-within {
+  border-color: var(--violet);
+  box-shadow: 0 0 0 3px var(--violet-light);
+}
+
+.ls-stepper--prod:focus-within {
+  border-color: var(--orange);
+  box-shadow: 0 0 0 3px var(--orange-light);
+}
+
+.ls-step-btn {
+  width: 36px;
+  background: var(--surface-2);
+  border: none;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-2);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.ls-stepper--blue .ls-step-btn:hover:not(:disabled) {
+  background: var(--violet-light);
+  color: var(--violet);
+}
+
+.ls-stepper--prod .ls-step-btn:hover:not(:disabled) {
+  background: var(--orange-light);
+  color: var(--orange);
+}
+
+.ls-step-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.ls-step-mid {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  border-left: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+  padding: 8px 4px;
+}
+
+.ls-step-val {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 900;
+  color: var(--dark-blue);
+  line-height: 1;
+  transition: color 0.2s;
+}
+
+.ls-step-unit {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--text-3);
+  text-transform: uppercase;
+}
+
+/* ── Duration preset chips ───────────────────────────── */
+.ls-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.ls-chip {
+  padding: 4px 10px;
+  border: 1.5px solid var(--border-mid);
+  border-radius: 999px;
+  background: var(--surface);
+  font-family: var(--font-ui);
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-2);
+  cursor: pointer;
+  transition: border-color 0.12s, background 0.12s, color 0.12s, box-shadow 0.12s;
+}
+
+.ls-chip:hover {
+  border-color: var(--violet);
+  color: var(--violet);
+  background: var(--violet-light);
+}
+
+.ls-chip.active {
+  border-color: var(--violet);
+  background: var(--violet-light);
+  color: var(--violet);
+  font-weight: 800;
+  box-shadow: 0 2px 0 rgba(28,176,246,0.3);
+}
+
+/* ── Productivity badge ──────────────────────────────── */
+.ls-prod-badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+  text-transform: none;
+  letter-spacing: 0;
+  transition: background 0.2s, color 0.2s;
+}
+
+/* ── Productivity progress bar ───────────────────────── */
+.ls-prod-track {
+  height: 5px;
+  background: var(--surface-2);
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.ls-prod-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.25s ease, background 0.25s ease;
+}
+
+/* ── Date chosen pill ────────────────────────────────── */
+.ls-date-chosen {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: var(--violet);
+  background: var(--violet-light);
+  padding: 2px 8px 2px 6px;
+  border-radius: 999px;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+/* ── Inline calendar ─────────────────────────────────── */
+.ls-cal {
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.ls-cal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: var(--dark-blue);
+}
+
+.ls-cal-my {
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  flex: 1;
+  text-align: center;
+}
+
+.ls-cal-nav {
+  width: 26px; height: 26px;
+  border: 1px solid rgba(255,255,255,0.2);
+  background: rgba(255,255,255,0.1);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: white;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+
+.ls-cal-nav:hover:not(:disabled) { background: rgba(255,255,255,0.22); }
+.ls-cal-nav:disabled { cursor: not-allowed; }
+
+.ls-cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  padding: 10px 10px 8px;
+  background: var(--surface);
+}
+
+.ls-cal-dh {
+  text-align: center;
+  font-size: 0.54rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  padding: 3px 0 6px;
+}
+
+.ls-cal-day {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 32px;
+  border-radius: 7px;
+  font-family: var(--font-ui);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-1);
+  border: none;
+  background: none;
+  cursor: pointer;
+  transition: background 0.1s, color 0.1s;
+}
+
+.ls-cal-day:hover:not(:disabled):not(.ls-cal-selected) {
+  background: var(--violet-light);
+  color: var(--violet);
+  font-weight: 700;
+}
+
+.ls-cal-future { color: var(--border-mid); cursor: not-allowed; }
+
+.ls-cal-today {
+  font-weight: 900;
+  color: var(--violet);
+  position: relative;
+}
+
+.ls-cal-today::after {
+  content: '';
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 3px; height: 3px;
+  border-radius: 50%;
+  background: var(--violet);
+}
+
+.ls-cal-selected {
+  background: var(--violet) !important;
+  color: white !important;
+  font-weight: 800;
+  box-shadow: 0 2px 0 rgba(28,176,246,0.4);
+}
+
+.ls-cal-selected.ls-cal-today::after { background: white; }
+
+.ls-cal-footer {
+  padding: 7px 12px 9px;
+  text-align: center;
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  color: var(--text-3);
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+}
+
+/* ── Notes textarea ──────────────────────────────────── */
+.ls-textarea {
+  width: 100%;
+  padding: 11px 14px;
+  border: 2px solid var(--border-mid);
+  border-radius: 10px;
+  background: var(--surface);
+  font-family: var(--font-ui);
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--text-1);
+  resize: vertical;
+  min-height: 72px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
+}
+
+.ls-textarea::placeholder { color: var(--text-3); font-weight: 400; }
+
+.ls-textarea:focus {
+  border-color: var(--violet);
+  box-shadow: 0 0 0 3px var(--violet-light);
+}
+
+/* ── Actions ─────────────────────────────────────────── */
+.ls-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.ls-actions .btn-primary  { flex: 1; }
+.ls-actions .btn-secondary { flex: 0 0 auto; }
+
+/* ── Responsive ──────────────────────────────────────── */
+@media (max-width: 520px) {
+  .ls-row    { grid-template-columns: 1fr; }
+  .ls-modal  { max-width: 98vw; }
+}
+
+/* ── Dark theme overrides ────────────────────────────── */
+[data-theme="dark"] .ls-cal-head  { background: var(--surface-3); }
+[data-theme="dark"] .ls-cal-my   { color: var(--text-1); }
+[data-theme="dark"] .ls-cal-nav  {
+  border-color: var(--border);
+  background: var(--surface-2);
+  color: var(--text-2);
+}
+[data-theme="dark"] .ls-cal-nav:hover:not(:disabled) { background: var(--surface-3); }
+[data-theme="dark"] .ls-prod-track { border-color: var(--border-mid); }

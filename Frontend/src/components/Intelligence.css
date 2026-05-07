@@ -1,5 +1,5 @@
 /* =====================================================
-   INTELLIGENCE — Modern Dark × Bold & Energetic
+   INTELLIGENCE — Duolingo-Inspired Light Theme
    ===================================================== */
 
 .intel-panel {
@@ -10,14 +10,14 @@
 
 .intel-section h3 {
   font-family: var(--font-display);
-  font-size: 1.05rem;
-  font-weight: 700;
-  color: var(--text-1);
-  letter-spacing: 0.06em;
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--dark-blue);
+  letter-spacing: 0.05em;
   text-transform: uppercase;
   margin-bottom: 16px;
   padding-bottom: 12px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 2px solid var(--border);
   display: flex;
   align-items: center;
   gap: 10px;
@@ -26,9 +26,9 @@
 .intel-section h3::before {
   content: '';
   display: inline-block;
-  width: 3px;
-  height: 16px;
-  background: linear-gradient(180deg, var(--orange), var(--violet));
+  width: 4px;
+  height: 18px;
+  background: var(--orange);
   border-radius: 2px;
 }
 
@@ -39,32 +39,41 @@
   font-style: italic;
 }
 
-.intel-error { color: #FC8181; font-size: 0.82rem; padding: 12px 0; }
+.intel-error { color: var(--red); font-size: 0.82rem; padding: 12px 0; font-weight: 600; }
 
 /* --- Table --- */
-.intel-table { width: 100%; border-collapse: collapse; }
+.intel-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.intel-table thead tr {
+  background: var(--surface-2);
+}
 
 .intel-table th {
-  padding: 9px 12px 9px 0;
+  padding: 12px 20px;
   text-align: left;
   font-family: var(--font-ui);
   font-size: 0.62rem;
-  font-weight: 700;
+  font-weight: 800;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--text-3);
-  border-bottom: 1px solid var(--border-mid);
+  border-bottom: 2px solid var(--border);
+  white-space: nowrap;
 }
 
 .intel-table td {
-  padding: 13px 12px 13px 0;
+  padding: 13px 20px;
   font-size: 0.875rem;
   color: var(--text-1);
   border-bottom: 1px solid var(--border);
 }
 
 .intel-table tbody tr:last-child td { border-bottom: none; }
-.intel-table tbody tr:hover { background: var(--surface-2); }
+.intel-table tbody tr:hover { background: var(--orange-light); }
 
 .intel-row-actions { display: flex; gap: 8px; }
 
@@ -73,14 +82,17 @@
 
 .intel-reco {
   padding: 16px;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  background: var(--surface-2);
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
   margin-bottom: 10px;
-  transition: border-color 0.2s;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 .intel-reco:last-child { margin-bottom: 0; }
-.intel-reco:hover { border-color: var(--orange); }
+.intel-reco:hover {
+  border-color: var(--orange);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
 
 .intel-reco-head {
   display: flex;
@@ -89,17 +101,17 @@
   margin-bottom: 8px;
 }
 
-.intel-reco-head strong { font-size: 0.9rem; font-weight: 600; color: var(--text-1); }
+.intel-reco-head strong { font-size: 0.9rem; font-weight: 700; color: var(--dark-blue); }
 
 .intel-tag {
   font-size: 0.62rem;
-  font-weight: 700;
+  font-weight: 800;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   padding: 3px 10px;
   background: var(--orange-light);
   color: var(--orange);
-  border: 1px solid rgba(255,92,40,0.25);
+  border: 1px solid rgba(88,204,2,0.3);
   border-radius: 999px;
 }
 
@@ -123,25 +135,25 @@
   padding: 14px 16px;
   margin: 0 -16px;
   background: var(--orange-light);
-  border-left: 2px solid var(--orange);
+  border-left: 3px solid var(--orange);
   border-bottom: 1px solid var(--border);
 }
 
 .intel-notif-type {
   display: inline-block;
   font-size: 0.6rem;
-  font-weight: 700;
+  font-weight: 800;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   padding: 3px 8px;
   background: var(--violet-light);
-  color: var(--violet-mid);
+  color: var(--violet);
   border-radius: 4px;
   margin-right: 10px;
-  border: 1px solid rgba(124,58,237,0.2);
+  border: 1px solid rgba(28,176,246,0.25);
 }
 
-.intel-notif-msg { font-size: 0.875rem; color: var(--text-1); }
+.intel-notif-msg { font-size: 0.875rem; color: var(--text-1); font-weight: 500; }
 
 .intel-notif-meta {
   display: flex;
@@ -171,15 +183,16 @@
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--text-3);
+  font-family: var(--font-ui);
 }
 
 .intel-form input,
 .intel-form textarea {
   width: 100%;
   padding: 11px 14px;
-  border: 1px solid var(--border-mid);
-  border-radius: 8px;
-  background: var(--surface-2);
+  border: 2px solid var(--border-mid);
+  border-radius: 10px;
+  background: var(--surface);
   font-family: var(--font-ui);
   font-size: 0.9rem;
   color: var(--text-1);

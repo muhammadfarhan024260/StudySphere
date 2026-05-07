@@ -65,7 +65,9 @@ CREATE INDEX IF NOT EXISTS idx_notification_student  ON notification(student_id,
 -- =============================================
 -- 3. AFTER INSERT trigger on study_log
 --    Recomputes the student's avg productivity for the affected subject.
---    If avg < 50: upsert weak_area + insert a notification.
+--    Scores are stored on a 0–10 scale (frontend sends 1–10).
+--    If avg < 5 (below 50 %): upsert weak_area + insert notification.
+--    If avg >= 5 (recovered):  remove from weak_area.
 -- =============================================
 CREATE OR REPLACE FUNCTION fn_flag_weak_area()
 RETURNS TRIGGER AS $$
@@ -79,22 +81,42 @@ BEGIN
      WHERE student_id = NEW.student_id
        AND subject_id = NEW.subject_id;
 
-    IF v_avg IS NOT NULL AND v_avg < 50 THEN
+    IF v_avg IS NULL THEN
+        RETURN NEW;
+    END IF;
+
+    SELECT name INTO v_subject_name FROM subject WHERE subject_id = NEW.subject_id;
+
+    IF v_avg < 5 THEN
+        -- Flag or refresh the weak area
         INSERT INTO weak_area (student_id, subject_id, avg_score)
         VALUES (NEW.student_id, NEW.subject_id, v_avg)
         ON CONFLICT (student_id, subject_id)
-        DO UPDATE SET avg_score = EXCLUDED.avg_score,
+        DO UPDATE SET avg_score     = EXCLUDED.avg_score,
                       detected_date = CURRENT_TIMESTAMP;
 
-        SELECT name INTO v_subject_name FROM subject WHERE subject_id = NEW.subject_id;
+        -- Only notify once per subject (avoid spam on every new session)
+        IF NOT EXISTS (
+            SELECT 1 FROM notification
+             WHERE student_id        = NEW.student_id
+               AND related_subject_id = NEW.subject_id
+               AND type              = 'weak_area'
+               AND created_date      > CURRENT_TIMESTAMP - INTERVAL '7 days'
+        ) THEN
+            INSERT INTO notification (student_id, related_subject_id, type, message)
+            VALUES (
+                NEW.student_id,
+                NEW.subject_id,
+                'weak_area',
+                'Weak area detected: avg productivity ' || ROUND(v_avg, 1) || '/10 on ' || COALESCE(v_subject_name, 'subject')
+            );
+        END IF;
 
-        INSERT INTO notification (student_id, related_subject_id, type, message)
-        VALUES (
-            NEW.student_id,
-            NEW.subject_id,
-            'weak_area',
-            'Low average productivity (' || ROUND(v_avg, 1) || ') on ' || COALESCE(v_subject_name, 'subject')
-        );
+    ELSE
+        -- Subject has recovered — remove the weak area flag
+        DELETE FROM weak_area
+         WHERE student_id = NEW.student_id
+           AND subject_id = NEW.subject_id;
     END IF;
 
     RETURN NEW;

@@ -114,14 +114,13 @@ export const useAnalyticsData = () => {
 }
 
 /**
- * Hook to fetch weak area statistics (for admin analytics)
+ * Hook to fetch real weak area statistics from the backend
  */
 export const useWeakAreaStats = () => {
   const [stats, setStats] = useState({
     totalWeakAreas: 0,
     affectedStudents: 0,
     topWeakSubjects: [],
-    averageThreshold: 50
   })
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -130,30 +129,40 @@ export const useWeakAreaStats = () => {
     const fetchStats = async () => {
       try {
         setLoading(true)
-        // TODO: Create backend endpoint for weak area statistics
-        // For now, using placeholder data
+        const res = await api.get('/admin/analytics/weak-areas')
         setStats({
-          totalWeakAreas: 32,
-          affectedStudents: 24,
-          topWeakSubjects: [
-            { subject: 'Discrete Mathematics', count: 8, avgScore: 45.2 },
-            { subject: 'Algorithm Design', count: 7, avgScore: 47.1 },
-            { subject: 'Advanced DBMS', count: 6, avgScore: 48.5 }
-          ],
-          averageThreshold: 50
+          totalWeakAreas:   res.data.totalWeakAreas   || 0,
+          affectedStudents: res.data.affectedStudents || 0,
+          topWeakSubjects:  res.data.topSubjects      || [],
         })
         setError(null)
       } catch (err) {
-        setError(err.message || 'Failed to fetch weak area statistics')
+        setError(err.response?.data?.message || err.message || 'Failed to fetch weak area statistics')
       } finally {
         setLoading(false)
       }
     }
-
     fetchStats()
   }, [])
 
   return { weakAreaStats: stats, loading, error }
+}
+
+/**
+ * Hook to fetch the authenticated admin's profile
+ */
+export const useAdminProfile = () => {
+  const [profile, setProfile] = useState(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    api.get('/admin/profile')
+      .then(res => res.data.success && setProfile(res.data))
+      .catch(() => {})
+      .finally(() => setLoading(false))
+  }, [])
+
+  return { profile, loading }
 }
 
 /**
