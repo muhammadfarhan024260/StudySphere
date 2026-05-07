@@ -14,7 +14,6 @@ WORKDIR /app
 
 COPY --from=build /app/publish .
 
-# Render sets PORT dynamically; ASP.NET Core reads ASPNETCORE_URLS
-ENV ASPNETCORE_URLS=http://+:$PORT
-
-ENTRYPOINT ["dotnet", "StudySphere.dll"]
+# Shell-form CMD so $PORT is expanded at container runtime (not build time).
+# Render injects PORT; we bind to 0.0.0.0 so the port is reachable externally.
+CMD dotnet StudySphere.dll --urls "http://0.0.0.0:${PORT:-5000}"
