@@ -51,12 +51,30 @@ var twilioAuth = Environment.GetEnvironmentVariable("Twilio__AuthToken") ?? buil
 if (!string.IsNullOrEmpty(twilioSid) && !string.IsNullOrEmpty(twilioAuth))
     TwilioClient.Init(twilioSid, twilioAuth);
 
-// Firebase initialization
-var firebaseJson = Environment.GetEnvironmentVariable("Firebase__ServiceAccountJson") ?? builder.Configuration["Firebase:ServiceAccountJson"];
-if (!string.IsNullOrEmpty(firebaseJson) && FirebaseApp.DefaultInstance == null)
+// Firebase initialization — individual env vars to avoid base64/encoding corruption issues
+var firebaseClientEmail = Environment.GetEnvironmentVariable("Firebase__ClientEmail");
+var firebasePrivateKey  = Environment.GetEnvironmentVariable("Firebase__PrivateKey")?.Replace("\\n", "\n");
+var firebaseProjectId   = Environment.GetEnvironmentVariable("Firebase__ProjectId");
+if (!string.IsNullOrEmpty(firebaseClientEmail) && !string.IsNullOrEmpty(firebasePrivateKey)
+    && FirebaseApp.DefaultInstance == null)
 {
-    var json = Encoding.UTF8.GetString(Convert.FromBase64String(firebaseJson));
-    FirebaseApp.Create(new AppOptions { Credential = GoogleCredential.FromJson(json) });
+    try
+    {
+        var saCredential = new Google.Apis.Auth.OAuth2.ServiceAccountCredential(
+            new Google.Apis.Auth.OAuth2.ServiceAccountCredential.Initializer(firebaseClientEmail)
+            {
+                ProjectId = firebaseProjectId
+            }.FromPrivateKey(firebasePrivateKey)
+        );
+        FirebaseApp.Create(new AppOptions
+        {
+            Credential = GoogleCredential.FromServiceAccountCredential(saCredential)
+        });
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"[Firebase] Init skipped: {ex.Message}");
+    }
 }
 
 // Singleton Pattern — one shared DB connection factory for the lifetime of the app
