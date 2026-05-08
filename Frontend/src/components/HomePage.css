@@ -722,8 +722,8 @@ html { scroll-behavior: smooth; }
   content: '';
   position: absolute;
   top: 27px;
-  left: calc(16.66% + 24px);
-  right: calc(16.66% + 24px);
+  left: 28px;
+  right: calc(33.33% - 60px);
   height: 2px;
   background: linear-gradient(90deg, var(--orange), var(--violet));
   border-radius: 2px;
