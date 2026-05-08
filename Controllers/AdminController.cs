@@ -459,7 +459,7 @@ public class AdminController : ControllerBase
                 var notification = new Notification
                 {
                     StudentId = student.StudentId,
-                    Type = "broadcast",
+                    Type = "system",
                     Message = req.Message,
                     IsRead = false,
                     CreatedDate = DateTime.UtcNow
@@ -486,7 +486,7 @@ public class AdminController : ControllerBase
         }
         catch (Exception ex)
         {
-            return StatusCode(500, new { success = false, message = "Broadcast failed.", error = ex.Message });
+            return StatusCode(500, new { success = false, message = "Broadcast failed.", error = ex.Message, inner = ex.InnerException?.Message });
         }
     }
 

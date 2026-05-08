@@ -25,7 +25,6 @@ export default function Signup({ initialRole = 'student', onSignupSuccess, onSwi
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [success, setSuccess] = useState('')
   const [otpResendCountdown, setOtpResendCountdown] = useState(0)
 
   useEffect(() => {
@@ -90,7 +89,6 @@ export default function Signup({ initialRole = 'student', onSignupSuccess, onSwi
   const handleSendOtp = async (e) => {
     e.preventDefault()
     setError('')
-    setSuccess('')
 
     if (!formData.name || !formData.email) {
       setError('Name and email are required')
@@ -133,7 +131,6 @@ export default function Signup({ initialRole = 'student', onSignupSuccess, onSwi
       })
 
       if (response.data.success) {
-        setSuccess('OTP sent to your email successfully!')
         setStep('otp')
         setOtpResendCountdown(60)
       } else {
@@ -149,7 +146,6 @@ export default function Signup({ initialRole = 'student', onSignupSuccess, onSwi
   const handleVerifyOtp = async (e) => {
     e.preventDefault()
     setError('')
-    setSuccess('')
 
     if (!formData.otp || formData.otp.length !== 6) {
       setError('Please enter a valid 6-digit OTP')
@@ -165,7 +161,6 @@ export default function Signup({ initialRole = 'student', onSignupSuccess, onSwi
       })
 
       if (response.data.success) {
-        setSuccess('OTP verified successfully!')
         setTimeout(() => {
           setStep('password')
         }, 500)
@@ -182,7 +177,6 @@ export default function Signup({ initialRole = 'student', onSignupSuccess, onSwi
   const handleCreateAccount = async (e) => {
     e.preventDefault()
     setError('')
-    setSuccess('')
 
     if (formData.password.length < 6) {
       setError('Password must be at least 6 characters')
@@ -210,7 +204,6 @@ export default function Signup({ initialRole = 'student', onSignupSuccess, onSwi
       const response = await api.post('/auth/signup', signupData)
 
       if (response.data.success) {
-        setSuccess('Account created successfully! Redirecting...')
         const d = response.data
         localStorage.setItem('token', d.token)
         localStorage.setItem('userId', d.userId)
@@ -237,7 +230,6 @@ export default function Signup({ initialRole = 'student', onSignupSuccess, onSwi
 
   const handleResendOtp = async () => {
     setError('')
-    setSuccess('')
     
     try {
       setLoading(true)
@@ -248,7 +240,6 @@ export default function Signup({ initialRole = 'student', onSignupSuccess, onSwi
       })
 
       if (response.data.success) {
-        setSuccess('New OTP sent to your email!')
         setFormData(prev => ({ ...prev, otp: '' }))
         setOtpResendCountdown(60)
       } else {
@@ -346,7 +337,7 @@ export default function Signup({ initialRole = 'student', onSignupSuccess, onSwi
         </div>
 
         {error && <div className="alert alert-error"><span>!</span> {error}</div>}
-        {success && <div className="alert alert-success"><span>✓</span> {success}</div>}
+
 
         {/* Step 1: Email & Name */}
         {step === 'email' && (

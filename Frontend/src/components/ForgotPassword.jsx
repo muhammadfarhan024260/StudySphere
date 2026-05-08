@@ -12,7 +12,6 @@ export default function ForgotPassword({ onBack, initialRole = 'student' }) {
   const [confirmPassword, setConfirmPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [success, setSuccess] = useState('')
 
   const handleSendOtp = async (e) => {
     e.preventDefault()
@@ -24,7 +23,6 @@ export default function ForgotPassword({ onBack, initialRole = 'student' }) {
       const res = await api.post('/auth/forgot-password', { email, userType: role })
       if (res.data.success) {
         setStep(2)
-        setSuccess('A 6-digit reset code has been sent to your email.')
       } else {
         setError(res.data.message || 'Failed to send reset code')
       }
@@ -38,7 +36,6 @@ export default function ForgotPassword({ onBack, initialRole = 'student' }) {
   const handleReset = async (e) => {
     e.preventDefault()
     setError('')
-    setSuccess('')
 
     if (!otp || !newPassword || !confirmPassword) {
       setError('All fields are required')
@@ -62,7 +59,6 @@ export default function ForgotPassword({ onBack, initialRole = 'student' }) {
         newPassword
       })
       if (res.data.success) {
-        setSuccess('Password reset successfully! Redirecting to login...')
         setTimeout(() => onBack(), 2000)
       } else {
         setError(res.data.message || 'Reset failed')
@@ -104,7 +100,7 @@ export default function ForgotPassword({ onBack, initialRole = 'student' }) {
               </div>
 
               {error && <div className="alert alert-error"><span>!</span> {error}</div>}
-              {success && <div className="alert alert-success"><span>✓</span> {success}</div>}
+
 
               <form onSubmit={handleSendOtp} className="auth-form">
                 <div className="form-group">
@@ -130,7 +126,7 @@ export default function ForgotPassword({ onBack, initialRole = 'student' }) {
           {step === 2 && (
             <>
               {error && <div className="alert alert-error"><span>!</span> {error}</div>}
-              {success && <div className="alert alert-success"><span>✓</span> {success}</div>}
+
 
               <form onSubmit={handleReset} className="auth-form">
                 <div className="form-group">
@@ -177,7 +173,7 @@ export default function ForgotPassword({ onBack, initialRole = 'student' }) {
                 <button
                   type="button"
                   className="link-btn"
-                  onClick={() => { setStep(1); setError(''); setSuccess('') }}
+                  onClick={() => { setStep(1); setError(''); }}
                 >
                   Resend code
                 </button>

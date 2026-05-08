@@ -8,12 +8,10 @@ export default function Login({ onLoginSuccess, onSwitchToSignup, onGoToHome, on
   const [role, setRole] = useState('student') // 'student' or 'admin'
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [success, setSuccess] = useState('')
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
-    setSuccess('')
 
     if (!email || !password) {
       setError('Email and password are required')
@@ -54,7 +52,6 @@ export default function Login({ onLoginSuccess, onSwitchToSignup, onGoToHome, on
   const handleRoleChange = (newRole) => {
     setRole(newRole)
     setError('')
-    setSuccess('')
   }
 
   return (
@@ -102,7 +99,7 @@ export default function Login({ onLoginSuccess, onSwitchToSignup, onGoToHome, on
         </p>
 
         {error && <div className="alert alert-error"><span>!</span> {error}</div>}
-        {success && <div className="alert alert-success"><span>✓</span> {success}</div>}
+
 
         <form onSubmit={handleSubmit} className="auth-form">
           <div className="form-group">
