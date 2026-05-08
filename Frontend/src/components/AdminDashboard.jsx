@@ -1,11 +1,11 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useRef } from 'react'
 import DashboardLayout from './DashboardLayout'
 import AdminRecommendations from './AdminRecommendations'
 import SubjectManagement from './SubjectManagement'
 import StudentManagement from './StudentManagement'
 import NotificationDeliveryDemo from './NotificationDeliveryDemo'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
-import { useAllRecommendations, useAnalyticsData, useWeakAreaStats, useStudentPerformance, useRollupAnalytics, useBelowAverage, useEngagedStudents, useAdminProfile } from '../hooks/useAdminData'
+import { useAllRecommendations, useAnalyticsData, useWeakAreaStats, useStudentPerformance, useRollupAnalytics, useBelowAverage, useEngagedStudents, useAdminProfile, useAdminDepartments, useAdminSemesters } from '../hooks/useAdminData'
 import './Dashboard.css'
 import './AdminDashboard.css'
 
@@ -51,6 +51,11 @@ const rollupRowClass = type =>
 
 export default function AdminDashboard() {
   const [isEditingProfile, setIsEditingProfile] = useState(false)
+
+  const deptHook = useAdminDepartments()
+  const semHook  = useAdminSemesters()
+  const [newDept, setNewDept] = useState('')
+  const [newSem,  setNewSem]  = useState('')
 
   const { recommendations, loading: recommendationsLoading } = useAllRecommendations()
   const { analyticsData, loading: analyticsLoading }         = useAnalyticsData()
@@ -559,6 +564,96 @@ export default function AdminDashboard() {
             </div>
           </div>
         )}
+
+        {/* ── Department Management ── */}
+        <div className="card wide" style={{ marginTop: '24px' }}>
+          <div className="card-header"><h3>Departments</h3></div>
+          <div className="card-body">
+            <p style={{ color: 'var(--text-2)', fontSize: '0.85rem', marginBottom: '16px' }}>
+              These are the departments students can select during signup.
+            </p>
+            <div style={{ display: 'flex', gap: '10px', marginBottom: '16px' }}>
+              <input
+                className="ad-settings-input"
+                placeholder="e.g. Computer Science"
+                value={newDept}
+                onChange={e => setNewDept(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); deptHook.add(newDept).then(r => r.success && setNewDept('')) } }}
+              />
+              <button
+                className="btn-primary"
+                disabled={!newDept.trim() || deptHook.saving}
+                onClick={() => deptHook.add(newDept).then(r => r.success && setNewDept(''))}
+              >
+                Add
+              </button>
+            </div>
+            {deptHook.error && <p className="ad-settings-error">{deptHook.error}</p>}
+            {deptHook.loading ? <p style={{ color: 'var(--text-2)' }}>Loading…</p> : (
+              <div className="ad-settings-list">
+                {deptHook.departments.length === 0
+                  ? <p style={{ color: 'var(--text-2)', fontSize: '0.85rem' }}>No departments added yet.</p>
+                  : deptHook.departments.map(d => (
+                    <div key={d.departmentId} className="ad-settings-item">
+                      <span>{d.name}</span>
+                      <button
+                        className="ad-settings-delete"
+                        onClick={() => deptHook.remove(d.departmentId)}
+                        disabled={deptHook.saving}
+                        title="Remove"
+                      >✕</button>
+                    </div>
+                  ))
+                }
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* ── Semester Management ── */}
+        <div className="card wide" style={{ marginTop: '24px' }}>
+          <div className="card-header"><h3>Semesters</h3></div>
+          <div className="card-body">
+            <p style={{ color: 'var(--text-2)', fontSize: '0.85rem', marginBottom: '16px' }}>
+              These are the semester options students can select during signup.
+            </p>
+            <div style={{ display: 'flex', gap: '10px', marginBottom: '16px' }}>
+              <input
+                className="ad-settings-input"
+                placeholder="e.g. 4th Semester"
+                value={newSem}
+                onChange={e => setNewSem(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); semHook.add(newSem).then(r => r.success && setNewSem('')) } }}
+              />
+              <button
+                className="btn-primary"
+                disabled={!newSem.trim() || semHook.saving}
+                onClick={() => semHook.add(newSem).then(r => r.success && setNewSem(''))}
+              >
+                Add
+              </button>
+            </div>
+            {semHook.error && <p className="ad-settings-error">{semHook.error}</p>}
+            {semHook.loading ? <p style={{ color: 'var(--text-2)' }}>Loading…</p> : (
+              <div className="ad-settings-list">
+                {semHook.semesters.length === 0
+                  ? <p style={{ color: 'var(--text-2)', fontSize: '0.85rem' }}>No semesters added yet.</p>
+                  : semHook.semesters.map(s => (
+                    <div key={s.semesterOptionId} className="ad-settings-item">
+                      <span>{s.name}</span>
+                      <button
+                        className="ad-settings-delete"
+                        onClick={() => semHook.remove(s.semesterOptionId)}
+                        disabled={semHook.saving}
+                        title="Remove"
+                      >✕</button>
+                    </div>
+                  ))
+                }
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     )
   }

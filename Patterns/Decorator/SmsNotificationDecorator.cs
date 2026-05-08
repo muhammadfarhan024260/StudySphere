@@ -1,23 +1,47 @@
+using Microsoft.Extensions.Configuration;
 using StudySphere.Models;
+using Twilio;
+using Twilio.Rest.Api.V2010.Account;
+using Twilio.Types;
 
 namespace StudySphere.Patterns.Decorator;
 
-/// <summary>
-/// Decorator that adds SMS delivery. Integration point for Twilio / Vonage.
-/// Stubbed for demo — logs to console.
-/// </summary>
 public class SmsNotificationDecorator : NotificationDecorator
 {
-    public SmsNotificationDecorator(INotificationDelivery inner) : base(inner) { }
+    private readonly IConfiguration _config;
 
-    public override async Task DeliverAsync(Notification notification)
+    public SmsNotificationDecorator(INotificationDelivery inner, IConfiguration config) : base(inner)
     {
-        await base.DeliverAsync(notification);
+        _config = config;
+    }
 
-        // Stub: real implementation would call Twilio/Vonage SMS API here
-        var preview = notification.Message.Length > 80
-            ? notification.Message[..80] + "..."
-            : notification.Message;
-        Console.WriteLine($"[SMS Decorator] SMS queued for student #{notification.StudentId}: {preview}");
+    public override async Task DeliverAsync(Notification notification, Student student)
+    {
+        await base.DeliverAsync(notification, student);
+
+        if (string.IsNullOrWhiteSpace(student.Phone))
+        {
+            Console.WriteLine($"[WhatsApp Decorator] Skipped student #{student.StudentId} — no phone number.");
+            return;
+        }
+
+        try
+        {
+            // Convert +92-300-1234567 → whatsapp:+923001234567
+            var digits = student.Phone.Replace("-", "");
+            var toNumber = new PhoneNumber("whatsapp:" + digits);
+            var fromNumber = new PhoneNumber("whatsapp:" + _config["Twilio:WhatsAppFrom"]);
+
+            await MessageResource.CreateAsync(
+                to: toNumber,
+                from: fromNumber,
+                body: $"StudySphere: {notification.Message}"
+            );
+            Console.WriteLine($"[WhatsApp Decorator] Message sent to {student.Phone}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[WhatsApp Decorator] Failed for student #{student.StudentId}: {ex.Message}");
+        }
     }
 }

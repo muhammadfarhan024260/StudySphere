@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import api from '../services/api'
+import ConfirmationModal from './ConfirmationModal'
 import './Dashboard.css'
 
 export default function StudentManagement() {
@@ -7,6 +8,8 @@ export default function StudentManagement() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [editingId, setEditingId] = useState(null)
+  const [deleteId, setDeleteId] = useState(null)
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   
   const [formData, setFormData] = useState({
     name: '',
@@ -76,11 +79,18 @@ export default function StudentManagement() {
   }
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this student? This action cannot be undone.')) return
+    setDeleteId(id)
+    setIsDeleteModalOpen(true)
+  }
+
+  const confirmDelete = async () => {
+    if (!deleteId) return
     try {
-      const res = await api.delete(`/admin/students/${id}`)
+      const res = await api.delete(`/admin/students/${deleteId}`)
       if (res.data.success) {
         fetchStudents()
+        setIsDeleteModalOpen(false)
+        setDeleteId(null)
       } else {
         setError(res.data.message || 'Failed to delete student')
       }
@@ -157,6 +167,16 @@ export default function StudentManagement() {
           )}
         </div>
       </div>
+
+      <ConfirmationModal
+        isOpen={isDeleteModalOpen}
+        title="Delete Student"
+        message="Are you sure you want to delete this student? This action will remove all their study data and cannot be undone."
+        confirmText="Delete Student"
+        onConfirm={confirmDelete}
+        onCancel={() => setIsDeleteModalOpen(false)}
+        danger={true}
+      />
     </div>
   )
 }

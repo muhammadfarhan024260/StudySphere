@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using StudySphere.Data;
 using StudySphere.Models;
 using StudySphere.Patterns.Decorator;
+using StudySphere.Repositories;
 using StudySphere.Services;
 
 namespace StudySphere.Controllers;
@@ -15,15 +16,18 @@ public class IntelligenceController : ControllerBase
     private readonly IIntelligenceService _service;
     private readonly NotificationDeliveryService _deliveryService;
     private readonly StudySphereDbContext _context;
+    private readonly IStudentRepository _studentRepository;
 
     public IntelligenceController(
         IIntelligenceService service,
         NotificationDeliveryService deliveryService,
-        StudySphereDbContext context)
+        StudySphereDbContext context,
+        IStudentRepository studentRepository)
     {
         _service = service;
         _deliveryService = deliveryService;
         _context = context;
+        _studentRepository = studentRepository;
     }
 
     // ---------------- Student endpoints ----------------
@@ -61,14 +65,18 @@ public class IntelligenceController : ControllerBase
         if (notification is null)
             return NotFound(new { success = false, message = "Notification not found." });
 
+        var student = await _studentRepository.GetByIdAsync(notification.StudentId);
+        if (student is null)
+            return NotFound(new { success = false, message = "Student not found." });
+
         var chain = _deliveryService.BuildChain(email, sms, push);
-        await chain.DeliverAsync(notification);
+        await chain.DeliverAsync(notification, student);
 
         return Ok(new
         {
             success  = true,
             message  = "Notification delivered via selected channels.",
-            channels = new { email, sms, push }
+            channels = new { email, whatsapp = sms, push }
         });
     }
 

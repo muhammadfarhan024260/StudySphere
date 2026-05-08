@@ -10,7 +10,8 @@ namespace StudySphere.Services;
 public interface IAuthenticationService
 {
     Task<(bool Success, string Message, string? Token, int? UserId, string? UserType)> SignupAsync(
-        string email, string password, string name, string userType, string? enrollmentNumber = null);
+        string email, string password, string name, string userType,
+        string enrollmentNumber, string phone, string department, string semester);
     Task<(bool Success, string Message, string? Token, int? UserId, string? UserType)> LoginAsync(
         string email, string password, string userType);
     Task<(bool Success, string Message)> SendOtpAsync(string email, string name, string userType);
@@ -49,7 +50,8 @@ public class AuthenticationService : IAuthenticationService
     }
 
     public async Task<(bool Success, string Message, string? Token, int? UserId, string? UserType)> SignupAsync(
-        string email, string password, string name, string userType, string? enrollmentNumber = null)
+        string email, string password, string name, string userType,
+        string enrollmentNumber, string phone, string department, string semester)
     {
         try
         {
@@ -73,8 +75,7 @@ public class AuthenticationService : IAuthenticationService
                     return (false, "Email already registered", null, null, null);
                 }
 
-                if (!string.IsNullOrWhiteSpace(enrollmentNumber) &&
-                    await _studentRepository.EnrollmentNumberExistsAsync(enrollmentNumber))
+                if (await _studentRepository.EnrollmentNumberExistsAsync(enrollmentNumber))
                 {
                     return (false, "Enrollment number already registered", null, null, null);
                 }
@@ -94,6 +95,9 @@ public class AuthenticationService : IAuthenticationService
                     PasswordHash = HashPassword(password),
                     Name = name,
                     EnrollmentNumber = enrollmentNumber,
+                    Phone = phone,
+                    Department = department,
+                    Semester = semester,
                     CreatedDate = DateTime.UtcNow,
                     IsActive = true
                 };

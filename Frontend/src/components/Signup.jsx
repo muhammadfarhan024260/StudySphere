@@ -1,8 +1,15 @@
 import { useState, useEffect } from 'react'
 import api from '../services/api'
+import { useDepartments, useSemesters } from '../hooks/useStudyData'
+import CustomSelect from './CustomSelect'
+import OtpInput from './OtpInput'
 import './Auth.css'
 
+
+
 export default function Signup({ initialRole = 'student', onSignupSuccess, onSwitchToLogin, onGoToHome }) {
+  const { departments, loading: deptLoading } = useDepartments()
+  const { semesters,   loading: semLoading  } = useSemesters()
   const [role, setRole] = useState(initialRole)
   const [step, setStep] = useState('email') // 'email', 'otp', 'password'
   const [formData, setFormData] = useState({
@@ -12,8 +19,8 @@ export default function Signup({ initialRole = 'student', onSignupSuccess, onSwi
     password: '',
     confirmPassword: '',
     otp: '',
-    phone: '',
-    program: '',
+    phone: '+92-',
+    department: '',
     semester: '',
   })
   const [loading, setLoading] = useState(false)
@@ -35,7 +42,45 @@ export default function Signup({ initialRole = 'student', onSignupSuccess, onSwi
   }, [otpResendCountdown])
 
   const handleChange = (e) => {
-    const { name, value } = e.target
+    let { name, value } = e.target
+
+    if (name === 'phone') {
+      // Ensure prefix +92- is always present
+      if (!value.startsWith('+92-')) {
+        const rawDigits = value.replace(/\D/g, '');
+        const digitsOnly = rawDigits.startsWith('92') ? rawDigits.slice(2) : rawDigits;
+        value = '+92-' + digitsOnly;
+      }
+
+      // Extract only digits after +92-
+      const digits = value.slice(4).replace(/\D/g, '').slice(0, 10);
+      
+      // Reformat with dashes: +92-XXX-XXXXXXX
+      let formatted = '+92-';
+      if (digits.length > 0) {
+        formatted += digits.slice(0, 3);
+      }
+      if (digits.length > 3) {
+        formatted += '-' + digits.slice(3);
+      }
+      value = formatted;
+    }
+
+    if (name === 'enrollmentNumber') {
+      const digits = value.replace(/\D/g, '').slice(0, 11);
+      let formatted = '';
+      if (digits.length > 0) {
+        formatted += digits.slice(0, 2);
+      }
+      if (digits.length > 2) {
+        formatted += '-' + digits.slice(2, 8);
+      }
+      if (digits.length > 8) {
+        formatted += '-' + digits.slice(8);
+      }
+      value = formatted;
+    }
+
     setFormData(prev => ({
       ...prev,
       [name]: value
@@ -54,11 +99,27 @@ export default function Signup({ initialRole = 'student', onSignupSuccess, onSwi
 
     if (role === 'student') {
       if (!formData.enrollmentNumber) {
-        setError('Enrollment number is required for students')
+        setError('Enrollment number is required')
         return
       }
       if (!/^\d{2}-\d{6}-\d{3}$/.test(formData.enrollmentNumber)) {
         setError('Enrollment number must be in the format XX-XXXXXX-XXX (e.g. 02-131242-038)')
+        return
+      }
+      if (!formData.phone || formData.phone === '+92-') {
+        setError('Phone number is required')
+        return
+      }
+      if (!/^\+92-\d{3}-\d{7}$/.test(formData.phone)) {
+        setError('Phone number must be in the format +92-XXX-XXXXXXX')
+        return
+      }
+      if (!formData.department) {
+        setError('Department is required')
+        return
+      }
+      if (!formData.semester) {
+        setError('Semester is required')
         return
       }
     }
@@ -139,26 +200,27 @@ export default function Signup({ initialRole = 'student', onSignupSuccess, onSwi
         name: formData.name,
         email: formData.email,
         password: formData.password,
-        userType: role
-      }
-
-      if (role === 'student') {
-        signupData.enrollmentNumber = formData.enrollmentNumber
+        userType: role,
+        enrollmentNumber: formData.enrollmentNumber,
+        phone: formData.phone,
+        department: formData.department,
+        semester: formData.semester,
       }
 
       const response = await api.post('/auth/signup', signupData)
 
       if (response.data.success) {
         setSuccess('Account created successfully! Redirecting...')
-        localStorage.setItem('token', response.data.token)
-        localStorage.setItem('userId', response.data.userId)
-        localStorage.setItem('userType', response.data.userType)
-        if (response.data.name) localStorage.setItem('userName', response.data.name)
-        if (response.data.email) localStorage.setItem('userEmail', response.data.email)
-        if (response.data.enrollmentNumber) localStorage.setItem('userEnrollment', response.data.enrollmentNumber)
-        if (formData.phone)    localStorage.setItem('userPhone',    formData.phone)
-        if (formData.program)  localStorage.setItem('userProgram',  formData.program)
-        if (formData.semester) localStorage.setItem('userSemester', formData.semester)
+        const d = response.data
+        localStorage.setItem('token', d.token)
+        localStorage.setItem('userId', d.userId)
+        localStorage.setItem('userType', d.userType)
+        if (d.name)             localStorage.setItem('userName',       d.name)
+        if (d.email)            localStorage.setItem('userEmail',      d.email)
+        if (d.enrollmentNumber) localStorage.setItem('userEnrollment', d.enrollmentNumber)
+        if (d.phone)            localStorage.setItem('userPhone',      d.phone)
+        if (d.department)       localStorage.setItem('userDepartment', d.department)
+        if (d.semester)         localStorage.setItem('userSemester',   d.semester)
 
         setTimeout(() => {
           onSignupSuccess && onSignupSuccess(response.data)
@@ -234,6 +296,9 @@ export default function Signup({ initialRole = 'student', onSignupSuccess, onSwi
                 password: '',
                 confirmPassword: '',
                 otp: '',
+                phone: '+92-',
+                department: '',
+                semester: '',
               })
             }}
           >
@@ -252,6 +317,9 @@ export default function Signup({ initialRole = 'student', onSignupSuccess, onSwi
                 password: '',
                 confirmPassword: '',
                 otp: '',
+                phone: '+92-',
+                department: '',
+                semester: '',
               })
             }}
           >
@@ -309,6 +377,7 @@ export default function Signup({ initialRole = 'student', onSignupSuccess, onSwi
                     placeholder="e.g. 02-131242-038"
                     value={formData.enrollmentNumber}
                     onChange={handleChange}
+                    maxLength="13"
                     required
                   />
                 </div>
@@ -332,33 +401,30 @@ export default function Signup({ initialRole = 'student', onSignupSuccess, onSwi
 
             {role === 'student' && (
               <>
-                <div className="auth-section-label">Optional — you can fill these in later</div>
                 <div className="auth-form-row">
                   <div className="form-group">
-                    <label htmlFor="program">Program</label>
-                    <div className="input-wrapper">
-                      <input
-                        id="program"
-                        type="text"
-                        name="program"
-                        placeholder="e.g. BS Computer Science"
-                        value={formData.program}
-                        onChange={handleChange}
-                      />
-                    </div>
+                    <label>Department</label>
+                    <CustomSelect
+                      options={departments.map(d => ({ value: d.name, label: d.name }))}
+                      value={formData.department}
+                      onChange={val => setFormData(prev => ({ ...prev, department: val }))}
+                      placeholder="Select department"
+                      loading={deptLoading}
+                      theme="green"
+                      icon={null}
+                    />
                   </div>
                   <div className="form-group">
-                    <label htmlFor="semester">Semester</label>
-                    <div className="input-wrapper">
-                      <input
-                        id="semester"
-                        type="text"
-                        name="semester"
-                        placeholder="e.g. 4th Semester"
-                        value={formData.semester}
-                        onChange={handleChange}
-                      />
-                    </div>
+                    <label>Semester</label>
+                    <CustomSelect
+                      options={semesters.map(s => ({ value: s.name, label: s.name }))}
+                      value={formData.semester}
+                      onChange={val => setFormData(prev => ({ ...prev, semester: val }))}
+                      placeholder="Select semester"
+                      loading={semLoading}
+                      theme="blue"
+                      icon={null}
+                    />
                   </div>
                 </div>
                 <div className="form-group">
@@ -371,6 +437,8 @@ export default function Signup({ initialRole = 'student', onSignupSuccess, onSwi
                       placeholder="+92-300-0000000"
                       value={formData.phone}
                       onChange={handleChange}
+                      maxLength="15"
+                      required
                     />
                   </div>
                 </div>
@@ -396,19 +464,9 @@ export default function Signup({ initialRole = 'student', onSignupSuccess, onSwi
                 We've sent a 6-digit code to {formData.email}
               </p>
               <div className="input-wrapper">
-                <input
-                  id="otp"
-                  type="text"
-                  name="otp"
-                  placeholder="000000"
+                <OtpInput
                   value={formData.otp}
-                  onChange={(e) => {
-                    const value = e.target.value.replace(/\D/g, '').slice(0, 6)
-                    setFormData(prev => ({...prev, otp: value}))
-                  }}
-                  maxLength="6"
-                  required
-                  style={{fontSize: '24px', letterSpacing: '8px', textAlign: 'center'}}
+                  onChange={(val) => setFormData(prev => ({...prev, otp: val}))}
                 />
               </div>
             </div>

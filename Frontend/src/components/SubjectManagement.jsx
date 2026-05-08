@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import api from '../services/api'
+import ConfirmationModal from './ConfirmationModal'
 import './Dashboard.css'
 
 export default function SubjectManagement() {
@@ -8,6 +9,8 @@ export default function SubjectManagement() {
   const [error, setError] = useState('')
   const [isAdding, setIsAdding] = useState(false)
   const [editingId, setEditingId] = useState(null)
+  const [deleteId, setDeleteId] = useState(null)
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   
   const [formData, setFormData] = useState({
     name: '',
@@ -95,11 +98,18 @@ export default function SubjectManagement() {
   }
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this subject?')) return
+    setDeleteId(id)
+    setIsDeleteModalOpen(true)
+  }
+
+  const confirmDelete = async () => {
+    if (!deleteId) return
     try {
-      const res = await api.delete(`/subject/${id}`)
+      const res = await api.delete(`/subject/${deleteId}`)
       if (res.data.success) {
         fetchSubjects()
+        setIsDeleteModalOpen(false)
+        setDeleteId(null)
       } else {
         setError(res.data.message || 'Failed to delete subject')
       }
@@ -200,6 +210,16 @@ export default function SubjectManagement() {
           )}
         </div>
       </div>
+
+      <ConfirmationModal
+        isOpen={isDeleteModalOpen}
+        title="Delete Subject"
+        message="Are you sure you want to delete this subject? This will affect all study sessions logged under this subject."
+        confirmText="Delete Subject"
+        onConfirm={confirmDelete}
+        onCancel={() => setIsDeleteModalOpen(false)}
+        danger={true}
+      />
     </div>
   )
 }

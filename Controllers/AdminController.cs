@@ -6,6 +6,7 @@ using StudySphere.Models;
 using StudySphere.Repositories;
 using StudySphere.Patterns.Singleton;
 using StudySphere.Patterns.Adapter;
+using StudySphere.Patterns.Decorator;
 
 namespace StudySphere.Controllers;
 
@@ -17,12 +18,18 @@ public class AdminController : ControllerBase
     private readonly IStudentRepository _studentRepository;
     private readonly StudySphereDbContext _context;
     private readonly DatabaseConnectionSingleton _dbSingleton;
+    private readonly NotificationDeliveryService _deliveryService;
 
-    public AdminController(IStudentRepository studentRepository, StudySphereDbContext context, DatabaseConnectionSingleton dbSingleton)
+    public AdminController(
+        IStudentRepository studentRepository,
+        StudySphereDbContext context,
+        DatabaseConnectionSingleton dbSingleton,
+        NotificationDeliveryService deliveryService)
     {
         _studentRepository = studentRepository;
         _context = context;
         _dbSingleton = dbSingleton;
+        _deliveryService = deliveryService;
     }
 
     [HttpGet("students")]
@@ -427,4 +434,142 @@ public class AdminController : ControllerBase
             return StatusCode(500, new { success = false, message = "Failed to fetch engaged students.", error = ex.Message });
         }
     }
+
+    // ── Broadcast notifications ───────────────────────────
+
+    [HttpPost("notifications/broadcast")]
+    public async Task<IActionResult> BroadcastNotification([FromBody] BroadcastRequest req)
+    {
+        if (string.IsNullOrWhiteSpace(req.Message))
+            return BadRequest(new { success = false, message = "Message is required." });
+        if (!req.Email && !req.Whatsapp && !req.Push)
+            return BadRequest(new { success = false, message = "Select at least one delivery channel." });
+
+        try
+        {
+            var students = (await _studentRepository.GetAllAsync()).Where(s => s.IsActive).ToList();
+            if (!students.Any())
+                return Ok(new { success = true, studentsNotified = 0, message = "No active students found." });
+
+            var chain = _deliveryService.BuildChain(req.Email, req.Whatsapp, req.Push);
+            int notified = 0;
+
+            foreach (var student in students)
+            {
+                var notification = new Notification
+                {
+                    StudentId = student.StudentId,
+                    Type = "broadcast",
+                    Message = req.Message,
+                    IsRead = false,
+                    CreatedDate = DateTime.UtcNow
+                };
+                _context.Notifications.Add(notification);
+                await _context.SaveChangesAsync();
+
+                await chain.DeliverAsync(notification, student);
+                notified++;
+            }
+
+            var channels = new List<string>();
+            if (req.Email)    channels.Add("Email");
+            if (req.Whatsapp) channels.Add("WhatsApp");
+            if (req.Push)     channels.Add("Push");
+
+            return Ok(new
+            {
+                success = true,
+                studentsNotified = notified,
+                channels,
+                message = $"Broadcast sent to {notified} student{(notified == 1 ? "" : "s")} via {string.Join(", ", channels)}."
+            });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { success = false, message = "Broadcast failed.", error = ex.Message });
+        }
+    }
+
+    // ── Department management ──────────────────────────────
+
+    [HttpGet("departments")]
+    public async Task<IActionResult> GetDepartments()
+    {
+        var list = await _context.Departments.OrderBy(d => d.Name)
+            .Select(d => new { d.DepartmentId, d.Name }).ToListAsync();
+        return Ok(new { success = true, data = list });
+    }
+
+    [HttpPost("departments")]
+    public async Task<IActionResult> AddDepartment([FromBody] NameRequest req)
+    {
+        if (string.IsNullOrWhiteSpace(req.Name))
+            return BadRequest(new { success = false, message = "Name is required." });
+
+        if (await _context.Departments.AnyAsync(d => d.Name == req.Name.Trim()))
+            return BadRequest(new { success = false, message = "Department already exists." });
+
+        var dept = new StudySphere.Models.Department { Name = req.Name.Trim() };
+        _context.Departments.Add(dept);
+        await _context.SaveChangesAsync();
+        return Ok(new { success = true, data = new { dept.DepartmentId, dept.Name } });
+    }
+
+    [HttpDelete("departments/{id}")]
+    public async Task<IActionResult> DeleteDepartment(int id)
+    {
+        var dept = await _context.Departments.FindAsync(id);
+        if (dept == null) return NotFound(new { success = false, message = "Department not found." });
+        _context.Departments.Remove(dept);
+        await _context.SaveChangesAsync();
+        return Ok(new { success = true });
+    }
+
+    // ── Semester management ────────────────────────────────
+
+    [HttpGet("semesters")]
+    public async Task<IActionResult> GetSemesters()
+    {
+        var list = await _context.SemesterOptions.OrderBy(s => s.Name)
+            .Select(s => new { s.SemesterOptionId, s.Name }).ToListAsync();
+        return Ok(new { success = true, data = list });
+    }
+
+    [HttpPost("semesters")]
+    public async Task<IActionResult> AddSemester([FromBody] NameRequest req)
+    {
+        if (string.IsNullOrWhiteSpace(req.Name))
+            return BadRequest(new { success = false, message = "Name is required." });
+
+        if (await _context.SemesterOptions.AnyAsync(s => s.Name == req.Name.Trim()))
+            return BadRequest(new { success = false, message = "Semester already exists." });
+
+        var sem = new StudySphere.Models.SemesterOption { Name = req.Name.Trim() };
+        _context.SemesterOptions.Add(sem);
+        await _context.SaveChangesAsync();
+        return Ok(new { success = true, data = new { sem.SemesterOptionId, sem.Name } });
+    }
+
+    [HttpDelete("semesters/{id}")]
+    public async Task<IActionResult> DeleteSemester(int id)
+    {
+        var sem = await _context.SemesterOptions.FindAsync(id);
+        if (sem == null) return NotFound(new { success = false, message = "Semester not found." });
+        _context.SemesterOptions.Remove(sem);
+        await _context.SaveChangesAsync();
+        return Ok(new { success = true });
+    }
+}
+
+public class NameRequest
+{
+    public string Name { get; set; } = string.Empty;
+}
+
+public class BroadcastRequest
+{
+    public string Message { get; set; } = string.Empty;
+    public bool Email { get; set; }
+    public bool Whatsapp { get; set; }
+    public bool Push { get; set; }
 }

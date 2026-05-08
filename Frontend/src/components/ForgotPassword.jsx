@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import api from '../services/api'
+import OtpInput from './OtpInput'
 import './Auth.css'
 
 export default function ForgotPassword({ onBack, initialRole = 'student' }) {
@@ -135,14 +136,9 @@ export default function ForgotPassword({ onBack, initialRole = 'student' }) {
                 <div className="form-group">
                   <label htmlFor="fp-otp">Reset Code (6 digits)</label>
                   <div className="input-wrapper">
-                    <input
-                      id="fp-otp"
-                      type="text"
-                      placeholder="123456"
+                    <OtpInput
                       value={otp}
-                      onChange={(e) => setOtp(e.target.value)}
-                      maxLength={6}
-                      required
+                      onChange={setOtp}
                     />
                   </div>
                 </div>

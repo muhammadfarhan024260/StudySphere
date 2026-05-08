@@ -3,61 +3,31 @@ import ThemeToggle from './ThemeToggle'
 
 const FEATURES = [
   {
-    svg: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
-      </svg>
-    ),
     title: 'Smart Study Tracking',
     desc: 'Log sessions by subject with duration, productivity scores, and focus ratings. Every hour is accountable.',
     color: 'green',
   },
   {
-    svg: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>
-      </svg>
-    ),
     title: 'Goal Management',
     desc: 'Set weekly and monthly study targets per subject. Track completion and stay on course with live progress.',
     color: 'blue',
   },
   {
-    svg: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
-      </svg>
-    ),
     title: 'Weak Area Detection',
     desc: 'Database-level triggers flag subjects with consistently low productivity so you never miss a warning sign.',
     color: 'red',
   },
   {
-    svg: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
-      </svg>
-    ),
     title: 'Performance Analytics',
     desc: 'Rich visual breakdowns — study hours, streaks, subject balance, and productivity trends over time.',
     color: 'gold',
   },
   {
-    svg: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-      </svg>
-    ),
     title: 'Smart Notifications',
     desc: 'Contextual alerts built on the Decorator pattern. Milestone hits, overdue goals, and weak-area nudges.',
     color: 'violet',
   },
   {
-    svg: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
-      </svg>
-    ),
     title: 'Report Generation',
     desc: 'Export academic performance reports in multiple formats via the Adapter pattern. Ready for advisors.',
     color: 'teal',
@@ -185,17 +155,7 @@ const BADGES = [
   { icon: IconZap,    label: 'Weak Area Fixed', desc: 'Improve a flagged subject', gradient: 'linear-gradient(135deg,#14b8a6,#0d9488)' },
 ]
 
-const GradCapSvg = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>
-  </svg>
-)
 
-const GearSvg = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-  </svg>
-)
 
 export default function HomePage({ onGoToLogin, onGoToSignup }) {
   return (
@@ -368,7 +328,6 @@ export default function HomePage({ onGoToLogin, onGoToSignup }) {
         <div className="hp-features-grid">
           {FEATURES.map((f) => (
             <div key={f.title} className={`hp-feature-card hp-feature-card--${f.color}`}>
-              <div className="hp-feature-icon">{f.svg}</div>
               <h3 className="hp-feature-title">{f.title}</h3>
               <p className="hp-feature-desc">{f.desc}</p>
             </div>
@@ -401,7 +360,6 @@ export default function HomePage({ onGoToLogin, onGoToSignup }) {
         <h2 className="hp-section-title">Built for both sides<br />of the classroom</h2>
         <div className="hp-users-grid">
           <div className="hp-user-card">
-            <div className="hp-user-icon"><GradCapSvg /></div>
             <div className="hp-user-type">For Students</div>
             <h3 className="hp-user-title">Your academic<br />command centre</h3>
             <ul className="hp-user-list">
@@ -417,7 +375,6 @@ export default function HomePage({ onGoToLogin, onGoToSignup }) {
           </div>
 
           <div className="hp-user-card">
-            <div className="hp-user-icon hp-user-icon--admin"><GearSvg /></div>
             <div className="hp-user-type">For Administrators</div>
             <h3 className="hp-user-title">Full oversight,<br />full control</h3>
             <ul className="hp-user-list">

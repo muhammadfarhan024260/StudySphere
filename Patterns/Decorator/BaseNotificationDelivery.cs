@@ -8,9 +8,8 @@ namespace StudySphere.Patterns.Decorator;
 /// </summary>
 public class BaseNotificationDelivery : INotificationDelivery
 {
-    public Task DeliverAsync(Notification notification)
+    public Task DeliverAsync(Notification notification, Student student)
     {
-        // In-app delivery: notification is visible in the student's notification tab.
         Console.WriteLine($"[Base] In-app notification #{notification.NotificationId} ready for student #{notification.StudentId}.");
         return Task.CompletedTask;
     }

@@ -64,6 +64,10 @@ public class StudySphereDbContext : DbContext
     public DbSet<Goal> Goals { get; set; } = null!;
     public DbSet<Subject> Subjects { get; set; } = null!;
 
+    // DbSets for admin-configurable options
+    public DbSet<Department> Departments { get; set; } = null!;
+    public DbSet<SemesterOption> SemesterOptions { get; set; } = null!;
+
     // DbSets for intelligence & notifications (Module 4)
     public DbSet<WeakArea> WeakAreas { get; set; } = null!;
     public DbSet<Notification> Notifications { get; set; } = null!;
@@ -100,6 +104,18 @@ public class StudySphereDbContext : DbContext
             .HasColumnName("enrollment_number");
 
         modelBuilder.Entity<Student>()
+            .Property(s => s.Phone)
+            .HasColumnName("phone");
+
+        modelBuilder.Entity<Student>()
+            .Property(s => s.Department)
+            .HasColumnName("department");
+
+        modelBuilder.Entity<Student>()
+            .Property(s => s.Semester)
+            .HasColumnName("semester");
+
+        modelBuilder.Entity<Student>()
             .Property(s => s.CreatedDate)
             .HasColumnName("created_date");
         modelBuilder.Entity<Student>()
@@ -123,6 +139,10 @@ public class StudySphereDbContext : DbContext
         modelBuilder.Entity<Student>()
             .Property(s => s.UpdatedAt)
             .HasColumnType("timestamp without time zone");
+
+        modelBuilder.Entity<Student>()
+            .Property(s => s.FcmToken)
+            .HasColumnName("fcm_token");
 
         modelBuilder.Entity<Student>()
             .HasIndex(s => s.Email)
@@ -280,6 +300,24 @@ public class StudySphereDbContext : DbContext
         modelBuilder.Entity<Subject>().Property(s => s.Name).HasColumnName("name");
         modelBuilder.Entity<Subject>().Property(s => s.Category).HasColumnName("category");
         modelBuilder.Entity<Subject>().Property(s => s.TargetHours).HasColumnName("target_hours");
+
+        // Configure Department table
+        modelBuilder.Entity<Department>()
+            .ToTable("department")
+            .HasKey(d => d.DepartmentId)
+            .HasName("PK_department");
+        modelBuilder.Entity<Department>().Property(d => d.DepartmentId).HasColumnName("department_id");
+        modelBuilder.Entity<Department>().Property(d => d.Name).HasColumnName("name");
+        modelBuilder.Entity<Department>().HasIndex(d => d.Name).IsUnique();
+
+        // Configure SemesterOption table
+        modelBuilder.Entity<SemesterOption>()
+            .ToTable("semester_option")
+            .HasKey(s => s.SemesterOptionId)
+            .HasName("PK_semester_option");
+        modelBuilder.Entity<SemesterOption>().Property(s => s.SemesterOptionId).HasColumnName("semester_option_id");
+        modelBuilder.Entity<SemesterOption>().Property(s => s.Name).HasColumnName("name");
+        modelBuilder.Entity<SemesterOption>().HasIndex(s => s.Name).IsUnique();
 
         // Configure WeakArea table (Module 4)
         modelBuilder.Entity<WeakArea>()

@@ -15,6 +15,6 @@ public abstract class NotificationDecorator : INotificationDelivery
         _inner = inner;
     }
 
-    public virtual Task DeliverAsync(Notification notification)
-        => _inner.DeliverAsync(notification);
+    public virtual Task DeliverAsync(Notification notification, Student student)
+        => _inner.DeliverAsync(notification, student);
 }

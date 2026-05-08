@@ -260,3 +260,138 @@ export const useStudentPerformance = () => {
 
   return { studentPerformance: students, loading, error }
 }
+
+/**
+ * Hook to manage departments from the admin settings tab
+ */
+export const useAdminDepartments = () => {
+  const [departments, setDepartments] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState(null)
+
+  const fetch = async () => {
+    setLoading(true)
+    try {
+      const res = await api.get('/admin/departments')
+      setDepartments(res.data?.data || [])
+    } catch {
+      setDepartments([])
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => { fetch() }, [])
+
+  const add = async (name) => {
+    setSaving(true); setError(null)
+    try {
+      await api.post('/admin/departments', { name })
+      await fetch()
+      return { success: true }
+    } catch (err) {
+      const msg = err.response?.data?.message || 'Failed to add department'
+      setError(msg)
+      return { success: false, error: msg }
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const remove = async (id) => {
+    setSaving(true); setError(null)
+    try {
+      await api.delete(`/admin/departments/${id}`)
+      await fetch()
+      return { success: true }
+    } catch (err) {
+      const msg = err.response?.data?.message || 'Failed to delete department'
+      setError(msg)
+      return { success: false, error: msg }
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return { departments, loading, saving, error, add, remove }
+}
+
+/**
+ * Hook to manage semester options from the admin settings tab
+ */
+export const useAdminSemesters = () => {
+  const [semesters, setSemesters] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState(null)
+
+  const fetch = async () => {
+    setLoading(true)
+    try {
+      const res = await api.get('/admin/semesters')
+      setSemesters(res.data?.data || [])
+    } catch {
+      setSemesters([])
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => { fetch() }, [])
+
+  const add = async (name) => {
+    setSaving(true); setError(null)
+    try {
+      await api.post('/admin/semesters', { name })
+      await fetch()
+      return { success: true }
+    } catch (err) {
+      const msg = err.response?.data?.message || 'Failed to add semester'
+      setError(msg)
+      return { success: false, error: msg }
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const remove = async (id) => {
+    setSaving(true); setError(null)
+    try {
+      await api.delete(`/admin/semesters/${id}`)
+      await fetch()
+      return { success: true }
+    } catch (err) {
+      const msg = err.response?.data?.message || 'Failed to delete semester'
+      setError(msg)
+      return { success: false, error: msg }
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return { semesters, loading, saving, error, add, remove }
+}
+
+export function useBroadcastNotification() {
+  const [loading, setLoading] = useState(false)
+  const [result, setResult] = useState(null)
+  const [error, setError] = useState(null)
+
+  const broadcast = async ({ message, email, whatsapp, push }) => {
+    setLoading(true); setError(null); setResult(null)
+    try {
+      const res = await api.post('/admin/notifications/broadcast', { message, email, whatsapp, push })
+      setResult(res.data)
+      return { success: true, data: res.data }
+    } catch (err) {
+      const msg = err.response?.data?.message || 'Broadcast failed'
+      setError(msg)
+      return { success: false, error: msg }
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return { broadcast, loading, result, error }
+}

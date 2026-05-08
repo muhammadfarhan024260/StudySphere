@@ -305,3 +305,34 @@ export const useCreateGoal = () => {
 
   return { createGoal, loading, error }
 }
+
+/**
+ * Public hooks — no auth needed, used by Signup form
+ */
+export const useDepartments = () => {
+  const [departments, setDepartments] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    api.get('/config/departments')
+      .then(r => setDepartments(r.data?.data || []))
+      .catch(() => setDepartments([]))
+      .finally(() => setLoading(false))
+  }, [])
+
+  return { departments, loading }
+}
+
+export const useSemesters = () => {
+  const [semesters, setSemesters] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    api.get('/config/semesters')
+      .then(r => setSemesters(r.data?.data || []))
+      .catch(() => setSemesters([]))
+      .finally(() => setLoading(false))
+  }, [])
+
+  return { semesters, loading }
+}

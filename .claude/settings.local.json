@@ -24,7 +24,9 @@
       "Bash(python \"C:\\\\Users\\\\HP\\\\.claude\\\\plugins\\\\cache\\\\ui-ux-pro-max-skill\\\\ui-ux-pro-max\\\\2.5.0\\\\src\\\\ui-ux-pro-max\\\\scripts\\\\search.py\" \"admin dashboard SaaS analytics data management light theme\" --design-system -f markdown)",
       "Bash(python *)",
       "Bash(grep -rn \"background:\\\\s*#\\\\|background:\\\\s*white\\\\|background:\\\\s*rgb\\\\|color:\\\\s*#[0-9a-fA-F]\\\\{3,6\\\\}\\\\b\\\\|border.*:\\\\s*#[0-9a-fA-F]\\\\|box-shadow.*#[0-9a-fA-F]\" --include=\"*.css\" -l)",
-      "Bash(grep -n \"background:\\\\s*#\\\\|background:\\\\s*white\\\\|background:\\\\s*rgb\\\\|color:\\\\s*#[0-9a-fA-F]\\\\{3,6\\\\}\" CreateGoalForm.css DatePicker.css LogSessionForm.css)"
+      "Bash(grep -n \"background:\\\\s*#\\\\|background:\\\\s*white\\\\|background:\\\\s*rgb\\\\|color:\\\\s*#[0-9a-fA-F]\\\\{3,6\\\\}\" CreateGoalForm.css DatePicker.css LogSessionForm.css)",
+      "Bash(dotnet ef *)",
+      "PowerShell(dotnet tool list *)"
     ]
   }
 }

@@ -1,4 +1,4 @@
-using StudySphere.Repositories;
+using Microsoft.Extensions.Configuration;
 using StudySphere.Services;
 
 namespace StudySphere.Patterns.Decorator;
@@ -10,25 +10,24 @@ namespace StudySphere.Patterns.Decorator;
 public class NotificationDeliveryService
 {
     private readonly IEmailService _emailService;
-    private readonly IStudentRepository _studentRepository;
+    private readonly IConfiguration _config;
 
-    public NotificationDeliveryService(IEmailService emailService, IStudentRepository studentRepository)
+    public NotificationDeliveryService(IEmailService emailService, IConfiguration config)
     {
         _emailService = emailService;
-        _studentRepository = studentRepository;
+        _config = config;
     }
 
     /// <summary>
-    /// Constructs the decorator chain: Base → Email? → SMS? → Push?
-    /// Each layer adds a delivery channel without modifying the others.
+    /// Constructs the decorator chain: Base → Email? → WhatsApp? → Push?
     /// </summary>
-    public INotificationDelivery BuildChain(bool withEmail = true, bool withSms = false, bool withPush = false)
+    public INotificationDelivery BuildChain(bool withEmail = true, bool withWhatsApp = false, bool withPush = false)
     {
         INotificationDelivery chain = new BaseNotificationDelivery();
 
-        if (withEmail) chain = new EmailNotificationDecorator(chain, _emailService, _studentRepository);
-        if (withSms)   chain = new SmsNotificationDecorator(chain);
-        if (withPush)  chain = new PushNotificationDecorator(chain);
+        if (withEmail)    chain = new EmailNotificationDecorator(chain, _emailService);
+        if (withWhatsApp) chain = new SmsNotificationDecorator(chain, _config);
+        if (withPush)     chain = new PushNotificationDecorator(chain);
 
         return chain;
     }

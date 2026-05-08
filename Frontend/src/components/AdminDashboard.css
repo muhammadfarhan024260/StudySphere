@@ -344,6 +344,53 @@
   opacity: 0.7;
 }
 
+/* ── Settings — dept/semester management ─────────────── */
+.ad-settings-input {
+  flex: 1;
+  padding: 9px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text-1);
+  font-size: 0.9rem;
+}
+.ad-settings-input:focus {
+  outline: none;
+  border-color: var(--violet);
+}
+.ad-settings-error {
+  color: #f87171;
+  font-size: 0.82rem;
+  margin-bottom: 10px;
+}
+.ad-settings-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.ad-settings-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  font-size: 0.85rem;
+  color: var(--text-1);
+}
+.ad-settings-delete {
+  background: none;
+  border: none;
+  color: var(--text-2);
+  cursor: pointer;
+  font-size: 0.75rem;
+  padding: 0;
+  line-height: 1;
+  transition: color 0.15s;
+}
+.ad-settings-delete:hover { color: #f87171; }
+
 /* ── Responsive ──────────────────────────────────────── */
 @media (max-width: 900px) {
   .ad-edit-form .form-row { grid-template-columns: 1fr; }
@@ -557,12 +604,6 @@
 }
 
 /* Send row */
-.nd-send-row {
-  display: flex;
-  gap: 16px;
-  align-items: flex-end;
-}
-
 .nd-input-wrap {
   flex: 1;
   display: flex;
@@ -619,6 +660,47 @@
 
 .nd-feedback {
   margin: 0;
+}
+
+.nd-msg-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  position: relative;
+}
+
+.nd-textarea {
+  width: 100%;
+  padding: 11px 14px;
+  border: 2px solid var(--border-mid);
+  border-radius: 10px;
+  background: var(--surface);
+  font-family: var(--font-ui);
+  font-size: 0.9rem;
+  color: var(--text-1);
+  outline: none;
+  resize: vertical;
+  min-height: 80px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
+}
+.nd-textarea:focus {
+  border-color: var(--orange);
+  box-shadow: 0 0 0 3px var(--orange-light);
+}
+.nd-textarea::placeholder { color: var(--text-3); }
+
+.nd-char-count {
+  font-size: 0.65rem;
+  color: var(--text-3);
+  text-align: right;
+}
+
+.nd-send-row {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  justify-content: space-between;
 }
 
 /* Result */

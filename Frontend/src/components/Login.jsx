@@ -32,9 +32,13 @@ export default function Login({ onLoginSuccess, onSwitchToSignup, onGoToHome, on
         localStorage.setItem('token', response.data.token)
         localStorage.setItem('userId', response.data.userId)
         localStorage.setItem('userType', response.data.userType)
-        if (response.data.name) localStorage.setItem('userName', response.data.name)
-        if (response.data.email) localStorage.setItem('userEmail', response.data.email)
-        if (response.data.enrollmentNumber) localStorage.setItem('userEnrollment', response.data.enrollmentNumber)
+        const d = response.data
+        if (d.name)             localStorage.setItem('userName',       d.name)
+        if (d.email)            localStorage.setItem('userEmail',      d.email)
+        if (d.enrollmentNumber) localStorage.setItem('userEnrollment', d.enrollmentNumber)
+        if (d.phone)            localStorage.setItem('userPhone',      d.phone)
+        if (d.department)       localStorage.setItem('userDepartment', d.department)
+        if (d.semester)         localStorage.setItem('userSemester',   d.semester)
         onLoginSuccess && onLoginSuccess(response.data)
       } else {
         setError(response.data.message || 'Login failed. Please check your credentials.')

@@ -70,7 +70,10 @@ public class AuthController : ControllerBase
             request.Password,
             request.Name,
             request.UserType,
-            request.EnrollmentNumber
+            request.EnrollmentNumber ?? string.Empty,
+            request.Phone ?? string.Empty,
+            request.Department ?? string.Empty,
+            request.Semester ?? string.Empty
         );
 
         if (success)
@@ -85,6 +88,9 @@ public class AuthController : ControllerBase
                 name = request.Name,
                 email = request.Email,
                 enrollmentNumber = request.EnrollmentNumber,
+                phone = request.Phone,
+                department = request.Department,
+                semester = request.Semester,
                 redirectUrl = userType == "student" ? "/dashboard" : "/admin-dashboard"
             });
         }
@@ -110,11 +116,17 @@ public class AuthController : ControllerBase
         {
             string? name = null;
             string? enrollmentNumber = null;
+            string? phone = null;
+            string? department = null;
+            string? semester = null;
             if (userType == "student")
             {
                 var student = await _studentRepository.GetByEmailAsync(request.Email);
                 name = student?.Name;
                 enrollmentNumber = student?.EnrollmentNumber;
+                phone = student?.Phone;
+                department = student?.Department;
+                semester = student?.Semester;
             }
 
             return Ok(new
@@ -127,6 +139,9 @@ public class AuthController : ControllerBase
                 name,
                 email = request.Email,
                 enrollmentNumber,
+                phone,
+                department,
+                semester,
                 redirectUrl = userType == "student" ? "/dashboard" : "/admin-dashboard"
             });
         }
@@ -206,6 +221,9 @@ public class SignupRequest
     public string Name { get; set; } = string.Empty;
     public string UserType { get; set; } = string.Empty; // "student" or "admin"
     public string? EnrollmentNumber { get; set; }
+    public string? Phone { get; set; }
+    public string? Department { get; set; }
+    public string? Semester { get; set; }
 }
 
 public class LoginRequest

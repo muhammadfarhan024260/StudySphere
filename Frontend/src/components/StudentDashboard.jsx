@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import DashboardLayout from './DashboardLayout'
 import StudentNotifications from './StudentNotifications'
 import LogSessionForm from './LogSessionForm'
@@ -7,6 +7,25 @@ import { useStudyLogs, useGoals, useWeakAreas, useSubjects, useWeeklyReport, use
 import api from '../services/api'
 import './Dashboard.css'
 import './StudentDashboard.css'
+
+async function registerFcmToken() {
+  if (localStorage.getItem('fcmTokenRegistered')) return
+  try {
+    const { messaging, getToken } = await import('../services/firebase')
+    const permission = await Notification.requestPermission()
+    if (permission !== 'granted') return
+    const token = await getToken(messaging, {
+      vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY,
+      serviceWorkerRegistration: await navigator.serviceWorker.register('/firebase-messaging-sw.js'),
+    })
+    if (token) {
+      await api.put('/student/fcm-token', { fcmToken: token })
+      localStorage.setItem('fcmTokenRegistered', '1')
+    }
+  } catch (err) {
+    console.warn('[FCM] Token registration skipped:', err.message)
+  }
+}
 
 const AlertTriangle = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"
@@ -93,6 +112,8 @@ export default function StudentDashboard() {
   const [editingTarget, setEditingTarget] = useState(false)
   const [targetInput, setTargetInput] = useState('')
 
+  useEffect(() => { registerFcmToken() }, [])
+
   const handleDeleteGoal = (goalId, goalTitle) => {
     setConfirmDialog({ id: goalId, title: goalTitle || `Goal #${goalId}` })
   }
@@ -135,7 +156,7 @@ export default function StudentDashboard() {
     email:            localStorage.getItem('userEmail')      || '',
     phone:            localStorage.getItem('userPhone')      || '',
     semester:         localStorage.getItem('userSemester')   || '',
-    program:          localStorage.getItem('userProgram')    || '',
+    department:       localStorage.getItem('userDepartment') || '',
   })
 
   const [editData, setEditData] = useState(studentData)
@@ -197,7 +218,7 @@ export default function StudentDashboard() {
     localStorage.setItem('userName',       editData.name)
     localStorage.setItem('userPhone',      editData.phone)
     localStorage.setItem('userSemester',   editData.semester)
-    localStorage.setItem('userProgram',    editData.program)
+    localStorage.setItem('userDepartment', editData.department)
     setStudentData(editData)
     setIsEditingProfile(false)
     setProfileSuccess('Profile updated successfully.')
@@ -674,7 +695,7 @@ export default function StudentDashboard() {
               <div className="sd-profile-header">
                 <div className="sd-profile-avatar">{initials}</div>
                 <div className="sd-profile-name">{studentData.name}</div>
-                <div className="sd-profile-role">{studentData.program} · {studentData.semester}</div>
+                <div className="sd-profile-role">{studentData.department} · {studentData.semester}</div>
                 <div className="sd-profile-enroll">{studentData.enrollmentNumber}</div>
               </div>
 
@@ -689,8 +710,8 @@ export default function StudentDashboard() {
                   <p>{studentData.phone}</p>
                 </div>
                 <div className="sd-profile-field">
-                  <label>Program</label>
-                  <p>{studentData.program}</p>
+                  <label>Department</label>
+                  <p>{studentData.department}</p>
                 </div>
                 <div className="sd-profile-field">
                   <label>Semester</label>
@@ -730,11 +751,11 @@ export default function StudentDashboard() {
                 </div>
                 <div className="form-row">
                   <div className="form-group">
-                    <label>Program</label>
+                    <label>Department</label>
                     <input
-                      value={editData.program}
-                      onChange={e => setEditData({ ...editData, program: e.target.value })}
-                      placeholder="e.g. BS Computer Science"
+                      value={editData.department}
+                      onChange={e => setEditData({ ...editData, department: e.target.value })}
+                      placeholder="e.g. Software Engineering"
                     />
                   </div>
                   <div className="form-group">
