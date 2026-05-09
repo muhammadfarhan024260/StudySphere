@@ -19,7 +19,7 @@ public class EmailNotificationDecorator : NotificationDecorator
         await _emailService.SendEmailAsync(
             student.Email,
             "StudySphere — New Notification",
-            $"<p>Hi {student.Name},</p><p>{notification.Message}</p><p><em>StudySphere</em></p>"
+            notification.Message
         );
         Console.WriteLine($"[Email Decorator] Email sent to {student.Email}");
     }
