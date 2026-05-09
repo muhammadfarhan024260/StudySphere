@@ -3,7 +3,7 @@ import api from '../services/api'
 import CustomSelect from './CustomSelect'
 import './Intelligence.css'
 
-const emptyForm = { subjectId: '', title: '', content: '', minScoreThreshold: 50 }
+const emptyForm = { subjectId: '', title: '', content: '', minScoreThreshold: 5 }
 
 export default function AdminRecommendations() {
   const adminId = localStorage.getItem('userId')
@@ -125,33 +125,35 @@ export default function AdminRecommendations() {
             : items.length === 0
               ? <p className="intel-empty">No recommendations yet.</p>
               : (
-                <table className="intel-table">
-                  <thead>
-                    <tr>
-                      <th>Title</th>
-                      <th>Subject</th>
-                      <th>Threshold</th>
-                      <th>Author</th>
-                      <th>Created</th>
-                      <th></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {items.map(r => (
-                      <tr key={r.recommendationId}>
-                        <td>{r.title}</td>
-                        <td>{r.subjectName}</td>
-                        <td>&lt; {r.minScoreThreshold}</td>
-                        <td>{r.authoredBy}</td>
-                        <td>{new Date(r.createdDate).toLocaleDateString()}</td>
-                        <td className="intel-row-actions">
-                          <button className="btn-small" onClick={() => edit(r)}>Edit</button>
-                          <button className="btn-small btn-danger" onClick={() => remove(r.recommendationId)}>Delete</button>
-                        </td>
+                <div className="intel-table-wrap">
+                  <table className="intel-table">
+                    <thead>
+                      <tr>
+                        <th>Title</th>
+                        <th>Subject</th>
+                        <th>Threshold</th>
+                        <th>Author</th>
+                        <th>Created</th>
+                        <th></th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {items.map(r => (
+                        <tr key={r.recommendationId}>
+                          <td>{r.title}</td>
+                          <td>{r.subjectName}</td>
+                          <td>&lt; {r.minScoreThreshold}</td>
+                          <td>{r.authoredBy}</td>
+                          <td>{new Date(r.createdDate).toLocaleDateString()}</td>
+                          <td className="intel-row-actions">
+                            <button className="btn-small" onClick={() => edit(r)}>Edit</button>
+                            <button className="btn-small btn-danger" onClick={() => remove(r.recommendationId)}>Delete</button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               )}
       </section>
     </div>
