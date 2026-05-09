@@ -1,12 +1,15 @@
 using FirebaseAdmin.Messaging;
 using StudySphere.Models;
 using FcmMessage = FirebaseAdmin.Messaging.Message;
-using FcmNotification = FirebaseAdmin.Messaging.Notification;
 
 namespace StudySphere.Patterns.Decorator;
 
 public class PushNotificationDecorator : NotificationDecorator
 {
+    // GitHub raw URL — publicly accessible from any network, including FCM servers
+    private const string IconUrl =
+        "https://raw.githubusercontent.com/muhammadfarhan024260/StudySphere/main/Frontend/public/icon.png";
+
     public PushNotificationDecorator(INotificationDelivery inner) : base(inner) { }
 
     public override async Task DeliverAsync(Models.Notification notification, Student student)
@@ -24,10 +27,15 @@ public class PushNotificationDecorator : NotificationDecorator
             var message = new FcmMessage
             {
                 Token = student.FcmToken,
-                Notification = new FcmNotification
+                Webpush = new WebpushConfig
                 {
-                    Title = "StudySphere",
-                    Body = notification.Message
+                    Notification = new WebpushNotification
+                    {
+                        Title = "StudySphere",
+                        Body  = notification.Message,
+                        Icon  = IconUrl,
+                        Badge = IconUrl,
+                    }
                 }
             };
             await FirebaseMessaging.DefaultInstance.SendAsync(message);

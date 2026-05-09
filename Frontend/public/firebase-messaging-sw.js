@@ -10,10 +10,10 @@ firebase.initializeApp({
   appId:             "1:382240332545:web:1b9c1dc1b92bf90d315900",
 })
 
-const messaging = firebase.messaging()
+// Force-activate new SW immediately so icon/content fixes take effect on next load
+self.addEventListener('install',  () => self.skipWaiting())
+self.addEventListener('activate', e  => e.waitUntil(self.clients.claim()))
 
-messaging.onBackgroundMessage(payload => {
-  const title = payload.notification?.title || 'StudySphere'
-  const body  = payload.notification?.body  || ''
-  self.registration.showNotification(title, { body, icon: '/icon.png' })
-})
+// WebpushConfig.Notification messages are rendered natively by FCM with the correct
+// icon and body — no manual showNotification needed here.
+firebase.messaging()
