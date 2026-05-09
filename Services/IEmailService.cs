@@ -177,8 +177,8 @@ public class EmailService : IEmailService
 
         if (string.IsNullOrEmpty(apiKey))
         {
-            _logger.LogWarning("[Resend] API key missing — email to {Email} not sent.", to);
-            return;
+            _logger.LogError("[Resend] API key missing — email to {Email} not sent.", to);
+            throw new InvalidOperationException("Resend API key is not configured. Set Resend__ApiKey in environment variables.");
         }
 
         var html = body.TrimStart().StartsWith('<') ? body : BroadcastTemplate(subject, body);
