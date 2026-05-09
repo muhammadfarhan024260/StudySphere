@@ -761,6 +761,6 @@
   .nd-send-meta { align-items: stretch; }
 }
 
-@media (max-width: 768px) {
-  .nd-channel-row { grid-template-columns: repeat(3, 1fr); }
+@media (max-width: 480px) {
+  .nd-channel-row { grid-template-columns: 1fr; }
 }
