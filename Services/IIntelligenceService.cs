@@ -7,6 +7,7 @@ public interface IIntelligenceService
     Task<IEnumerable<WeakArea>> GetWeakSubjectsAsync(int studentId);
     Task<IEnumerable<Notification>> GetNotificationsAsync(int studentId);
     Task<bool> MarkNotificationReadAsync(int notificationId);
+    Task<bool> ClearNotificationsAsync(int studentId);
     Task<IEnumerable<Recommendation>> GetRecommendationsForStudentAsync(int studentId);
 
     // Admin-side

@@ -494,17 +494,83 @@
 
 .tab-content { animation: tabFadeIn 0.22s ease both; }
 
+/* ── Mobile hamburger button ─────────────────────────── */
+.mobile-menu-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  border-radius: 8px;
+  color: var(--text-2);
+  cursor: pointer;
+  margin-right: 6px;
+  transition: background 0.15s, color 0.15s;
+}
+.mobile-menu-btn:hover { background: var(--surface-2); color: var(--text-1); }
+
+/* ── Mobile sidebar backdrop ────────────────────────── */
+.sidebar-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 99;
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  animation: backdropIn 0.2s ease;
+}
+@keyframes backdropIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
 /* Responsive */
 @media (max-width: 768px) {
+  .mobile-menu-btn { display: flex; }
+
   .sidebar {
     position: fixed;
     left: calc(-1 * var(--sidebar-w));
-    width: var(--sidebar-w);
+    width: var(--sidebar-w) !important;
+    transition: left 0.25s ease;
+    z-index: 100;
   }
   .sidebar.open { left: 0; }
-  .dashboard-content { margin-left: 0; }
-  .page-content { padding: 20px; }
-  .dashboard-top-header { padding: 0 20px; }
+
+  .dashboard-content,
+  .sidebar.closed ~ .dashboard-content { margin-left: 0; }
+
+  .page-content { padding: 16px; }
+
+  .dashboard-top-header {
+    padding: 0 16px;
+    height: 56px;
+  }
+
+  .header-left {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .page-title {
+    font-size: 1rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .hdr-name { display: none; }
+
+  .hdr-profile-btn { padding: 5px; gap: 0; }
+}
+
+@media (max-width: 480px) {
+  .page-content { padding: 12px; }
 }
 
 /* ── Dark theme overrides ────────────────────────────── */

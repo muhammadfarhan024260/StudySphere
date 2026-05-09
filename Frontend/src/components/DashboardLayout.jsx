@@ -90,12 +90,33 @@ const Icons = {
   ),
 }
 
-export default function DashboardLayout({ children, userType = 'student', displayName }) {
+export default function DashboardLayout({ children, userType = 'student', displayName, onTabChange }) {
   const [activeTab,    setActiveTab]    = useState('overview')
-  const [sidebarOpen,  setSidebarOpen]  = useState(true)
+
+  const changeTab = (tab) => {
+    setActiveTab(tab)
+    onTabChange?.(tab)
+  }
+  const [sidebarOpen,  setSidebarOpen]  = useState(() => window.innerWidth > 768)
+  const [isMobile,     setIsMobile]     = useState(() => window.innerWidth <= 768)
   const [tooltip,      setTooltip]      = useState({ label: '', y: 0, visible: false })
   const [profileOpen,  setProfileOpen]  = useState(false)
   const profileRef = useRef(null)
+
+  useEffect(() => {
+    const onResize = () => {
+      const mobile = window.innerWidth <= 768
+      setIsMobile(mobile)
+      if (!mobile) setSidebarOpen(true)
+    }
+    window.addEventListener('resize', onResize)
+    return () => window.removeEventListener('resize', onResize)
+  }, [])
+
+  useEffect(() => {
+    document.body.style.overflow = (isMobile && sidebarOpen) ? 'hidden' : ''
+    return () => { document.body.style.overflow = '' }
+  }, [isMobile, sidebarOpen])
 
   // displayName prop keeps header in sync when user edits profile in settings tab
   const userName     = displayName || localStorage.getItem('userName') || (userType === 'admin' ? 'Admin' : 'Student')
@@ -181,7 +202,7 @@ export default function DashboardLayout({ children, userType = 'student', displa
             <button
               key={tab.id}
               className={`nav-item ${activeTab === tab.id ? 'active' : ''}`}
-              onClick={() => setActiveTab(tab.id)}
+              onClick={() => { changeTab(tab.id); if (isMobile) setSidebarOpen(false) }}
               onMouseEnter={e => showTooltip(tab.label, e)}
               onMouseLeave={hideTooltip}
             >
@@ -223,6 +244,14 @@ export default function DashboardLayout({ children, userType = 'student', displa
         {/* Top Header */}
         <header className="dashboard-top-header">
           <div className="header-left">
+            <button className="mobile-menu-btn" onClick={() => setSidebarOpen(v => !v)} aria-label="Toggle menu">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"
+                   strokeLinecap="round" strokeLinejoin="round" width="20" height="20">
+                {sidebarOpen && isMobile
+                  ? <><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></>
+                  : <><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></>}
+              </svg>
+            </button>
             <h1 className="page-title">{tabs.find(t => t.id === activeTab)?.label || 'Dashboard'}</h1>
           </div>
           <div className="header-right">
@@ -259,7 +288,7 @@ export default function DashboardLayout({ children, userType = 'student', displa
                   {/* Settings link */}
                   <button
                     className="hdr-dd-item"
-                    onClick={() => { setActiveTab('settings'); setProfileOpen(false) }}
+                    onClick={() => { changeTab('settings'); setProfileOpen(false) }}
                   >
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
                          strokeLinecap="round" strokeLinejoin="round" width="15" height="15">
@@ -290,10 +319,14 @@ export default function DashboardLayout({ children, userType = 'student', displa
         {/* Page Content */}
         <div className="page-content">
           {children && typeof children === 'function'
-            ? children({ activeTab, setActiveTab })
+            ? children({ activeTab, setActiveTab: changeTab })
             : children}
         </div>
       </main>
+      {/* Mobile backdrop */}
+      {isMobile && sidebarOpen && (
+        <div className="sidebar-backdrop" onClick={() => setSidebarOpen(false)} />
+      )}
     </div>
   )
 }

@@ -65,30 +65,24 @@ export const useWeakAreas = (studentId) => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
-  useEffect(() => {
-    if (!studentId) {
+  const fetchWeakAreas = async () => {
+    if (!studentId) { setLoading(false); return }
+    try {
+      setLoading(true)
+      const response = await api.get(`/intelligence/student/${studentId}/weak-subjects`)
+      setWeakAreas(response.data || [])
+      setError(null)
+    } catch (err) {
+      setError(err.response?.data?.error || err.message || 'Failed to fetch weak areas')
+      setWeakAreas([])
+    } finally {
       setLoading(false)
-      return
     }
+  }
 
-    const fetchWeakAreas = async () => {
-      try {
-        setLoading(true)
-        const response = await api.get(`/intelligence/student/${studentId}/weak-subjects`)
-        setWeakAreas(response.data || [])
-        setError(null)
-      } catch (err) {
-        setError(err.response?.data?.error || err.message || 'Failed to fetch weak areas')
-        setWeakAreas([])
-      } finally {
-        setLoading(false)
-      }
-    }
+  useEffect(() => { fetchWeakAreas() }, [studentId])
 
-    fetchWeakAreas()
-  }, [studentId])
-
-  return { weakAreas, loading, error }
+  return { weakAreas, loading, error, refetch: fetchWeakAreas }
 }
 
 /**

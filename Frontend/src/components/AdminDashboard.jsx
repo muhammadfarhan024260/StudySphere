@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef } from 'react'
+import { useState, useMemo, useRef, useEffect } from 'react'
 import DashboardLayout from './DashboardLayout'
 import AdminRecommendations from './AdminRecommendations'
 import SubjectManagement from './SubjectManagement'
@@ -51,13 +51,18 @@ const rollupRowClass = type =>
 
 export default function AdminDashboard() {
   const [isEditingProfile, setIsEditingProfile] = useState(false)
+  const [currentTab, setCurrentTab] = useState('overview')
 
   const deptHook = useAdminDepartments()
   const semHook  = useAdminSemesters()
   const [newDept, setNewDept] = useState('')
   const [newSem,  setNewSem]  = useState('')
 
-  const { recommendations, loading: recommendationsLoading } = useAllRecommendations()
+  const { recommendations, loading: recommendationsLoading, refetch: refetchRecommendations } = useAllRecommendations()
+
+  useEffect(() => {
+    if (currentTab === 'overview') refetchRecommendations()
+  }, [currentTab])
   const { analyticsData, loading: analyticsLoading }         = useAnalyticsData()
   const { weakAreaStats, loading: weakAreaLoading }           = useWeakAreaStats()
   const { studentPerformance, loading: performanceLoading }   = useStudentPerformance()
@@ -188,10 +193,10 @@ export default function AdminDashboard() {
               <div className="ad-rec-list">
                 {recommendations.slice(0, 4).map((rec, i) => (
                   <div key={i} className="ad-rec-item">
-                    <span className="ad-rec-type">{rec.type || 'General'}</span>
-                    <p className="ad-rec-desc">{rec.description || rec.message}</p>
+                    <span className="ad-rec-type">{rec.subjectName || 'General'}</span>
+                    <p className="ad-rec-desc">{rec.title}</p>
                     <span className="ad-rec-date">
-                      {new Date(rec.dateCreated || rec.createdDate).toLocaleDateString()}
+                      {new Date(rec.createdDate).toLocaleDateString()}
                     </span>
                   </div>
                 ))}
@@ -673,7 +678,7 @@ export default function AdminDashboard() {
   }
 
   return (
-    <DashboardLayout userType="admin">
+    <DashboardLayout userType="admin" onTabChange={setCurrentTab}>
       {({ activeTab }) => (
         <div className="dashboard-container" key={activeTab}>
           <div className="tab-content-wrapper">

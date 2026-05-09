@@ -8,4 +8,5 @@ public interface INotificationRepository
     Task<bool> MarkReadAsync(int notificationId);
     Task<int> AddAsync(Notification notification);
     Task<bool> HasNotificationForSubjectAsync(int studentId, int subjectId, string type);
+    Task<bool> DeleteByStudentIdAsync(int studentId);
 }

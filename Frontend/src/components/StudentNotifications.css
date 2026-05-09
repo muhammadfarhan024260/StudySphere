@@ -1,0 +1,482 @@
+/* =====================================================
+   STUDENT NOTIFICATIONS — Inbox-style redesign
+   ===================================================== */
+
+.sn-page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ── Loading / Error ─────────────────────────────── */
+.sn-loading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 48px 0;
+  color: var(--text-3);
+  font-size: 0.875rem;
+  font-weight: 600;
+  justify-content: center;
+}
+
+.sn-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--border);
+  border-top-color: var(--orange);
+  border-radius: 50%;
+  animation: sn-spin 0.7s linear infinite;
+}
+
+@keyframes sn-spin {
+  to { transform: rotate(360deg); }
+}
+
+.sn-error {
+  padding: 16px 20px;
+  background: var(--red-light);
+  color: var(--red);
+  border-radius: 12px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border: 1px solid rgba(255,75,75,0.2);
+}
+
+/* ── Card shell ──────────────────────────────────── */
+.sn-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.sn-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  gap: 12px;
+}
+
+.sn-card-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-display);
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: var(--dark-blue);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.sn-card-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.sn-card-icon svg { width: 15px; height: 15px; }
+
+.sn-icon--red    { background: var(--red-light);    color: var(--red);    }
+.sn-icon--gold   { background: var(--gold-light);   color: var(--gold);   }
+.sn-icon--blue   { background: var(--violet-light); color: var(--violet); }
+.sn-icon--purple { background: rgba(124,58,237,0.1); color: #7c3aed; }
+
+.sn-card-body {
+  padding: 20px;
+}
+
+.sn-card-body--flush {
+  padding: 0;
+}
+
+/* ── Badges ──────────────────────────────────────── */
+.sn-badge {
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: 999px;
+}
+
+.sn-badge--red    { background: var(--red-light);    color: var(--red);    border: 1px solid rgba(255,75,75,0.2);  }
+.sn-badge--gold   { background: var(--gold-light);   color: #b07d00;       border: 1px solid rgba(255,200,0,0.25); }
+.sn-badge--blue   { background: var(--violet-light); color: var(--violet); border: 1px solid rgba(28,176,246,0.2); }
+
+.sn-unread-pill {
+  font-size: 0.6rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--orange);
+  color: white;
+  box-shadow: 0 2px 0 var(--orange-dim);
+  animation: sn-pulse 2s ease-in-out infinite;
+}
+
+@keyframes sn-pulse {
+  0%, 100% { box-shadow: 0 2px 0 var(--orange-dim); }
+  50%       { box-shadow: 0 2px 8px rgba(88,204,2,0.5); }
+}
+
+/* ── Empty state ─────────────────────────────────── */
+.sn-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 36px 20px;
+  color: var(--text-3);
+}
+
+.sn-empty svg {
+  width: 40px;
+  height: 40px;
+  opacity: 0.35;
+  flex-shrink: 0;
+}
+
+.sn-empty p {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-3);
+  text-align: center;
+}
+
+/* ── Weak subjects ───────────────────────────────── */
+.sn-weak-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sn-weak-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: var(--surface-2);
+  transition: background 0.15s;
+}
+
+.sn-weak-row:hover { background: var(--surface-3); }
+
+.sn-weak-name {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-1);
+}
+
+.sn-weak-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.sn-weak-dot[data-variant="bad"]  { background: var(--red); }
+.sn-weak-dot[data-variant="mid"]  { background: var(--gold); }
+.sn-weak-dot[data-variant="good"] { background: var(--green); }
+
+.sn-weak-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sn-score {
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 3px 10px;
+  border-radius: 999px;
+}
+
+.sn-score--bad  { background: var(--red-light);    color: var(--red);   }
+.sn-score--mid  { background: var(--gold-light);   color: #9a6600;      }
+.sn-score--good { background: var(--green-light);  color: var(--green); }
+
+.sn-weak-date {
+  font-size: 0.65rem;
+  color: var(--text-3);
+  white-space: nowrap;
+}
+
+/* ── Recommendations ─────────────────────────────── */
+.sn-reco-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sn-reco {
+  display: flex;
+  gap: 0;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--surface);
+  transition: box-shadow 0.18s, border-color 0.18s;
+}
+
+.sn-reco:hover {
+  border-color: var(--orange);
+  box-shadow: 0 2px 12px rgba(88,204,2,0.1);
+}
+
+.sn-reco-accent {
+  width: 4px;
+  flex-shrink: 0;
+  background: linear-gradient(180deg, var(--orange), var(--violet));
+}
+
+.sn-reco-body {
+  padding: 14px 16px;
+  flex: 1;
+}
+
+.sn-reco-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+}
+
+.sn-reco-title {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--dark-blue);
+}
+
+.sn-reco-subject {
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--orange-light);
+  color: var(--orange);
+  border: 1px solid rgba(88,204,2,0.25);
+}
+
+.sn-reco-content {
+  font-size: 0.82rem;
+  color: var(--text-2);
+  line-height: 1.6;
+  margin-bottom: 8px;
+}
+
+.sn-reco-author {
+  font-size: 0.65rem;
+  color: var(--text-3);
+  font-weight: 600;
+}
+
+/* ── Notifications inbox ─────────────────────────── */
+.sn-inbox {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sn-notif {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.15s;
+  position: relative;
+}
+
+.sn-notif:last-child { border-bottom: none; }
+
+.sn-notif--unread {
+  background: var(--orange-light);
+}
+
+.sn-notif--read {
+  background: transparent;
+}
+
+.sn-notif--read .sn-notif-msg {
+  color: var(--text-2);
+}
+
+.sn-notif:hover {
+  background: var(--surface-2);
+}
+
+.sn-notif--unread:hover {
+  background: rgba(88,204,2,0.12);
+}
+
+/* Icon bubble */
+.sn-notif-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.sn-notif-icon svg { width: 16px; height: 16px; }
+
+.sn-notif-icon--blue   { background: var(--violet-light); color: var(--violet); }
+.sn-notif-icon--red    { background: var(--red-light);    color: var(--red);    }
+.sn-notif-icon--gold   { background: var(--gold-light);   color: #9a6600;       }
+.sn-notif-icon--purple { background: rgba(124,58,237,0.1); color: #7c3aed;      }
+
+/* Content */
+.sn-notif-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.sn-notif-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+  flex-wrap: wrap;
+}
+
+.sn-notif-type {
+  font-size: 0.58rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+
+.sn-notif-type--blue   { background: var(--violet-light); color: var(--violet); }
+.sn-notif-type--red    { background: var(--red-light);    color: var(--red);    }
+.sn-notif-type--gold   { background: var(--gold-light);   color: #9a6600;       }
+.sn-notif-type--purple { background: rgba(124,58,237,0.1); color: #7c3aed;      }
+
+.sn-notif-time {
+  font-size: 0.65rem;
+  color: var(--text-3);
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+.sn-notif-msg {
+  font-size: 0.875rem;
+  color: var(--text-1);
+  font-weight: 500;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+/* Mark-read button */
+.sn-mark-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  border: 1.5px solid var(--border-mid);
+  background: var(--surface);
+  color: var(--text-3);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.15s;
+  margin-top: 2px;
+}
+
+.sn-mark-btn svg { width: 13px; height: 13px; }
+
+.sn-mark-btn:hover {
+  background: var(--green-light);
+  border-color: var(--green);
+  color: var(--green);
+}
+
+.sn-mark-btn--loading {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Read indicator dot */
+.sn-read-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--border);
+  flex-shrink: 0;
+  margin-top: 8px;
+}
+
+/* ── Clear button ────────────────────────────────── */
+.sn-clear-btn {
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 5px 12px;
+  border-radius: 8px;
+  border: 1.5px solid var(--border-mid);
+  background: none;
+  color: var(--text-3);
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.sn-clear-btn:hover {
+  background: var(--red-light);
+  border-color: rgba(255,75,75,0.4);
+  color: var(--red);
+}
+
+/* ── Dark theme ──────────────────────────────────── */
+[data-theme="dark"] .sn-notif--unread {
+  background: rgba(88,204,2,0.07);
+}
+
+[data-theme="dark"] .sn-notif--unread:hover {
+  background: rgba(88,204,2,0.11);
+}
+
+[data-theme="dark"] .sn-mark-btn {
+  background: var(--surface-2);
+}
+
+[data-theme="dark"] .sn-weak-row {
+  background: var(--surface-2);
+}
+
+[data-theme="dark"] .sn-weak-row:hover {
+  background: var(--surface-3);
+}
+
+/* ── Mobile ──────────────────────────────────────── */
+@media (max-width: 768px) {
+  .sn-notif { padding: 12px 14px; gap: 10px; }
+  .sn-notif-icon { width: 30px; height: 30px; border-radius: 8px; }
+  .sn-notif-icon svg { width: 14px; height: 14px; }
+  .sn-notif-msg { font-size: 0.82rem; }
+  .sn-card-body { padding: 14px; }
+  .sn-weak-row { padding: 10px 12px; }
+}

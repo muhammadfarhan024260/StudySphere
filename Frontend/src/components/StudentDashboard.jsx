@@ -9,7 +9,9 @@ import './Dashboard.css'
 import './StudentDashboard.css'
 
 async function registerFcmToken() {
-  if (localStorage.getItem('fcmTokenRegistered')) return
+  const userId = localStorage.getItem('userId')
+  const flagKey = `fcmTokenRegistered_${userId}`
+  if (localStorage.getItem(flagKey)) return
   try {
     const { messaging, getToken } = await import('../services/firebase')
     const permission = await Notification.requestPermission()
@@ -20,7 +22,7 @@ async function registerFcmToken() {
     })
     if (token) {
       await api.put('/student/fcm-token', { fcmToken: token })
-      localStorage.setItem('fcmTokenRegistered', '1')
+      localStorage.setItem(flagKey, '1')
     }
   } catch (err) {
     console.warn('[FCM] Token registration skipped:', err.message)
@@ -78,10 +80,13 @@ const calcStreak = (logs) => {
   return streak
 }
 
-// Safe date formatter — handles null, undefined, invalid ISO strings
+// Safe date formatter — treats all backend dates as UTC (Npgsql omits Z suffix)
 const fmtDate = (dateStr) => {
   if (!dateStr) return '—'
-  const d = new Date(dateStr)
+  const utc = typeof dateStr === 'string' && !dateStr.endsWith('Z') && !dateStr.includes('+')
+    ? dateStr + 'Z'
+    : dateStr
+  const d = new Date(utc)
   return isNaN(d.getTime()) ? '—' : d.toLocaleDateString()
 }
 
@@ -100,7 +105,7 @@ export default function StudentDashboard() {
   const { logs, loading: logsLoading, refetch: refetchLogs } = useStudyLogs(studentId)
   const { goals, loading: goalsLoading, refetch: refetchGoals } = useGoals(studentId)
   const { subjects, loading: subjectsLoading } = useSubjects()
-  const { weakAreas } = useWeakAreas(studentId)
+  const { weakAreas, refetch: refetchWeakAreas } = useWeakAreas(studentId)
   const { report: weeklyReport, loading: reportLoading } = useWeeklyReport(studentId)
   const { scope: studyScope, loading: scopeLoading } = useStudyScope(studentId)
   const { deleteGoal } = useDeleteGoal()
@@ -211,7 +216,7 @@ export default function StudentDashboard() {
     { label: 'Goals Done',   value: `${st.completedGoals}/${st.totalGoals}`, change: 'Completed',      variant: 'stat-change--purple' },
   ]
 
-  const handleSessionLogged = () => { setShowSessionForm(false); refetchLogs() }
+  const handleSessionLogged = () => { setShowSessionForm(false); refetchLogs(); refetchWeakAreas() }
   const handleGoalCreated   = () => { setShowGoalForm(false);    refetchGoals() }
 
   const handleProfileSave = () => {
@@ -386,7 +391,7 @@ export default function StudentDashboard() {
                   <div key={area.weakAreaId} className="sd-weak-item">
                     <div className="sd-weak-item-left">
                       <span className="sd-weak-subject">{area.subjectName}</span>
-                      <span className="sd-weak-date">Flagged {new Date(area.detectedDate).toLocaleDateString()}</span>
+                      <span className="sd-weak-date">Flagged {fmtDate(area.detectedDate)}</span>
                     </div>
                     <div className="sd-weak-item-right">
                       <div className="sd-weak-score-row">
@@ -622,7 +627,7 @@ export default function StudentDashboard() {
                <tbody>
                  {weeklyReport.map((row, i) => (
                    <tr key={i}>
-                     <td>{new Date(row.weekStart).toLocaleDateString()}</td>
+                     <td>{fmtDate(row.weekStart)}</td>
                      <td className="subject-cell">{row.subjectName}</td>
                      <td>{row.sessionCount}</td>
                      <td>{row.totalHours}h</td>

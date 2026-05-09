@@ -58,6 +58,12 @@
   --header-h:         64px;
 }
 
+@media (max-width: 768px) {
+  :root {
+    --header-h: 56px;
+  }
+}
+
 /* ── Dark theme token overrides ───────────────────── */
 [data-theme="dark"] {
   --bg:        #18191a;

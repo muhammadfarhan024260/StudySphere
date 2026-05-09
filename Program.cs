@@ -152,6 +152,7 @@ builder.Services.AddScoped<IStudyLogService, StudyLogService>();
 builder.Services.AddScoped<IGoalService, GoalService>();
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 builder.Services.AddScoped<IOtpService, OtpService>();
+builder.Services.AddHttpClient("resend");
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IIntelligenceService, IntelligenceService>();
 

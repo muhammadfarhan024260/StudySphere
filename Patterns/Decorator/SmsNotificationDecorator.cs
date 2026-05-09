@@ -35,7 +35,7 @@ public class SmsNotificationDecorator : NotificationDecorator
             await MessageResource.CreateAsync(
                 to: toNumber,
                 from: fromNumber,
-                body: $"StudySphere: {notification.Message}"
+                body: notification.Message
             );
             Console.WriteLine($"[WhatsApp Decorator] Message sent to {student.Phone}");
         }

@@ -119,6 +119,43 @@
 .intel-reco small { font-size: 0.65rem; color: var(--text-3); font-weight: 600; }
 
 /* --- Notifications --- */
+.intel-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid var(--border);
+  margin-bottom: 16px;
+}
+
+.intel-section-header h3 {
+  border-bottom: none !important;
+  margin-bottom: 0 !important;
+  padding-bottom: 12px !important;
+}
+
+.btn-clear-all {
+  background: var(--surface);
+  border: 2px solid var(--border);
+  color: var(--text-3);
+  font-size: 0.62rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 5px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  height: fit-content;
+  margin-bottom: 8px; /* Alignment with h3 text baseline */
+}
+
+.btn-clear-all:hover {
+  background: #fff5f5;
+  border-color: #ffc1c1;
+  color: var(--red);
+  transform: translateY(-1px);
+}
+
 .intel-notif-list { list-style: none; padding: 0; display: flex; flex-direction: column; }
 
 .intel-notif {

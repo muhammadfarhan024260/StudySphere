@@ -43,4 +43,12 @@ public class NotificationRepository : INotificationRepository
         return await _context.Notifications
             .AnyAsync(n => n.StudentId == studentId && n.RelatedSubjectId == (int?)subjectId && n.Type == type);
     }
+
+    public async Task<bool> DeleteByStudentIdAsync(int studentId)
+    {
+        var notifs = _context.Notifications.Where(n => n.StudentId == studentId);
+        _context.Notifications.RemoveRange(notifs);
+        await _context.SaveChangesAsync();
+        return true;
+    }
 }

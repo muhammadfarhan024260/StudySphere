@@ -31,6 +31,9 @@ public class IntelligenceService : IIntelligenceService
     public Task<bool> MarkNotificationReadAsync(int notificationId)
         => _notifications.MarkReadAsync(notificationId);
 
+    public Task<bool> ClearNotificationsAsync(int studentId)
+        => _notifications.DeleteByStudentIdAsync(studentId);
+
     public Task<IEnumerable<Recommendation>> GetRecommendationsForStudentAsync(int studentId)
         => _recommendations.GetForStudentAsync(studentId);
 

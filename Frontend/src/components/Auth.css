@@ -490,11 +490,33 @@
   .auth-split { flex-direction: column; }
   .auth-brand {
     flex: 0 0 auto;
-    padding: 36px 32px 28px;
-    min-height: 200px;
+    padding: 28px 28px 22px;
+    min-height: auto;
   }
-  .brand-name { font-size: 3rem; }
-  .auth-panel { padding: 36px 24px; }
+  .brand-logo { width: 56px; height: 56px; margin-bottom: 12px; }
+  .brand-name { font-size: 2.6rem; margin-bottom: 16px; }
+  .brand-rule { margin-bottom: 14px; }
+  .brand-tagline { font-size: 0.875rem; }
+  .brand-institution { display: none; }
+  .auth-panel { padding: 28px 24px; }
+  .auth-box h2 { font-size: 1.9rem; }
+}
+
+@media (max-width: 480px) {
+  .auth-brand {
+    padding: 20px 20px 16px;
+  }
+  .brand-logo { width: 44px; height: 44px; margin-bottom: 10px; }
+  .brand-name { font-size: 2rem; margin-bottom: 12px; }
+  .brand-rule { display: none; }
+  .brand-tagline { font-size: 0.82rem; line-height: 1.5; }
+  .auth-panel { padding: 20px 16px 28px; }
+  .auth-box { max-width: 100%; }
+  .auth-box h2 { font-size: 1.6rem; }
+  .auth-header { margin-bottom: 20px; }
+  .auth-form { gap: 14px; }
+  .auth-button { padding: 13px 20px; }
+  .step-indicator { margin-bottom: 20px; }
 }
 
 /* ── Dark theme overrides ────────────────────────────── */

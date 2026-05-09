@@ -47,6 +47,13 @@ public class IntelligenceController : ControllerBase
         return ok ? Ok(new { Message = "Marked as read." }) : NotFound();
     }
 
+    [HttpDelete("student/{studentId}/notifications")]
+    public async Task<IActionResult> ClearAllNotifications(int studentId)
+    {
+        var ok = await _service.ClearNotificationsAsync(studentId);
+        return ok ? Ok(new { success = true, message = "Notifications cleared." }) : BadRequest();
+    }
+
     [HttpGet("student/{studentId}/recommendations")]
     public async Task<IActionResult> GetStudentRecommendations(int studentId)
         => Ok(await _service.GetRecommendationsForStudentAsync(studentId));

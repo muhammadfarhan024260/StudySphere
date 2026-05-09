@@ -791,12 +791,37 @@
 }
 
 @media (max-width: 768px) {
-  .sd-summary-strip { grid-template-columns: 1fr; }
+  /* Summary strip: stay 3-col but compact */
+  .sd-summary-strip { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .sd-summary-item  { padding: 12px 8px; }
+  .sd-summary-val   { font-size: 1.4rem; }
+
+  /* Goals: hide progress bar, show status badge only */
   .sd-goal-track-wrap { display: none; }
-  .sd-weak-item { flex-direction: column; align-items: flex-start; gap: 10px; }
+  .sd-goal-row { gap: 10px; }
+
+  /* Weak areas */
+  .sd-weak-item { flex-direction: column; align-items: flex-start; gap: 8px; }
   .sd-weak-item-right { width: 100%; max-width: 100%; }
-  .sd-profile-grid { grid-template-columns: 1fr; }
+
+  /* Profile */
+  .sd-profile-grid { grid-template-columns: 1fr; gap: 14px; }
+  .sd-profile-name { font-size: 1.3rem; }
+
+  /* Analytics */
   .sd-analytics-stats { grid-template-columns: 1fr 1fr; }
+  .sd-analytics-val   { font-size: 2rem; }
+  .sd-analytics-stat  { padding: 16px 12px; }
+
+  /* Danger zone */
+  .sd-danger-row { flex-direction: column; align-items: flex-start; }
+  .sd-danger-trigger { width: 100%; text-align: center; }
+}
+
+@media (max-width: 480px) {
+  .sd-summary-val { font-size: 1.2rem; }
+  .sd-analytics-val { font-size: 1.6rem; }
+  .edit-form .form-row { grid-template-columns: 1fr; }
 }
 
 /* ── Danger Zone ─────────────────────────────────────── */

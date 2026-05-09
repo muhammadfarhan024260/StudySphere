@@ -35,6 +35,8 @@ export default function LogSessionForm({ onSuccess, onCancel }) {
   const studentId = localStorage.getItem('userId')
 
   const todayRaw = new Date(); todayRaw.setHours(0, 0, 0, 0)
+  // Use noon local time so UTC conversion never crosses a date boundary
+  const todayNoon = new Date(todayRaw.getFullYear(), todayRaw.getMonth(), todayRaw.getDate(), 12, 0, 0)
 
   const [error,   setError]   = useState('')
   const [success, setSuccess] = useState('')
@@ -43,7 +45,7 @@ export default function LogSessionForm({ onSuccess, onCancel }) {
     durationMinutes:   60,
     productivityScore: 7,
     notes:             '',
-    sessionDate:       todayRaw.toISOString(),
+    sessionDate:       todayNoon.toISOString(),
   })
 
   /* ── Calendar ────────────────────────────────────────── */
