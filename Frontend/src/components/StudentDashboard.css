@@ -3,11 +3,7 @@
    Shared base lives in Dashboard.css
    ===================================================== */
 
-/* ── Stat change colour variants ─────────────────────── */
-.stat-change--blue   { color: var(--violet);  background: var(--violet-light); }
-.stat-change--gold   { color: #b8920f;         background: var(--gold-light);  }
-.stat-change--purple { color: #7c3aed;         background: rgba(124,58,237,0.1); border-radius: 999px; }
-.stat-change--red    { color: var(--red);      background: var(--red-light); }
+/* ── Stat change colour variants moved to Dashboard.css ── */
 
 /* ── Productivity badge variants ─────────────────────── */
 .productivity-badge.prod-high {
