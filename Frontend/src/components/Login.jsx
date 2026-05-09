@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import api from '../services/api'
+import AuthNav from './AuthNav'
 import './Auth.css'
 
 export default function Login({ onLoginSuccess, onSwitchToSignup, onGoToHome, onForgotPassword }) {
@@ -56,18 +57,7 @@ export default function Login({ onLoginSuccess, onSwitchToSignup, onGoToHome, on
 
   return (
     <div className="auth-split">
-      <div className="auth-brand">
-        <div className="brand-inner">
-          <img src="/icon.png" alt="StudySphere" className="brand-logo" />
-          <h1 className="brand-name">Study<br/><span>Sphere</span></h1>
-          <div className="brand-rule"></div>
-          <p className="brand-tagline">Your academic journey,<br/><em>intelligently tracked.</em></p>
-        </div>
-        <div className="brand-institution">Bahria University · Academic Management</div>
-        {onGoToHome && (
-          <button className="brand-back-btn" onClick={onGoToHome}>← Back to home</button>
-        )}
-      </div>
+      <AuthNav onBack={onGoToHome} />
       <div className="auth-panel">
       <div className="auth-box">
         <div className="auth-header">

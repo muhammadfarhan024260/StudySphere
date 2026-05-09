@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import api from '../services/api'
 import OtpInput from './OtpInput'
+import AuthNav from './AuthNav'
 import './Auth.css'
 
 export default function ForgotPassword({ onBack, initialRole = 'student' }) {
@@ -72,16 +73,7 @@ export default function ForgotPassword({ onBack, initialRole = 'student' }) {
 
   return (
     <div className="auth-split">
-      <div className="auth-brand">
-        <div className="brand-inner">
-          <img src="/icon.png" alt="StudySphere" className="brand-logo" />
-          <h1 className="brand-name">Study<br /><span>Sphere</span></h1>
-          <div className="brand-rule"></div>
-          <p className="brand-tagline">Reset your password<br /><em>securely via email.</em></p>
-        </div>
-        <div className="brand-institution">Bahria University · Academic Management</div>
-        <button className="brand-back-btn" onClick={onBack}>← Back to login</button>
-      </div>
+      <AuthNav onBack={onBack} backLabel="← Back to login" />
 
       <div className="auth-panel">
         <div className="auth-box">

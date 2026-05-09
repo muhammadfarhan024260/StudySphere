@@ -3,6 +3,7 @@ import api from '../services/api'
 import { useDepartments, useSemesters } from '../hooks/useStudyData'
 import CustomSelect from './CustomSelect'
 import OtpInput from './OtpInput'
+import AuthNav from './AuthNav'
 import './Auth.css'
 
 
@@ -254,18 +255,7 @@ export default function Signup({ initialRole = 'student', onSignupSuccess, onSwi
 
   return (
     <div className="auth-split">
-      <div className="auth-brand">
-        <div className="brand-inner">
-          <img src="/icon.png" alt="StudySphere" className="brand-logo" />
-          <h1 className="brand-name">Study<br/><span>Sphere</span></h1>
-          <div className="brand-rule"></div>
-          <p className="brand-tagline">Begin your academic journey<br/><em>with intelligence.</em></p>
-        </div>
-        <div className="brand-institution">Bahria University · Academic Management</div>
-        {onGoToHome && (
-          <button className="brand-back-btn" onClick={onGoToHome}>← Back to home</button>
-        )}
-      </div>
+      <AuthNav onBack={onGoToHome} />
       <div className="auth-panel">
       <div className="auth-box">
         <div className="auth-header">
