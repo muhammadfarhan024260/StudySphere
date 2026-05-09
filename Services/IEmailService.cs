@@ -16,7 +16,7 @@ public class EmailService : IEmailService
     private readonly ILogger<EmailService> _logger;
     private readonly HttpClient _http;
 
-    private const string FromAddress    = "StudySphere <onboarding@resend.dev>";
+    private const string FromAddress    = "StudySphere <noreply@study-sphere.app>";
     private const string ResendEndpoint = "https://api.resend.com/emails";
 
     // GitHub raw URL — publicly accessible from Resend servers and any email client
