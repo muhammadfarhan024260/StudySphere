@@ -11,7 +11,6 @@ using StudySphere.Patterns.Singleton;
 using StudySphere.Patterns.Decorator;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Twilio;
 
 // Npgsql 6+ rejects DateTime with Kind=Utc for "timestamp without time zone" columns.
 // This switch restores the legacy behaviour so DateTime.UtcNow writes work unchanged.
@@ -44,12 +43,6 @@ if (!isValidFormat)
         $"2. .NET format: Host=hostname;Database=dbname;Username=user;Password=pass;SSL Mode=Require;\n" +
         $"Got: {connectionString.Substring(0, Math.Min(50, connectionString.Length))}...");
 }
-
-// Twilio initialization
-var twilioSid = Environment.GetEnvironmentVariable("Twilio__AccountSid") ?? builder.Configuration["Twilio:AccountSid"];
-var twilioAuth = Environment.GetEnvironmentVariable("Twilio__AuthToken") ?? builder.Configuration["Twilio:AuthToken"];
-if (!string.IsNullOrEmpty(twilioSid) && !string.IsNullOrEmpty(twilioAuth))
-    TwilioClient.Init(twilioSid, twilioAuth);
 
 // Firebase initialization — individual env vars to avoid base64/encoding corruption issues
 var firebaseClientEmail = Environment.GetEnvironmentVariable("Firebase__ClientEmail");

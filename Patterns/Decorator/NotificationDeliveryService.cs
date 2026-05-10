@@ -11,11 +11,13 @@ public class NotificationDeliveryService
 {
     private readonly IEmailService _emailService;
     private readonly IConfiguration _config;
+    private readonly IHttpClientFactory _httpFactory;
 
-    public NotificationDeliveryService(IEmailService emailService, IConfiguration config)
+    public NotificationDeliveryService(IEmailService emailService, IConfiguration config, IHttpClientFactory httpFactory)
     {
         _emailService = emailService;
-        _config = config;
+        _config       = config;
+        _httpFactory  = httpFactory;
     }
 
     /// <summary>
@@ -26,7 +28,7 @@ public class NotificationDeliveryService
         INotificationDelivery chain = new BaseNotificationDelivery();
 
         if (withEmail)    chain = new EmailNotificationDecorator(chain, _emailService);
-        if (withWhatsApp) chain = new SmsNotificationDecorator(chain, _config);
+        if (withWhatsApp) chain = new SmsNotificationDecorator(chain, _config, _httpFactory);
         if (withPush)     chain = new PushNotificationDecorator(chain);
 
         return chain;
