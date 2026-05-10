@@ -9,7 +9,7 @@ public class SmsNotificationDecorator : NotificationDecorator
     private readonly IConfiguration _config;
     private readonly HttpClient _http;
 
-    private const string GraphApiVersion = "v19.0";
+    private const string GraphApiVersion = "v25.0";
 
     public SmsNotificationDecorator(INotificationDelivery inner, IConfiguration config, IHttpClientFactory httpFactory)
         : base(inner)
@@ -45,10 +45,13 @@ public class SmsNotificationDecorator : NotificationDecorator
             var payload = JsonSerializer.Serialize(new
             {
                 messaging_product = "whatsapp",
-                recipient_type    = "individual",
                 to,
-                type = "text",
-                text = new { body = notification.Message }
+                type     = "template",
+                template = new
+                {
+                    name     = "hello_world",
+                    language = new { code = "en_US" }
+                }
             });
 
             var req = new HttpRequestMessage(
