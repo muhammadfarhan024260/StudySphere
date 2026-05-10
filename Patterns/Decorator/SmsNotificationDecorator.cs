@@ -39,8 +39,8 @@ public class SmsNotificationDecorator : NotificationDecorator
 
         try
         {
-            // Convert +92-300-1234567 → 923001234567 (E.164 digits only)
-            var to = student.Phone.Replace("-", "").Replace("+", "").Trim();
+            // Convert +92-300-1234567 → +923001234567 (E.164 format)
+            var to = student.Phone.Replace("-", "").Trim();
 
             var payload = JsonSerializer.Serialize(new
             {
