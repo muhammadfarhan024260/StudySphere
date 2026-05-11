@@ -49,8 +49,20 @@ public class SmsNotificationDecorator : NotificationDecorator
                 type     = "template",
                 template = new
                 {
-                    name     = "hello_world",
-                    language = new { code = "en_US" }
+                    name       = "studysphere_notification",
+                    language   = new { code = "en_US" },
+                    components = new[]
+                    {
+                        new
+                        {
+                            type       = "body",
+                            parameters = new[]
+                            {
+                                new { type = "text", text = student.Name },
+                                new { type = "text", text = notification.Message }
+                            }
+                        }
+                    }
                 }
             });
 
