@@ -50,7 +50,7 @@ public class SmsNotificationDecorator : NotificationDecorator
                 template = new
                 {
                     name       = "studysphere_notification",
-                    language   = new { code = "en_US" },
+                    language   = new { code = "en" },
                     components = new[]
                     {
                         new
