@@ -287,9 +287,7 @@ public class EmailService : IEmailService
                         border-radius:0 10px 10px 0;"">
               <p style=""margin:0;font-family:'Nunito','Segoe UI',Arial,sans-serif;
                          font-size:15px;font-weight:600;color:{ColText1};
-                         line-height:1.75;white-space:pre-wrap;"">
-                {message}
-              </p>
+                         line-height:1.75;"">{message}</p>
             </td>
           </tr>
         </table>
