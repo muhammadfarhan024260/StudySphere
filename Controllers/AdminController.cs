@@ -447,9 +447,14 @@ public class AdminController : ControllerBase
 
         try
         {
-            var students = (await _studentRepository.GetAllAsync()).Where(s => s.IsActive).ToList();
+            var allActive = (await _studentRepository.GetAllAsync()).Where(s => s.IsActive).ToList();
+
+            var students = (req.StudentIds != null && req.StudentIds.Count > 0)
+                ? allActive.Where(s => req.StudentIds.Contains(s.StudentId)).ToList()
+                : allActive;
+
             if (!students.Any())
-                return Ok(new { success = true, studentsNotified = 0, message = "No active students found." });
+                return Ok(new { success = true, studentsNotified = 0, message = "No matching active students found." });
 
             var chain = _deliveryService.BuildChain(req.Email, req.Whatsapp, req.Push);
             int notified = 0;
@@ -572,4 +577,5 @@ public class BroadcastRequest
     public bool Email { get; set; }
     public bool Whatsapp { get; set; }
     public bool Push { get; set; }
+    public List<int>? StudentIds { get; set; }
 }

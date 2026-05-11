@@ -378,10 +378,10 @@ export function useBroadcastNotification() {
   const [result, setResult] = useState(null)
   const [error, setError] = useState(null)
 
-  const broadcast = async ({ message, email, whatsapp, push }) => {
+  const broadcast = async ({ message, email, whatsapp, push, studentIds }) => {
     setLoading(true); setError(null); setResult(null)
     try {
-      const res = await api.post('/admin/notifications/broadcast', { message, email, whatsapp, push })
+      const res = await api.post('/admin/notifications/broadcast', { message, email, whatsapp, push, studentIds: studentIds?.length ? studentIds : null })
       setResult(res.data)
       return { success: true, data: res.data }
     } catch (err) {
