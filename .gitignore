@@ -29,3 +29,7 @@ logs/
 
 # Other
 ~$*.*
+
+# Claude Code
+.claude/settings.local.json
+AGENTS.md
