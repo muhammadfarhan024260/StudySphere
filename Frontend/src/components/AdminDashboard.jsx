@@ -58,6 +58,30 @@ export default function AdminDashboard() {
   const [newDept, setNewDept] = useState('')
   const [newSem,  setNewSem]  = useState('')
 
+  const [newAdmin, setNewAdmin] = useState({ name: '', email: '', password: '', confirmPassword: '' })
+  const [adminCreateStatus, setAdminCreateStatus] = useState({ loading: false, error: '', success: '' })
+
+  const handleCreateAdmin = async () => {
+    const { name, email, password, confirmPassword } = newAdmin
+    if (!name.trim() || !email.trim() || !password) {
+      setAdminCreateStatus({ loading: false, error: 'All fields are required.', success: '' }); return
+    }
+    if (password.length < 6) {
+      setAdminCreateStatus({ loading: false, error: 'Password must be at least 6 characters.', success: '' }); return
+    }
+    if (password !== confirmPassword) {
+      setAdminCreateStatus({ loading: false, error: 'Passwords do not match.', success: '' }); return
+    }
+    setAdminCreateStatus({ loading: true, error: '', success: '' })
+    try {
+      const res = await import('../services/api').then(m => m.default.post('/admin/create-admin', { name: name.trim(), email: email.trim(), password }))
+      setAdminCreateStatus({ loading: false, error: '', success: res.data.message || 'Admin account created.' })
+      setNewAdmin({ name: '', email: '', password: '', confirmPassword: '' })
+    } catch (err) {
+      setAdminCreateStatus({ loading: false, error: err.response?.data?.message || 'Failed to create admin.', success: '' })
+    }
+  }
+
   const { recommendations, loading: recommendationsLoading, refetch: refetchRecommendations } = useAllRecommendations()
 
   useEffect(() => {
@@ -657,6 +681,71 @@ export default function AdminDashboard() {
                 }
               </div>
             )}
+          </div>
+        </div>
+
+        {/* ── Create Admin Account ── */}
+        <div className="card wide" style={{ marginTop: '24px' }}>
+          <div className="card-header">
+            <h3>Create Admin Account</h3>
+            <span className="ad-pattern-tag">Admin Only</span>
+          </div>
+          <div className="card-body">
+            <p style={{ color: 'var(--text-2)', fontSize: '0.85rem', marginBottom: '20px' }}>
+              Create a new administrator account. Only existing admins can do this — admin self-registration is disabled.
+            </p>
+            <div className="ad-edit-form">
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Full Name</label>
+                  <input
+                    placeholder="e.g. Dr. Ahmed Khan"
+                    value={newAdmin.name}
+                    onChange={e => setNewAdmin(p => ({ ...p, name: e.target.value }))}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Email Address</label>
+                  <input
+                    type="email"
+                    placeholder="e.g. admin@bahria.edu.pk"
+                    value={newAdmin.email}
+                    onChange={e => setNewAdmin(p => ({ ...p, email: e.target.value }))}
+                  />
+                </div>
+              </div>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Password</label>
+                  <input
+                    type="password"
+                    placeholder="Min. 6 characters"
+                    value={newAdmin.password}
+                    onChange={e => setNewAdmin(p => ({ ...p, password: e.target.value }))}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Confirm Password</label>
+                  <input
+                    type="password"
+                    placeholder="Repeat password"
+                    value={newAdmin.confirmPassword}
+                    onChange={e => setNewAdmin(p => ({ ...p, confirmPassword: e.target.value }))}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {adminCreateStatus.error   && <div className="alert alert-error"   style={{ marginBottom: '14px' }}><span>!</span> {adminCreateStatus.error}</div>}
+            {adminCreateStatus.success && <div className="alert alert-success" style={{ marginBottom: '14px' }}><span>✓</span> {adminCreateStatus.success}</div>}
+
+            <button
+              className="btn-primary"
+              onClick={handleCreateAdmin}
+              disabled={adminCreateStatus.loading}
+            >
+              {adminCreateStatus.loading ? 'Creating…' : 'Create Admin Account'}
+            </button>
           </div>
         </div>
       </div>

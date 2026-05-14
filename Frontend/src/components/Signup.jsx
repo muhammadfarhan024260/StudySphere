@@ -8,10 +8,10 @@ import './Auth.css'
 
 
 
-export default function Signup({ initialRole = 'student', onSignupSuccess, onSwitchToLogin, onGoToHome }) {
+export default function Signup({ onSignupSuccess, onSwitchToLogin, onGoToHome }) {
   const { departments, loading: deptLoading } = useDepartments()
   const { semesters,   loading: semLoading  } = useSemesters()
-  const [role, setRole] = useState(initialRole)
+  const role = 'student'
   const [step, setStep] = useState('email') // 'email', 'otp', 'password'
   const [formData, setFormData] = useState({
     name: '',
@@ -29,9 +29,8 @@ export default function Signup({ initialRole = 'student', onSignupSuccess, onSwi
   const [otpResendCountdown, setOtpResendCountdown] = useState(0)
 
   useEffect(() => {
-    setRole(typeof initialRole === 'string' ? initialRole : 'student')
     setStep('email')
-  }, [initialRole])
+  }, [])
 
   // OTP Resend Countdown
   useEffect(() => {
@@ -261,51 +260,6 @@ export default function Signup({ initialRole = 'student', onSignupSuccess, onSwi
         <div className="auth-header">
           <h2>Create account</h2>
           <p className="auth-subtitle">Join the StudySphere management platform</p>
-        </div>
-
-        <div className="role-toggle">
-          <button 
-            type="button" 
-            className={`role-btn ${role === 'student' ? 'active' : ''}`}
-            onClick={() => {
-              setRole('student')
-              setStep('email')
-              setFormData({
-                name: '',
-                enrollmentNumber: '',
-                email: '',
-                password: '',
-                confirmPassword: '',
-                otp: '',
-                phone: '+92-',
-                department: '',
-                semester: '',
-              })
-            }}
-          >
-            Student
-          </button>
-          <button 
-            type="button" 
-            className={`role-btn ${role === 'admin' ? 'active' : ''}`}
-            onClick={() => {
-              setRole('admin')
-              setStep('email')
-              setFormData({
-                name: '',
-                enrollmentNumber: '',
-                email: '',
-                password: '',
-                confirmPassword: '',
-                otp: '',
-                phone: '+92-',
-                department: '',
-                semester: '',
-              })
-            }}
-          >
-            Administrator
-          </button>
         </div>
 
         {/* Step Indicator */}

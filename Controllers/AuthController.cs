@@ -29,6 +29,9 @@ public class AuthController : ControllerBase
             return BadRequest(ModelState);
         }
 
+        if (request.UserType?.ToLower() == "admin")
+            return StatusCode(403, new { success = false, message = "Admin accounts cannot be created through self-registration." });
+
         var (success, message) = await _authService.SendOtpAsync(request.Email, request.Name, request.UserType);
 
         if (success)
@@ -64,6 +67,9 @@ public class AuthController : ControllerBase
         {
             return BadRequest(ModelState);
         }
+
+        if (request.UserType?.ToLower() == "admin")
+            return StatusCode(403, new { success = false, message = "Admin accounts cannot be created through self-registration." });
 
         var (success, message, token, userId, userType) = await _authService.SignupAsync(
             request.Email,

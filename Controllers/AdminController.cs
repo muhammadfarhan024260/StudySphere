@@ -1,3 +1,4 @@
+using BCrypt.Net;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -495,6 +496,43 @@ public class AdminController : ControllerBase
         }
     }
 
+    // ── Admin management ──────────────────────────────────
+
+    [HttpPost("create-admin")]
+    public async Task<IActionResult> CreateAdmin([FromBody] CreateAdminRequest req)
+    {
+        if (string.IsNullOrWhiteSpace(req.Name) || string.IsNullOrWhiteSpace(req.Email) || string.IsNullOrWhiteSpace(req.Password))
+            return BadRequest(new { success = false, message = "Name, email and password are required." });
+
+        if (req.Password.Length < 6)
+            return BadRequest(new { success = false, message = "Password must be at least 6 characters." });
+
+        try
+        {
+            if (await _context.Admins.AnyAsync(a => a.Email == req.Email.Trim().ToLower()))
+                return BadRequest(new { success = false, message = "An admin with this email already exists." });
+
+            var admin = new StudySphere.Models.Admin
+            {
+                Name         = req.Name.Trim(),
+                Email        = req.Email.Trim().ToLower(),
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword(req.Password),
+                CreatedDate  = DateTime.UtcNow,
+                UpdatedAt    = DateTime.UtcNow,
+                IsActive     = true,
+            };
+
+            _context.Admins.Add(admin);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { success = true, message = $"Admin account created for {admin.Name}.", adminId = admin.AdminId });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { success = false, message = "Failed to create admin.", error = ex.Message });
+        }
+    }
+
     // ── Department management ──────────────────────────────
 
     [HttpGet("departments")]
@@ -569,6 +607,13 @@ public class AdminController : ControllerBase
 public class NameRequest
 {
     public string Name { get; set; } = string.Empty;
+}
+
+public class CreateAdminRequest
+{
+    public string Name     { get; set; } = string.Empty;
+    public string Email    { get; set; } = string.Empty;
+    public string Password { get; set; } = string.Empty;
 }
 
 public class BroadcastRequest
